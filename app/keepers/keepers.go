@@ -705,7 +705,8 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		AddRoute(concentratedliquiditytypes.RouterKey, concentratedliquidity.NewConcentratedLiquidityProposalHandler(*appKeepers.ConcentratedLiquidityKeeper)).
 		AddRoute(cosmwasmpooltypes.RouterKey, cosmwasmpool.NewCosmWasmPoolProposalHandler(*appKeepers.CosmwasmPoolKeeper)).
 		AddRoute(poolmanagertypes.RouterKey, poolmanager.NewPoolManagerProposalHandler(*appKeepers.PoolManagerKeeper)).
-		AddRoute(incentivestypes.RouterKey, incentiveskeeper.NewIncentivesProposalHandler(*appKeepers.IncentivesKeeper))
+		AddRoute(incentivestypes.RouterKey, incentiveskeeper.NewIncentivesProposalHandler(*appKeepers.IncentivesKeeper)).
+		AddRoute(oracletypes.RouterKey, oraclekeeper.NewOracleProposalHandler(*appKeepers.OracleKeeper))
 
 	govConfig := govtypes.DefaultConfig()
 	// Set the maximum metadata length for government-related configurations to 10,200, deviating from the default value of 256.
