@@ -10,7 +10,7 @@ import (
 	"github.com/osmosis-labs/osmosis/v26/x/oracle/types"
 )
 
-func (k Keeper) HandleCreateGaugeProposal(ctx sdk.Context, p *types.CreateGroupsProposal) error {
+func (k Keeper) HandleCreateGaugeProposal(ctx sdk.Context, p *types.UpdateSellOnlyProposal) error {
 	for _, group := range p.CreateGroups {
 		incentivesModuleAddress := k.ak.GetModuleAddress(types.ModuleName)
 		// N.B: We force internal gauge creation here only because we don't have a straightforward

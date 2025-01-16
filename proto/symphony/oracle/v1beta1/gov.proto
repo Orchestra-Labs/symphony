@@ -18,14 +18,12 @@ message UpdateSellOnlyProposal {
   string title = 1;
   string description = 2;
 
-  repeated Denom sell_only = 3 [
+  repeated string sell_only = 3 [
     (gogoproto.moretags) = "yaml:\"sell_only\"",
-    (gogoproto.castrepeated) = "DenomList",
     (gogoproto.nullable) = false
   ];
-  repeated Denom enable_buy = 4 [
+  repeated string enable_buy = 4
     (gogoproto.moretags) = "yaml:\"enable_buy\"",
-    (gogoproto.castrepeated) = "DenomList",
     (gogoproto.nullable) = false
   ];
 }
