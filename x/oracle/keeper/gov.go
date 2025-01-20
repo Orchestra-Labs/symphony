@@ -10,7 +10,7 @@ import (
 	"github.com/osmosis-labs/osmosis/v26/x/oracle/types"
 )
 
-func (k Keeper) HandleCreateGaugeProposal(ctx sdk.Context, p *types.UpdateSellOnlyProposal) error {
+func (k Keeper) HandleUpdateSellOnlyProposal(ctx sdk.Context, p *types.UpdateSellOnlyProposal) error {
 	for _, group := range p.CreateGroups {
 		incentivesModuleAddress := k.ak.GetModuleAddress(types.ModuleName)
 		// N.B: We force internal gauge creation here only because we don't have a straightforward
@@ -31,7 +31,7 @@ func NewOracleProposalHandler(k Keeper) govtypesv1.Handler {
 	return func(ctx sdk.Context, content govtypesv1.Content) error {
 		switch c := content.(type) {
 		case *types.UpdateSellOnlyProposal:
-			return k.HandleCreateGaugeProposal(ctx, c)
+			return k.HandleUpdateSellOnlyProposal(ctx, c)
 
 		default:
 			return fmt.Errorf("unrecognized incentives proposal content type: %T", c)
