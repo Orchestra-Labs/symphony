@@ -92,6 +92,26 @@ func (k Keeper) GetMelodyExchangeRate(ctx sdk.Context, denom string) (osmomath.D
 	return dp.Dec, nil
 }
 
+// GetSellOnly gets the sell only status of the denom asset from the store.
+func (k Keeper) GetSellOnly(ctx sdk.Context, denom string) bool {
+	store := ctx.KVStore(k.storeKey)
+	b := store.Get(types.GetSellOnlyKey(denom))
+	if b == nil {
+		return false
+	}
+
+	sellOnly := gogotypes.BoolValue{}
+	k.cdc.MustUnmarshal(b, &sellOnly)
+	return sellOnly.Value
+}
+
+// SetSellOnly sets the sell only status of the denom asset to the store.
+func (k Keeper) SetSellOnly(ctx sdk.Context, denom string, sellOnly bool) {
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshal(&gogotypes.BoolValue{Value: sellOnly})
+	store.Set(types.GetSellOnlyKey(denom), bz)
+}
+
 // SetMelodyExchangeRate sets the consensus exchange rate of Melody denominated in the denom asset to the store.
 func (k Keeper) SetMelodyExchangeRate(ctx sdk.Context, denom string, exchangeRate osmomath.Dec) {
 	store := ctx.KVStore(k.storeKey)

@@ -10,23 +10,18 @@ import (
 	"github.com/osmosis-labs/osmosis/v26/x/oracle/types"
 )
 
+// HandleUpdateSellOnlyProposal updates the sell only list and enable buy list based on the proposal content
 func (k Keeper) HandleUpdateSellOnlyProposal(ctx sdk.Context, p *types.UpdateSellOnlyProposal) error {
-	for _, group := range p.CreateGroups {
-		incentivesModuleAddress := k.ak.GetModuleAddress(types.ModuleName)
-		// N.B: We force internal gauge creation here only because we don't have a straightforward
-		// way to escrow the funds from the prop creator to be used at time of prop execution (or returned if the prop fails).
-		// Once we have a way to do this, we can change the CreateGroups proto to allow for coins and numEpochsPaidOver and
-		// then modify it here as well.
-		// Note: do not replace with CreateGroupAsIncentivesModuleAcc as that implementation does not attempt to sync weights
-		// We still want to sync the weights here to ensure that the pools are valid and have the associated volume at group creation time.
-		_, err := k.CreateGroup(ctx, sdk.Coins{}, types.PerpetualNumEpochsPaidOver, incentivesModuleAddress, group.PoolIds)
-		if err != nil {
-			return err
-		}
+	for _, denom := range p.SellOnly {
+		k.SetSellOnly(ctx, denom, true)
+	}
+	for _, denom := range p.EnableBuy {
+		k.SetSellOnly(ctx, denom, false)
 	}
 	return nil
 }
 
+// NewOracleProposalHandler creates a new oracle proposal handler which will handle gov proposals for oracle module.
 func NewOracleProposalHandler(k Keeper) govtypesv1.Handler {
 	return func(ctx sdk.Context, content govtypesv1.Content) error {
 		switch c := content.(type) {

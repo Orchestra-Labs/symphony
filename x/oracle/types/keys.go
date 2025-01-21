@@ -41,11 +41,17 @@ var (
 	AggregateExchangeRatePrevoteKey = []byte{0x04} // prefix for each key to a aggregate prevote
 	AggregateExchangeRateVoteKey    = []byte{0x05} // prefix for each key to a aggregate vote
 	TobinTaxKey                     = []byte{0x06} // prefix for each key to a tobin tax
+	SellOnlyKey                     = []byte{0x07} // prefix for each key to a sell only flag for given token
 )
 
 // GetExchangeRateKey - stored by *denom*
 func GetExchangeRateKey(denom string) []byte {
 	return append(ExchangeRateKey, []byte(denom)...)
+}
+
+// GetSellOnlyKey - stored by *denom*, per asset.
+func GetSellOnlyKey(denom string) []byte {
+	return append(SellOnlyKey, []byte(denom)...)
 }
 
 // GetFeederDelegationKey - stored by *Validator* address
