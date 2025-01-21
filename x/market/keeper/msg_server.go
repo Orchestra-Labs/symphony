@@ -62,6 +62,10 @@ func (k msgServer) handleSwapRequest(ctx sdk.Context,
 	trader sdk.AccAddress, receiver sdk.AccAddress,
 	offerCoin sdk.Coin, askDenom string,
 ) (*types.MsgSwapResponse, error) {
+	if k.OracleKeeper.GetSellOnly(ctx, askDenom) {
+		return nil, errorsmod.Wrapf(types.ErrSellOnlyDenom, "denom: %s", askDenom)
+	}
+
 	// Compute exchange rates between the ask and offer
 	swapDecCoin, spread, err := k.ComputeSwap(ctx, offerCoin, askDenom)
 	if err != nil {

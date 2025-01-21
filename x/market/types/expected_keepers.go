@@ -34,6 +34,7 @@ type OracleKeeper interface {
 	// GetMelodyExchangeRate returns the exchange rate of the given denom to melody. Returned value is in melody.
 	GetMelodyExchangeRate(ctx sdk.Context, denom string) (price osmomath.Dec, err error)
 	GetTobinTax(ctx sdk.Context, denom string) (tobinTax osmomath.Dec, err error)
+	GetSellOnly(ctx sdk.Context, denom string) bool
 
 	// only used for simulation
 	IterateNoteExchangeRates(ctx sdk.Context, handler func(denom string, exchangeRate osmomath.Dec) (stop bool))
