@@ -171,3 +171,40 @@ func (s *KeeperTestSuite) TestMsgServe_SwapNotEnoughInReservePool() {
 	s.Require().ErrorContains(err, fmt.Sprintf("Market vaults do not have enough coins to swap. Available amount: (main: %v)", appparams.MicroUnit/2))
 	s.Require().Nil(resp)
 }
+
+// TestMsgServe_SwapSellOnly tests the case when the user wants to swap a coin that is not available for buying.
+func (s *KeeperTestSuite) TestMsgServe_SwapSellOnly() {
+	msgServer := s.setupServer()
+
+	// Set Oracle Price
+	sdrPriceInMelody := osmomath.NewDecWithPrec(17, 1) // 1 SDR -> 1.7 Melody
+	s.App.OracleKeeper.SetMelodyExchangeRate(s.Ctx, assets.MicroSDRDenom, sdrPriceInMelody)
+
+	swapAmountInSDR := sdrPriceInMelody.MulInt64(rand.Int63()%1000 + 2).TruncateInt()
+	offerCoin := sdk.NewCoin(assets.MicroSDRDenom, swapAmountInSDR)
+
+	// Swapping SDR(stable) -> Melody
+	swapMsg := types.NewMsgSwap(Addr, offerCoin, appparams.BaseCoinUnit)
+
+	// Fund account
+	err := s.App.BankKeeper.SendCoinsFromModuleToModule(s.Ctx, FaucetAccountName, types.ModuleName, sdk.NewCoins(sdk.NewCoin(appparams.BaseCoinUnit, osmomath.NewInt(30000))))
+	s.Require().NoError(err)
+
+	// 1. Swap should succeed
+	resp, err := msgServer.Swap(sdk.WrapSDKContext(s.Ctx), swapMsg)
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
+
+	// 2. Swap should fail
+	s.App.OracleKeeper.SetSellOnly(s.Ctx, appparams.BaseCoinUnit, true)
+	resp, err = msgServer.Swap(sdk.WrapSDKContext(s.Ctx), swapMsg)
+	s.Require().Error(err)
+	s.Require().ErrorAs(err, &types.ErrSellOnlyDenom)
+	s.Require().Nil(resp)
+
+	// 3. Swap should succeed
+	s.App.OracleKeeper.SetSellOnly(s.Ctx, appparams.BaseCoinUnit, false)
+	resp, err = msgServer.Swap(sdk.WrapSDKContext(s.Ctx), swapMsg)
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
+}
