@@ -11,12 +11,14 @@ import (
 var (
 	_ sdk.Msg = &MsgSwap{}
 	_ sdk.Msg = &MsgSwapSend{}
+	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 // market message types
 const (
-	TypeMsgSwap     = "swap"
-	TypeMsgSwapSend = "swap_send"
+	TypeMsgSwap         = "swap"
+	TypeMsgSwapSend     = "swap_send"
+	TypeMsgUpdateParams = "update_params"
 )
 
 //--------------------------------------------------------
@@ -119,6 +121,48 @@ func (msg MsgSwapSend) ValidateBasic() error {
 
 	if msg.OfferCoin.Denom == msg.AskDenom {
 		return errorsmod.Wrap(ErrRecursiveSwap, msg.AskDenom)
+	}
+
+	return nil
+}
+
+//--------------------------------------------------------
+//--------------------------------------------------------
+
+// NewMsgUpdateParams creates a MsgUpdateParams instance
+func NewMsgUpdateParams(authorityAddr sdk.AccAddress, taxReceiverAddr sdk.AccAddress) *MsgUpdateParams {
+	return &MsgUpdateParams{
+		Authority:   authorityAddr.String(),
+		TaxReceiver: taxReceiverAddr.String(),
+	}
+}
+
+// Route Implements Msg
+func (msg MsgUpdateParams) Route() string { return RouterKey }
+
+// Type implements sdk.Msg
+func (msg MsgUpdateParams) Type() string { return TypeMsgSwap }
+
+// GetSignBytes Implements Msg
+func (msg MsgUpdateParams) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
+}
+
+// GetSigners Implements Msg
+func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	authorityAddr, err := sdk.AccAddressFromBech32(msg.Authority)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{authorityAddr}
+}
+
+// ValidateBasic Implements Msg
+func (msg MsgUpdateParams) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.TaxReceiver)
+	if err != nil {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid TaxReceiver address (%s)", err)
 	}
 
 	return nil

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/osmosis-labs/osmosis/v26/x/market/types"
 )
@@ -79,4 +80,37 @@ func (k msgServer) handleSwapRequest(ctx sdk.Context,
 		),
 	})
 	return resp, nil
+}
+
+func (k msgServer) UpdateParams(goCtx context.Context, msg *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	fromAddr, err := sdk.AccAddressFromBech32(msg.Authority)
+	if err != nil {
+		return nil, err
+	}
+
+	taxReceiverAddr, err := sdk.AccAddressFromBech32(msg.TaxReceiver)
+	if err != nil {
+		return nil, err
+	}
+
+	params := k.GetParams(ctx)
+
+	if params.Authority != fromAddr.String() {
+		return nil, fmt.Errorf("only authority address can update module params")
+	}
+
+	previousTaxReceiver := params.TaxReceiver
+	params.TaxReceiver = taxReceiverAddr.String()
+	k.SetParams(ctx, params)
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			types.EventUpdateParams,
+			sdk.NewAttribute(types.AttributePreviousTaxReceiver, previousTaxReceiver),
+			sdk.NewAttribute(types.AttributeNewTaxReceiver, params.TaxReceiver),
+		),
+	})
+	return &types.MsgUpdateParamsResponse{}, nil
 }
