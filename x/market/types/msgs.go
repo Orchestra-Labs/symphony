@@ -141,7 +141,7 @@ func NewMsgUpdateParams(authorityAddr sdk.AccAddress, taxReceiverAddr sdk.AccAdd
 func (msg MsgUpdateParams) Route() string { return RouterKey }
 
 // Type implements sdk.Msg
-func (msg MsgUpdateParams) Type() string { return TypeMsgSwap }
+func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
 
 // GetSignBytes Implements Msg
 func (msg MsgUpdateParams) GetSignBytes() []byte {
