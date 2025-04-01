@@ -107,6 +107,7 @@ import (
 
 	"github.com/osmosis-labs/osmosis/v26/app/keepers"
 	"github.com/osmosis-labs/osmosis/v26/app/upgrades"
+	v10 "github.com/osmosis-labs/osmosis/v26/app/upgrades/v10"
 	_ "github.com/osmosis-labs/osmosis/v26/client/docs/statik"
 	"github.com/osmosis-labs/osmosis/v26/x/mint"
 
@@ -149,7 +150,7 @@ var (
 
 	_ runtime.AppI = (*SymphonyApp)(nil)
 
-	Upgrades = []upgrades.Upgrade{}
+	Upgrades = []upgrades.Upgrade{v10.Upgrade}
 	Forks    = []upgrades.Fork{}
 
 	// rpcAddressConfigName is the name of the config key that holds the RPC address.
