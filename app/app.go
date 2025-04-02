@@ -265,6 +265,7 @@ func NewSymphonyApp(
 		skipUpgradeHeights,
 		homePath,
 	)
+	logger.Warn("Start setupUpgradeStoreLoaders")
 	app.setupUpgradeStoreLoaders()
 	app.InitNormalKeepers(
 		appCodec,
@@ -356,6 +357,7 @@ func NewSymphonyApp(
 		},
 	)
 
+	logger.Warn("Start setupUpgradeHandlers")
 	app.setupUpgradeHandlers()
 
 	app.sm = module.NewSimulationManager(
