@@ -520,6 +520,19 @@ func NewSymphonyApp(
 		}
 	}
 
+	//if app.CommitMultiStore().LastCommitID().Version > 0 {
+	//upgradePlan := upgradetypes.Plan{
+	//	Name:   v10.UpgradeName,
+	//	Height: app.CommitMultiStore().LastCommitID().Version + 1,
+	//}
+	//ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{
+	//	Height: upgradePlan.Height,
+	//})
+	//err = app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//}
 	return app
 }
 

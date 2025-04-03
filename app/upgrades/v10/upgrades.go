@@ -19,17 +19,17 @@ func CreateUpgradeHandler(
 ) upgradetypes.UpgradeHandler {
 	return func(ctx context.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		ctx1 := sdk.UnwrapSDKContext(ctx)
-		fromVM1 := make(map[string]uint64)
-		for moduleName := range mm.Modules {
-			fromVM1[moduleName] = 1
-		}
+		//fromVM1 := make(map[string]uint64)
+		//for moduleName := range mm.Modules {
+		//	fromVM1[moduleName] = 1
+		//}
 
 		logger := log.NewNopLogger()
 		logger.Warn("Run migrations")
 		ctx1.Logger().Warn("Run migrations")
 		// Run migrations before applying any other state changes.
 		// NOTE: DO NOT PUT ANY STATE CHANGES BEFORE RunMigrations().
-		newVM, err := mm.RunMigrations(ctx1, configurator, fromVM1)
+		newVM, err := mm.RunMigrations(ctx1, configurator, fromVM)
 		if err != nil {
 			ctx1.Logger().Error("❌ Migration failed:", "error", err)
 			return nil, err
