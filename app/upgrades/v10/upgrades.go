@@ -5,9 +5,9 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/osmosis-labs/osmosis/v26/app/keepers"
-	"github.com/osmosis-labs/osmosis/v26/app/upgrades"
-	txfeestypes "github.com/osmosis-labs/osmosis/v26/x/txfees/types"
+	"github.com/osmosis-labs/osmosis/v27/app/keepers"
+	"github.com/osmosis-labs/osmosis/v27/app/upgrades"
+	txfeestypes "github.com/osmosis-labs/osmosis/v27/x/txfees/types"
 )
 
 func CreateUpgradeHandler(

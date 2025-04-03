@@ -2,7 +2,7 @@ package v10
 
 import (
 	store "cosmossdk.io/store/types"
-	"github.com/osmosis-labs/osmosis/v26/app/upgrades"
+	"github.com/osmosis-labs/osmosis/v27/app/upgrades"
 )
 
 const UpgradeName = "v10"
