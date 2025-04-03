@@ -10,8 +10,5 @@ const UpgradeName = "v10"
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateUpgradeHandler,
-	StoreUpgrades:        store.StoreUpgrades{
-		//Added:   []string{},
-		//Deleted: []string{},
-	},
+	StoreUpgrades:        store.StoreUpgrades{},
 }

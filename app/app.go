@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	storetypes "cosmossdk.io/store/types"
-	"encoding/json"
 	"fmt"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
@@ -265,7 +264,6 @@ func NewSymphonyApp(
 		skipUpgradeHeights,
 		homePath,
 	)
-	logger.Warn("Start setupUpgradeStoreLoaders")
 	app.setupUpgradeStoreLoaders()
 	app.InitNormalKeepers(
 		appCodec,
@@ -357,7 +355,6 @@ func NewSymphonyApp(
 		},
 	)
 
-	logger.Warn("Start setupUpgradeHandlers")
 	app.setupUpgradeHandlers()
 
 	app.sm = module.NewSimulationManager(
@@ -520,7 +517,11 @@ func NewSymphonyApp(
 		}
 	}
 
-	//if app.CommitMultiStore().LastCommitID().Version > 0 {
+	// UPGRADE
+	// To avoid proposal uncomment code below to create plan
+	// !!! do not uncomment for production !!!
+	//
+	//
 	//upgradePlan := upgradetypes.Plan{
 	//	Name:   v10.UpgradeName,
 	//	Height: app.CommitMultiStore().LastCommitID().Version + 1,
@@ -532,7 +533,7 @@ func NewSymphonyApp(
 	//if err != nil {
 	//	panic(err)
 	//}
-	//}
+
 	return app
 }
 
@@ -999,27 +1000,11 @@ func (app *SymphonyApp) ChainID() string {
 
 // configure store loader that checks if version == upgradeHeight and applies store upgrades
 func (app *SymphonyApp) setupUpgradeStoreLoaders() {
-	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk() // TODO: upgrade-info.json not found, why?
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
 		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
 	}
 
-	upgradeInfo.Name = "v10"
-	upgradeInfo.Height = app.CommitMultiStore().LastCommitID().Version + 1
-	upgradeInfoPath, err := app.UpgradeKeeper.GetUpgradeInfoPath()
-	if err != nil {
-		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
-	}
-
-	marshalled, err := json.Marshal(upgradeInfo)
-	if err != nil {
-		panic(err)
-	}
-
-	err = os.WriteFile(upgradeInfoPath, marshalled, 0777)
-	if err != nil {
-		panic(err)
-	}
 	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		return
 	}
@@ -1031,7 +1016,7 @@ func (app *SymphonyApp) setupUpgradeStoreLoaders() {
 	}
 
 	for _, upgrade := range Upgrades {
-		if upgradeInfo.Name == upgrade.UpgradeName { // TODO: comment this conditional to avoid upgrade-info.json
+		if upgradeInfo.Name == upgrade.UpgradeName {
 			storeUpgrades := upgrade.StoreUpgrades
 			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 		}
