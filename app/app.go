@@ -107,6 +107,7 @@ import (
 
 	"github.com/osmosis-labs/osmosis/v27/app/keepers"
 	"github.com/osmosis-labs/osmosis/v27/app/upgrades"
+	v27 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v27"
 	_ "github.com/osmosis-labs/osmosis/v27/client/docs/statik"
 	"github.com/osmosis-labs/osmosis/v27/x/mint"
 
@@ -149,7 +150,7 @@ var (
 
 	_ runtime.AppI = (*SymphonyApp)(nil)
 
-	Upgrades = []upgrades.Upgrade{}
+	Upgrades = []upgrades.Upgrade{v27.Upgrade}
 	Forks    = []upgrades.Fork{}
 
 	// rpcAddressConfigName is the name of the config key that holds the RPC address.
@@ -515,6 +516,23 @@ func NewSymphonyApp(
 			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
 	}
+
+	// UPGRADE
+	// To avoid proposal uncomment code below to create plan
+	// !!! do not uncomment for production !!!
+	//
+	//
+	//upgradePlan := upgradetypes.Plan{
+	//	Name:   v10.UpgradeName,
+	//	Height: app.CommitMultiStore().LastCommitID().Version + 1,
+	//}
+	//ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{
+	//	Height: upgradePlan.Height,
+	//})
+	//err = app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan)
+	//if err != nil {
+	//	panic(err)
+	//}
 
 	return app
 }
