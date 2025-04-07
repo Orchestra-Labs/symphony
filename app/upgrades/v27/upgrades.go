@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/osmosis-labs/osmosis/v27/app/keepers"
 	"github.com/osmosis-labs/osmosis/v27/app/upgrades"
+	stablestakingincentvicestypes "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives/types"
 	txfeestypes "github.com/osmosis-labs/osmosis/v27/x/txfees/types"
 )
 
@@ -28,10 +29,15 @@ func CreateUpgradeHandler(
 			return nil, err
 		}
 
-		ctx.Logger().Warn("Run init genesis for txfees module")
+		ctx.Logger().Warn("Run init genesis for TxFees module")
 		initGenParams := txfeestypes.DefaultGenesis()
 		keepers.TxFeesKeeper.InitGenesis(ctx, *initGenParams)
 
+		ctx.Logger().Warn("Run init genesis for StableStakingIncentvice module")
+		initGenStableParams := stablestakingincentvicestypes.NewGenesisState(stablestakingincentvicestypes.NewParams(DistributionContractAddress))
+		keepers.StableStakingIncentivesKeeper.InitGenesis(ctx, initGenStableParams)
+
+		ctx.Logger().Warn("Migration completed!")
 		return newVM, nil
 	}
 }
