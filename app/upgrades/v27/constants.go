@@ -6,7 +6,7 @@ import (
 )
 
 const UpgradeName = "v27"
-const DistributionContractAddress = ""
+const DistributionContractAddress = "symphony16jzpxp0e8550c9aht6q9svcux30vtyyyyxv5w2l2djjra46580wsq5hxxq"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
