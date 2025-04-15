@@ -49,12 +49,11 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/ibc-go/modules/capability"
-	ibcwasmkeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
-	ibcwasmtypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
+	ibcwasmkeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/v10/keeper"
+	ibcwasmtypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/v10/types"
 
-	"github.com/cosmos/ibc-go/v8/modules/apps/transfer"
-	ibc "github.com/cosmos/ibc-go/v8/modules/core"
+	"github.com/cosmos/ibc-go/v10/modules/apps/transfer"
+	ibc "github.com/cosmos/ibc-go/v10/modules/core"
 
 	markettypes "github.com/osmosis-labs/osmosis/v27/x/market/types"
 	treasurytypes "github.com/osmosis-labs/osmosis/v27/x/treasury/types"
@@ -293,7 +292,7 @@ func NewSymphonyApp(
 	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 
 	// NOTE: All module / keeper changes should happen prior to this module.NewManager line being called.
-	// However in the event any changes do need to happen after this call, ensure that that keeper
+	// However, in the event any changes do need to happen after this call, ensure that that keeper
 	// is only passed in its keeper form (not de-ref'd anywhere)
 	//
 	// Generally NewAppModule will require the keeper that module defines to be passed in as an exact struct,
@@ -304,7 +303,7 @@ func NewSymphonyApp(
 	app.mm = module.NewManager(appModules(app, encodingConfig, skipGenesisInvariants)...)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
-	// there is nothing left over in the validator fee pool, so as to keep the
+	// there is nothing left over in the validator fee pool, as to keep the
 	// CanWithdrawInvariant invariant.
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
@@ -360,7 +359,6 @@ func NewSymphonyApp(
 	app.sm = module.NewSimulationManager(
 		auth.NewAppModule(appCodec, *app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper, app.GetSubspace(banktypes.ModuleName)),
-		capability.NewAppModule(appCodec, *app.CapabilityKeeper, false),
 		authzmodule.NewAppModule(appCodec, *app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(govtypes.ModuleName)),
 		mint.NewAppModule(appCodec, *app.MintKeeper, app.AccountKeeper, app.BankKeeper),
@@ -511,10 +509,6 @@ func NewSymphonyApp(
 		if err := app.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
 			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
-
-		if err := ibcwasmkeeper.InitializePinnedCodes(ctx); err != nil {
-			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
-		}
 	}
 
 	return app
@@ -537,7 +531,7 @@ func getReflectionService() *runtimeservices.ReflectionService {
 
 // InitSymphonyAppForTestnet is broken down into two sections:
 // Required Changes: Changes that, if not made, will cause the testnet to halt or panic
-// Optional Changes: Changes to customize the testnet to one's liking (lower vote times, fund accounts, etc)
+// Optional Changes: Changes to customize the testnet to one's liking (lower vote times, fund accounts)
 func InitSymphonyAppForTestnet(app *SymphonyApp, newValAddr bytes.HexBytes, newValPubKey crypto.PubKey, newOperatorAddress, upgradeToTrigger string) *SymphonyApp {
 	//
 	// Required Changes:
@@ -817,7 +811,7 @@ func InitSymphonyAppForTestnet(app *SymphonyApp, newValAddr bytes.HexBytes, newV
 
 // CheckTx will check the transaction with the provided checkTxHandler. We override the default
 // handler so that we can verify bid transactions before they are inserted into the mempool.
-// With the BlockSDK CheckTx, we can verify the bid transaction and all of the bundled transactions
+// With the BlockSDK CheckTx, we can verify the bid transaction and all the bundled transactions
 // before inserting the bid transaction into the mempool.
 func (app *SymphonyApp) CheckTx(req *abci.RequestCheckTx) (*abci.ResponseCheckTx, error) {
 	return app.checkTxHandler(req)
@@ -916,7 +910,7 @@ func (app *SymphonyApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
-// InterfaceRegistry returns Symphony' InterfaceRegistry.
+// InterfaceRegistry returns Symphony's InterfaceRegistry.
 func (app *SymphonyApp) InterfaceRegistry() types.InterfaceRegistry {
 	return app.interfaceRegistry
 }
