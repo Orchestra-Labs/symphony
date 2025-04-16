@@ -47,7 +47,7 @@ type BlockSDKAnteHandlerParams struct {
 // If you make a change here, make sure to make the same change in `ante_no_seq.go`.
 func NewAnteHandler(
 	appOpts servertypes.AppOptions,
-	wasmConfig wasmtypes.WasmConfig,
+	nodeConfig wasmtypes.NodeConfig,
 	txCounterStoreKey corestoretypes.KVStoreService,
 	accountKeeper ante.AccountKeeper,
 	smartAccountKeeper *smartaccountkeeper.Keeper,
@@ -107,7 +107,7 @@ func NewAnteHandler(
 
 	return sdk.ChainAnteDecorators(
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		wasmkeeper.NewLimitSimulationGasDecorator(wasmConfig.SimulationGasLimit),
+		wasmkeeper.NewLimitSimulationGasDecorator(nodeConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(txCounterStoreKey),
 		ante.NewExtensionOptionsDecorator(nil),
 		v9.MsgFilterDecorator{},

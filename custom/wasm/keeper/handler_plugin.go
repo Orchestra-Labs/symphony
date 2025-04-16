@@ -28,7 +28,7 @@ type MessageRouter interface {
 	Handler(msg sdk.Msg) baseapp.MsgServiceHandler
 }
 
-// SDKMessageHandler can handles messages that can be encoded into sdk.Message types and routed.
+// SDKMessageHandler can handle messages that can be encoded into sdk.Message types and routed.
 type SDKMessageHandler struct {
 	router         MessageRouter
 	encoders       msgEncoder
@@ -43,7 +43,6 @@ func NewMessageHandler(
 	router MessageRouter,
 	ics4Wrapper wasmtypes.ICS4Wrapper,
 	channelKeeper wasmtypes.ChannelKeeper,
-	capabilityKeeper wasmtypes.CapabilityKeeper,
 	wasmKeeper wasmtypes.IBCContractKeeper,
 	bankKeeper bankKeeper.Keeper,
 	treasuryKeeper ante.TreasuryKeeper,
@@ -58,7 +57,7 @@ func NewMessageHandler(
 	}
 	return wasmkeeper.NewMessageHandlerChain(
 		NewSDKMessageHandler(router, encoders, treasuryKeeper, accountKeeper, bankKeeper),
-		wasmkeeper.NewIBCRawPacketHandler(ics4Wrapper, wasmKeeper, channelKeeper, capabilityKeeper),
+		wasmkeeper.NewIBCRawPacketHandler(ics4Wrapper, wasmKeeper, channelKeeper),
 		wasmkeeper.NewBurnCoinMessageHandler(bankKeeper),
 	)
 }

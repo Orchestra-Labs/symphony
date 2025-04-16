@@ -248,12 +248,14 @@ func NewSymphonyApp(
 		SupportedCapabilities: []string{"iterator", "stargate", "abort"},
 		ContractDebugMode:     false,
 	}
-	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
+
+	nodeConfig, err := wasm.ReadNodeConfig(appOpts)
 	// Uncomment this for debugging contracts. In the future this could be made into a param passed by the tests
 	// wasmConfig.ContractDebugMode = true
 	if err != nil {
 		panic(fmt.Sprintf("error while reading wasm config: %s", err))
 	}
+
 	app.InitSpecialKeepers(
 		appCodec,
 		bApp,
@@ -271,7 +273,7 @@ func NewSymphonyApp(
 		maccPerms,
 		dataDir,
 		wasmDir,
-		wasmConfig,
+		nodeConfig,
 		wasmOpts,
 		app.BlockedAddrs(),
 		ibcWasmConfig,
@@ -402,7 +404,7 @@ func NewSymphonyApp(
 
 	anteHandler := NewAnteHandler(
 		appOpts,
-		wasmConfig,
+		nodeConfig,
 		runtime.NewKVStoreService(app.GetKey(wasmtypes.StoreKey)),
 		app.AccountKeeper,
 		app.SmartAccountKeeper,

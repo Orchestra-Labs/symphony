@@ -651,7 +651,7 @@ func initAppConfig() (string, interface{}) {
 
 		SymphonyMempoolConfig SymphonyMempoolConfig `mapstructure:"symphony-mempool"`
 
-		WasmConfig wasmtypes.WasmConfig `mapstructure:"wasm"`
+		NodeConfig wasmtypes.NodeConfig `mapstructure:"wasm"`
 	}
 
 	DefaultSymphonyMempoolConfig := SymphonyMempoolConfig{
@@ -671,9 +671,9 @@ func initAppConfig() (string, interface{}) {
 
 	memCfg := DefaultSymphonyMempoolConfig
 
-	wasmCfg := wasmtypes.DefaultWasmConfig()
+	wasmCfg := wasmtypes.DefaultNodeConfig()
 
-	SymphonyAppCfg := CustomAppConfig{Config: *srvCfg, SymphonyMempoolConfig: memCfg, WasmConfig: wasmCfg}
+	SymphonyAppCfg := CustomAppConfig{Config: *srvCfg, SymphonyMempoolConfig: memCfg, NodeConfig: wasmCfg}
 
 	SymphonyAppTemplate := serverconfig.DefaultConfigTemplate + `
 ###############################################################################

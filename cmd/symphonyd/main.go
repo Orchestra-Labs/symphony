@@ -5,7 +5,7 @@ import (
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	app "github.com/osmosis-labs/osmosis/v27/app"
+	"github.com/osmosis-labs/osmosis/v27/app"
 	"github.com/osmosis-labs/osmosis/v27/app/params"
 	"github.com/osmosis-labs/osmosis/v27/cmd/symphonyd/cmd"
 )
