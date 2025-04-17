@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/osmosis-labs/osmosis/osmomath"
 
 	"gopkg.in/yaml.v2"
@@ -13,10 +14,14 @@ import (
 
 // Parameter keys
 var (
-	// The period required to recover BasePool
+	// KeyPoolRecoveryPeriod the period required to recover BasePool
 	KeyPoolRecoveryPeriod = []byte("PoolRecoveryPeriod")
-	// Min spread
+	// KeyMinStabilitySpread min spread
 	KeyMinStabilitySpread = []byte("MinStabilitySpread")
+	// KeyTaxReceiver Receiver
+	KeyTaxReceiver = []byte("TaxReceiver")
+	// KeyAuthority an address witch can update module params
+	KeyAuthority = []byte("Authority")
 )
 
 // Default parameter values
@@ -50,6 +55,8 @@ func (p Params) String() string {
 func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 	return paramstypes.ParamSetPairs{
 		paramstypes.NewParamSetPair(KeyMinStabilitySpread, &p.MinStabilitySpread, validateMinStabilitySpread),
+		paramstypes.NewParamSetPair(KeyTaxReceiver, &p.TaxReceiver, validateAccAddress),
+		paramstypes.NewParamSetPair(KeyAuthority, &p.Authority, validateAccAddress),
 	}
 }
 
@@ -87,6 +94,23 @@ func validateMinStabilitySpread(i interface{}) error {
 
 	if v.GT(osmomath.OneDec()) {
 		return fmt.Errorf("min spread is too large: %s", v)
+	}
+
+	return nil
+}
+
+func validateAccAddress(i interface{}) error {
+	v, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	if v != "" {
+		_, err := sdk.AccAddressFromBech32(v)
+		if err != nil {
+			return fmt.Errorf("invalid address at %dth", i)
+		}
+	} else {
+		return fmt.Errorf("TaxReceiver or Authority address cannot be empty")
 	}
 
 	return nil
