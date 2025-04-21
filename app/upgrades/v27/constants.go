@@ -5,7 +5,7 @@ import (
 	"github.com/osmosis-labs/osmosis/v27/app/upgrades"
 )
 
-const UpgradeName = "v27"
+const UpgradeName = "v5testnet"
 const DistributionContractAddress = "symphony16jzpxp0e8550c9aht6q9svcux30vtyyyyxv5w2l2djjra46580wsq5hxxq"
 
 var Upgrade = upgrades.Upgrade{
