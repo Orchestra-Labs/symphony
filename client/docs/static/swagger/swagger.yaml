@@ -14222,7 +14222,7 @@ paths:
                         }
       tags:
         - Query
-  /osmosis/tokenfactory/v1beta1/denoms/{denom}/authority_metadata:
+  /symphony/tokenfactory/v1beta1/denoms/{denom}/authority_metadata:
     get:
       summary: |-
         DenomAuthorityMetadata defines a gRPC query method for fetching
@@ -14282,7 +14282,7 @@ paths:
           type: string
       tags:
         - Query
-  /osmosis/tokenfactory/v1beta1/denoms/{denom}/before_send_hook:
+  /symphony/tokenfactory/v1beta1/denoms/{denom}/before_send_hook:
     get:
       summary: |-
         BeforeSendHookAddress defines a gRPC query method for
@@ -14330,7 +14330,7 @@ paths:
           type: string
       tags:
         - Query
-  /osmosis/tokenfactory/v1beta1/denoms_from_creator/{creator}:
+  /symphony/tokenfactory/v1beta1/denoms_from_creator/{creator}:
     get:
       summary: |-
         DenomsFromCreator defines a gRPC query method for fetching all
@@ -14380,7 +14380,7 @@ paths:
           type: string
       tags:
         - Query
-  /osmosis/tokenfactory/v1beta1/params:
+  /symphony/tokenfactory/v1beta1/params:
     get:
       summary: >-
         Params defines a gRPC query method that returns the tokenfactory
