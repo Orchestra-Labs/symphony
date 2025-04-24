@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -17,7 +16,6 @@ import (
 func GetTxCmd() *cobra.Command {
 	cmd := osmocli.TxIndexCmd(types.ModuleName)
 	osmocli.AddTxCmd(cmd, NewSwapCmd)
-	osmocli.AddTxCmd(cmd, CmdUpdateParams)
 
 	return cmd
 }
@@ -70,42 +68,6 @@ func NewSwapMsg(clientCtx client.Context, args []string, fs *flag.FlagSet) (sdk.
 			return nil, err
 		}
 		msg = innerMsg
-	}
-	return msg, nil
-}
-
-// CmdUpdateParams will create and send a MsgUpdateParams
-func CmdUpdateParams() (*osmocli.TxCliDesc, *types.MsgUpdateParams) {
-	return &osmocli.TxCliDesc{
-		Use:     "update-params [tax_receiver]",
-		NumArgs: 1,
-		Short:   "Update module parameters",
-		Long: strings.TrimSpace(`
-   Update module parameters
-
-   $ symphonyd tx market update-params symphonyaddrr...
-   `),
-		ParseAndBuildMsg: NewUpdateParamsMsg,
-	}, &types.MsgUpdateParams{}
-}
-
-func NewUpdateParamsMsg(clientCtx client.Context, args []string, flags *flag.FlagSet) (sdk.Msg, error) {
-	fromAddress := clientCtx.GetFromAddress()
-
-	var msg sdk.Msg
-	if len(args) == 1 {
-		taxReceiverAddr, err := sdk.AccAddressFromBech32(args[0])
-		if err != nil {
-			return nil, err
-		}
-
-		innerMsg := types.NewMsgUpdateParams(fromAddress, taxReceiverAddr)
-		if err = innerMsg.ValidateBasic(); err != nil {
-			return nil, err
-		}
-		msg = innerMsg
-	} else {
-		return nil, fmt.Errorf("tax_receiver not found")
 	}
 	return msg, nil
 }

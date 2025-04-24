@@ -16,9 +16,6 @@ service Msg {
   // SwapSend defines a method for swapping and sending coin from a account to
   // other account.
   rpc SwapSend(MsgSwapSend) returns (MsgSwapSendResponse);
-
-  // UpdateParams defines a method for update parameters on the module
-  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
 // MsgSwap represents a message to swap coin to another denom.
@@ -74,15 +71,3 @@ message MsgSwapSendResponse {
     (gogoproto.nullable) = false
   ];
 }
-
-// MsgSwap represents a message to update parameter on module
-message MsgUpdateParams {
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-  option (cosmos.msg.v1.signer) = "authority";
-
-  string authority = 1 [ (gogoproto.moretags) = "yaml:\"authority\"" ];
-  string tax_receiver = 2 [ (gogoproto.moretags) = "yaml:\"tax_receiver\"" ];
-}
-
-message MsgUpdateParamsResponse {}

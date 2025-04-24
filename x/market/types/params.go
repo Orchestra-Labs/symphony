@@ -20,8 +20,6 @@ var (
 	KeyMinStabilitySpread = []byte("MinStabilitySpread")
 	// KeyTaxReceiver Receiver
 	KeyTaxReceiver = []byte("TaxReceiver")
-	// KeyAuthority an address witch can update module params
-	KeyAuthority = []byte("Authority")
 )
 
 // Default parameter values
@@ -56,7 +54,6 @@ func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 	return paramstypes.ParamSetPairs{
 		paramstypes.NewParamSetPair(KeyMinStabilitySpread, &p.MinStabilitySpread, validateMinStabilitySpread),
 		paramstypes.NewParamSetPair(KeyTaxReceiver, &p.TaxReceiver, validateAccAddress),
-		paramstypes.NewParamSetPair(KeyAuthority, &p.Authority, validateAccAddress),
 	}
 }
 
@@ -110,7 +107,7 @@ func validateAccAddress(i interface{}) error {
 			return fmt.Errorf("invalid address at %dth", i)
 		}
 	} else {
-		return fmt.Errorf("TaxReceiver or Authority address cannot be empty")
+		return fmt.Errorf("TaxReceiver address cannot be empty")
 	}
 
 	return nil

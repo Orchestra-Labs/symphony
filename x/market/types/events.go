@@ -11,9 +11,4 @@ const (
 	AttributeKeySwapFee   = "swap_fee"
 
 	AttributeValueCategory = ModuleName
-
-	EventUpdateParams = "update_params"
-
-	AttributePreviousTaxReceiver = "previous_tax_receiver"
-	AttributeNewTaxReceiver      = "new_tax_receiver"
 )
