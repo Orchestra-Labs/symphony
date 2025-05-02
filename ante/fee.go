@@ -186,8 +186,6 @@ func (dfd DeductFeeDecorator) DeductFees(ctx sdk.Context, acc authtypes.AccountI
 			if err != nil {
 				return errorsmod.Wrapf(sdkerrors.ErrInsufficientFunds, err.Error())
 			}
-			
-			// TODO: check if we can call burn on treasure here
 			err = dfd.bankKeeper.BurnCoins(ctx, treasurytypes.ModuleName, sdk.Coins{feeInStableDenom})
 			if err != nil {
 				return err
@@ -199,7 +197,7 @@ func (dfd DeductFeeDecorator) DeductFees(ctx sdk.Context, acc authtypes.AccountI
 			}
 		} else {
 			return errorsmod.Wrapf(sdkerrors.ErrInsufficientFee,
-				"The reserve fee is to high to use (%s) as fees. Use (%s) instead", fees[0], baseDenom)
+				"The reserve fee is to high to use (%s) as fees. Use (%s) instead", fees[0].Denom, baseDenom)
 		}
 	}
 
