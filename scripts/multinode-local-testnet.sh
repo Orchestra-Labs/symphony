@@ -183,7 +183,7 @@ sed -i -E "s|persistent_peers = \"\"|persistent_peers = \"$(symphonyd tendermint
 sed -i -E "s|persistent_peers = \"\"|persistent_peers = \"$(symphonyd tendermint show-node-id --home=$HOME/.symphonyd/validator1)@localhost:26656\"|g" $HOME/.symphonyd/validator4/config/config.toml
 
 # start all three validators
-#tmux new -s validator1 -d symphonyd start --home=$HOME/.symphonyd/validator1
+tmux new -s validator1 -d symphonyd start --home=$HOME/.symphonyd/validator1
 #tmux new -s validator2 -d symphonyd start --home=$HOME/.symphonyd/validator2
 #tmux new -s validator3 -d symphonyd start --home=$HOME/.symphonyd/validator3
 #tmux new -s validator4 -d symphonyd start --home=$HOME/.symphonyd/validator4
