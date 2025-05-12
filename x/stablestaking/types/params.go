@@ -1,0 +1,118 @@
+package types
+
+import (
+	"fmt"
+	"github.com/cosmos/cosmos-sdk/x/params/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/osmosis-labs/osmosis/osmomath"
+	appParams "github.com/osmosis-labs/osmosis/v27/app/params"
+	"time"
+)
+
+const (
+	ModuleName = "stablestaking"
+	StoreKey   = ModuleName
+	RouterKey  = ModuleName
+)
+
+const MinUnbondingTime = 10 * time.Second
+const MaxUnbondingTime = 30 * time.Second
+
+// Parameter keys
+var (
+	// KeyRewardRate the rate value to calculate user's rewards
+	KeyRewardRate = []byte("RewardRate")
+	// KeyUnbondingTime the period required to get tokens back
+	KeyUnbondingTime = []byte("UnbondingTime")
+	// KeySupportedTokens the list of tokens which can be staked
+	KeySupportedTokens = []byte("SupportedTokens")
+)
+
+// AllowedTokens the list of stable coins to be allowed to stake
+var AllowedTokens = []string{appParams.MicroUSDDenom, appParams.MicroHKDDenom, appParams.MicroVNDDenom}
+
+var _ paramstypes.ParamSet = &Params{}
+
+func ParamKeyTable() paramstypes.KeyTable {
+	return paramstypes.NewKeyTable().RegisterParamSet(&Params{})
+}
+
+func DefaultParams() Params {
+	return Params{
+		RewardRate:      osmomath.NewDecWithPrec(5, 2).String(), // 0.05%
+		UnbondingTime:   604800,
+		SupportedTokens: AllowedTokens,
+	}
+}
+
+func (p Params) Validate() error {
+	return nil
+}
+
+func (p Params) ParamSetPairs() types.ParamSetPairs {
+	return types.ParamSetPairs{
+		types.NewParamSetPair(KeyRewardRate, &p.RewardRate, validateRate),
+		types.NewParamSetPair(KeyUnbondingTime, &p.UnbondingTime, validateUnbondingTime),
+		types.NewParamSetPair(KeySupportedTokens, &p.SupportedTokens, validateSupportedTokens),
+	}
+}
+
+func validateRate(i interface{}) error {
+	v, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	rewardRate, err := osmomath.NewDecFromStr(v)
+	if err != nil {
+		return fmt.Errorf("invalid reward rate: %v", err)
+	}
+
+	if !rewardRate.IsPositive() {
+		return fmt.Errorf("reward rate must be positive")
+	}
+
+	return nil
+}
+
+func validateSupportedTokens(i interface{}) error {
+	v, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if len(v) == 0 {
+		return fmt.Errorf("supported tokens cannot be empty")
+	}
+
+	for _, token := range v {
+		for _, allowedToken := range AllowedTokens {
+			if token != allowedToken {
+				return fmt.Errorf("unsupported token: %s", token)
+			}
+		}
+	}
+
+	return nil
+}
+
+func validateUnbondingTime(i interface{}) error {
+	unbondingTime, ok := i.(int64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if unbondingTime <= 0 {
+		return fmt.Errorf("unbonding time must be greater than zero")
+	}
+
+	if unbondingTime < MinUnbondingTime.Microseconds() {
+		return fmt.Errorf("unbonding time must not be lower %d seconds (1 year)", MinUnbondingTime.Microseconds())
+	}
+
+	if unbondingTime > MaxUnbondingTime.Microseconds() {
+		return fmt.Errorf("unbonding time must not exceed %d seconds (1 year)", MaxUnbondingTime.Microseconds())
+	}
+
+	return nil
+}

@@ -1,0 +1,20 @@
+syntax = "proto3";
+package symphony.stablestaking.v1beta1;
+
+option go_package = "github.com/osmosis-labs/osmosis/v27/x/stablestaking/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "symphony/stablestaking/v1beta1/stablestaking.proto";
+
+service Query {
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/symphony/stablestaking/v1beta1/params";
+  }
+}
+
+message QueryParamsRequest {}
+
+message QueryParamsResponse {
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}

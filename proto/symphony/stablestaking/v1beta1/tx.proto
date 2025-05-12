@@ -1,0 +1,29 @@
+syntax = "proto3";
+package symphony.stablestaking.v1beta1;
+
+option go_package = "github.com/osmosis-labs/osmosis/v27/x/stablestaking/types";
+
+
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/tx/v1beta1/tx.proto";
+import "google/protobuf/any.proto";
+
+service Msg {
+  rpc StakeTokens(MsgStakeTokens) returns (MsgStakeTokensResponse);
+
+  rpc UnstakeTokens(MsgUnstakeTokens) returns (MsgUnstakeTokensResponse);
+}
+
+message MsgStakeTokens {
+  string staker = 1;
+  cosmos.base.v1beta1.Coin amount = 2;
+}
+
+message MsgStakeTokensResponse {}
+
+message MsgUnstakeTokens {
+  string staker = 1;
+  cosmos.base.v1beta1.Coin amount = 2;
+}
+
+message MsgUnstakeTokensResponse {}
