@@ -149,7 +149,7 @@ var moduleAccountPermissions = map[string][]string{
 	poolmanagertypes.ModuleName:              nil,
 	stablestakingtypes.ModuleName:            nil,
 	markettypes.ModuleName:                   {authtypes.Minter, authtypes.Burner},
-	treasurytypes.ModuleName:                 {authtypes.Minter},
+	treasurytypes.ModuleName:                 {authtypes.Minter, authtypes.Burner},
 	oracletypes.ModuleName:                   nil,
 	cosmwasmpooltypes.ModuleName:             nil,
 	auctiontypes.ModuleName:                  nil,
