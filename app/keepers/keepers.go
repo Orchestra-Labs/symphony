@@ -62,6 +62,8 @@ import (
 	"github.com/osmosis-labs/osmosis/v27/x/protorev"
 	stablestakingincentviceskeeper "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives/keeper"
 	stablestakingincentvicestypes "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives/types"
+	stablestakingkeeper "github.com/osmosis-labs/osmosis/v27/x/stablestaking/keeper"
+	stablestakingtypes "github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
 	treasurykeeper "github.com/osmosis-labs/osmosis/v27/x/treasury/keeper"
 	treasurytypes "github.com/osmosis-labs/osmosis/v27/x/treasury/types"
 	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
@@ -186,6 +188,7 @@ type AppKeepers struct {
 	MarketKeeper                  *marketkeeper.Keeper
 	TreasuryKeeper                *treasurykeeper.Keeper
 	StableStakingIncentivesKeeper *stablestakingincentviceskeeper.Keeper
+	StableStakingKeeper           *stablestakingkeeper.Keeper
 	ValidatorSetPreferenceKeeper  *valsetpref.Keeper
 	ConcentratedLiquidityKeeper   *concentratedliquidity.Keeper
 	CosmwasmPoolKeeper            *cosmwasmpool.Keeper
@@ -593,6 +596,15 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appKeepers.OracleKeeper,
 	)
 	appKeepers.MarketKeeper = &marketKeeper
+
+	stableStakingKeeper := stablestakingkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[stablestakingtypes.StoreKey],
+		appKeepers.GetSubspace(stablestakingtypes.ModuleName),
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.OracleKeeper)
+	appKeepers.StableStakingKeeper = &stableStakingKeeper
 
 	treasuryKeeper := treasurykeeper.NewKeeper(
 		appCodec,
@@ -1017,6 +1029,7 @@ func KVStoreKeys() []string {
 		poolmanagertypes.StoreKey,
 		oracletypes.StoreKey,
 		markettypes.StoreKey,
+		stablestakingtypes.StoreKey,
 		treasurytypes.StoreKey,
 		authzkeeper.StoreKey,
 		txfeestypes.StoreKey,

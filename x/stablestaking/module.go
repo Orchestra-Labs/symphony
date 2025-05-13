@@ -1,10 +1,13 @@
 package stablestaking
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/osmosis-labs/osmosis/v27/x/stablestaking/client/cli"
 	"github.com/osmosis-labs/osmosis/v27/x/stablestaking/keeper"
 	"github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
+	"github.com/spf13/cobra"
 
 	"cosmossdk.io/core/appmodule"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -65,8 +68,16 @@ func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) 
 	types.RegisterInterfaces(registry)
 }
 
-func (a AppModuleBasic) RegisterGRPCGatewayRoutes(context client.Context, mux *gwruntime.ServeMux) {
-	//TODO implement me
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *gwruntime.ServeMux) {
+	_ = types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+}
+
+func (AppModuleBasic) GetTxCmd() *cobra.Command {
+	return nil
+}
+
+func (AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return cli.GetQueryCmd()
 }
 
 // ----------------------------------------------------------------------------
@@ -75,7 +86,6 @@ func (a AppModuleBasic) RegisterGRPCGatewayRoutes(context client.Context, mux *g
 
 type AppModule struct {
 	AppModuleBasic
-	cdc codec.Codec
 
 	keeper        keeper.Keeper
 	accountKeeper types.AccountKeeper
@@ -85,7 +95,6 @@ type AppModule struct {
 
 // NewAppModule creates a new AppModule object
 func NewAppModule(
-	cdc codec.Codec,
 	keeper keeper.Keeper,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,

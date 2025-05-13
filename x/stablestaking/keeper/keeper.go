@@ -19,8 +19,14 @@ type Keeper struct {
 	OracleKeeper  types.OracleKeeper
 }
 
-func NewKeeper(storeKey storetypes.StoreKey, cdc codec.Codec, bankKeeper types.BankKeeper,
-	paramstore paramstypes.Subspace, accKeeper types.AccountKeeper, oracleKeeper types.OracleKeeper) Keeper {
+func NewKeeper(
+	cdc codec.Codec,
+	storeKey storetypes.StoreKey,
+	paramstore paramstypes.Subspace,
+	accKeeper types.AccountKeeper,
+	bankKeeper types.BankKeeper,
+	oracleKeeper types.OracleKeeper,
+) Keeper {
 	// ensure market module account is set
 	if addr := accKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
@@ -33,6 +39,7 @@ func NewKeeper(storeKey storetypes.StoreKey, cdc codec.Codec, bankKeeper types.B
 	return Keeper{
 		storeKey:      storeKey,
 		cdc:           cdc,
+		paramSpace:    paramstore,
 		BankKeeper:    bankKeeper,
 		AccountKeeper: accKeeper,
 		OracleKeeper:  oracleKeeper,
