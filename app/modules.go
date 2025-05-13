@@ -324,6 +324,7 @@ func OrderInitGenesis(allModuleNames []string) []string {
 		packetforwardtypes.ModuleName,
 		cosmwasmpooltypes.ModuleName,
 		auctiontypes.ModuleName,
+		stablestakingtypes.ModuleName,
 	}
 }
 
@@ -345,10 +346,11 @@ func (app *SymphonyApp) GetBankKeeper() simtypes.BankKeeper {
 	return app.AppKeepers.BankKeeper
 }
 
-// Required for ibctesting
+// GetStakingKeeper Required for ibc testing
 func (app *SymphonyApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 	return *app.AppKeepers.StakingKeeper // Dereferencing the pointer
 }
+
 func (app *SymphonyApp) GetSDKStakingKeeper() stakingkeeper.Keeper {
 	return *app.AppKeepers.StakingKeeper // Dereferencing the pointer
 }

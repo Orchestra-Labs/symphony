@@ -913,6 +913,7 @@ func (appKeepers *AppKeepers) initParamsKeeper(appCodec codec.BinaryCodec, legac
 	paramsKeeper.Subspace(smartaccounttypes.ModuleName).WithKeyTable(smartaccounttypes.ParamKeyTable())
 	paramsKeeper.Subspace(txfeestypes.ModuleName)
 	paramsKeeper.Subspace(auctiontypes.ModuleName)
+	paramsKeeper.Subspace(stablestakingtypes.ModuleName)
 
 	return paramsKeeper
 }

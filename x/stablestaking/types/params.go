@@ -15,8 +15,8 @@ const (
 	RouterKey  = ModuleName
 )
 
-const MinUnbondingTime = 10 * time.Second
-const MaxUnbondingTime = 30 * time.Second
+const MinUnbondingTime = time.Hour * 24 * 6
+const MaxUnbondingTime = time.Hour * 24 * 22
 
 // Parameter keys
 var (
@@ -33,14 +33,10 @@ var AllowedTokens = []string{appParams.MicroUSDDenom, appParams.MicroHKDDenom, a
 
 var _ paramstypes.ParamSet = &Params{}
 
-func ParamKeyTable() paramstypes.KeyTable {
-	return paramstypes.NewKeyTable().RegisterParamSet(&Params{})
-}
-
 func DefaultParams() Params {
 	return Params{
 		RewardRate:      osmomath.NewDecWithPrec(5, 2).String(), // 0.05%
-		UnbondingTime:   604800,
+		UnbondingTime:   time.Hour * 24 * 14,
 		SupportedTokens: AllowedTokens,
 	}
 }
@@ -49,7 +45,11 @@ func (p Params) Validate() error {
 	return nil
 }
 
-func (p Params) ParamSetPairs() types.ParamSetPairs {
+func ParamKeyTable() paramstypes.KeyTable {
+	return paramstypes.NewKeyTable().RegisterParamSet(&Params{})
+}
+
+func (p *Params) ParamSetPairs() types.ParamSetPairs {
 	return types.ParamSetPairs{
 		types.NewParamSetPair(KeyRewardRate, &p.RewardRate, validateRate),
 		types.NewParamSetPair(KeyUnbondingTime, &p.UnbondingTime, validateUnbondingTime),
@@ -75,6 +75,15 @@ func validateRate(i interface{}) error {
 	return nil
 }
 
+func isAllowedToken(token string) bool {
+	for _, t := range AllowedTokens {
+		if t == token {
+			return true
+		}
+	}
+	return false
+}
+
 func validateSupportedTokens(i interface{}) error {
 	v, ok := i.([]string)
 	if !ok {
@@ -86,10 +95,8 @@ func validateSupportedTokens(i interface{}) error {
 	}
 
 	for _, token := range v {
-		for _, allowedToken := range AllowedTokens {
-			if token != allowedToken {
-				return fmt.Errorf("unsupported token: %s", token)
-			}
+		if !isAllowedToken(token) {
+			return fmt.Errorf("unsupported token: %s", token)
 		}
 	}
 
@@ -97,7 +104,7 @@ func validateSupportedTokens(i interface{}) error {
 }
 
 func validateUnbondingTime(i interface{}) error {
-	unbondingTime, ok := i.(int64)
+	unbondingTime, ok := i.(time.Duration)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -106,12 +113,12 @@ func validateUnbondingTime(i interface{}) error {
 		return fmt.Errorf("unbonding time must be greater than zero")
 	}
 
-	if unbondingTime < MinUnbondingTime.Microseconds() {
-		return fmt.Errorf("unbonding time must not be lower %d seconds (1 year)", MinUnbondingTime.Microseconds())
+	if unbondingTime < MinUnbondingTime {
+		return fmt.Errorf("unbonding time must not be lower %d seconds (6 days)", MinUnbondingTime)
 	}
 
-	if unbondingTime > MaxUnbondingTime.Microseconds() {
-		return fmt.Errorf("unbonding time must not exceed %d seconds (1 year)", MaxUnbondingTime.Microseconds())
+	if unbondingTime > MaxUnbondingTime {
+		return fmt.Errorf("unbonding time must not exceed %d seconds (22 days)", MaxUnbondingTime)
 	}
 
 	return nil
