@@ -106,6 +106,8 @@ import (
 	protorevtypes "github.com/osmosis-labs/osmosis/v27/x/protorev/types"
 	stablestakingincentives "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives"
 	stablestakingincentivestypes "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives/types"
+	"github.com/osmosis-labs/osmosis/v27/x/stablestaking"
+	stablestakingtypes "github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
 	superfluid "github.com/osmosis-labs/osmosis/v27/x/superfluid"
 	superfluidtypes "github.com/osmosis-labs/osmosis/v27/x/superfluid/types"
 	"github.com/osmosis-labs/osmosis/v27/x/tokenfactory"
@@ -145,6 +147,7 @@ var moduleAccountPermissions = map[string][]string{
 	tokenfactorytypes.ModuleName:             {authtypes.Minter, authtypes.Burner},
 	valsetpreftypes.ModuleName:               {authtypes.Staking},
 	poolmanagertypes.ModuleName:              nil,
+	stablestakingtypes.ModuleName:            nil,
 	markettypes.ModuleName:                   {authtypes.Minter, authtypes.Burner},
 	treasurytypes.ModuleName:                 {authtypes.Minter, authtypes.Burner},
 	oracletypes.ModuleName:                   nil,
@@ -201,6 +204,7 @@ func appModules(
 		lockup.NewAppModule(*app.LockupKeeper, app.AccountKeeper, app.BankKeeper),
 		poolincentives.NewAppModule(*app.PoolIncentivesKeeper),
 		stablestakingincentives.NewAppModule(*app.StableStakingIncentivesKeeper),
+		stablestaking.NewAppModule(*app.StableStakingKeeper, app.AccountKeeper, app.BankKeeper, app.OracleKeeper),
 		epochs.NewAppModule(*app.EpochsKeeper),
 		superfluid.NewAppModule(
 			*app.SuperfluidKeeper,
@@ -320,6 +324,7 @@ func OrderInitGenesis(allModuleNames []string) []string {
 		packetforwardtypes.ModuleName,
 		cosmwasmpooltypes.ModuleName,
 		auctiontypes.ModuleName,
+		stablestakingtypes.ModuleName,
 	}
 }
 
@@ -341,10 +346,11 @@ func (app *SymphonyApp) GetBankKeeper() simtypes.BankKeeper {
 	return app.AppKeepers.BankKeeper
 }
 
-// Required for ibctesting
+// GetStakingKeeper Required for ibc testing
 func (app *SymphonyApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 	return *app.AppKeepers.StakingKeeper // Dereferencing the pointer
 }
+
 func (app *SymphonyApp) GetSDKStakingKeeper() stakingkeeper.Keeper {
 	return *app.AppKeepers.StakingKeeper // Dereferencing the pointer
 }
