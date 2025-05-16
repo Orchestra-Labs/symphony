@@ -9,6 +9,10 @@ import (
 )
 
 func (k Keeper) StakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.Coin) (*types.MsgStakeTokensResponse, error) {
+	if !types.IsAllowedToken(amount.Denom) {
+		return nil, fmt.Errorf("unsupported token: %s", amount.Denom)
+	}
+
 	pool, found := k.GetPool(ctx, amount.Denom)
 	if !found {
 		pool = types.StakingPool{
@@ -27,16 +31,17 @@ func (k Keeper) StakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.C
 	pool.TotalShares = pool.TotalShares.Add(userShares.Amount)
 	k.SetPool(ctx, pool)
 
+	currentEpoch := k.epochKeeper.GetEpochInfo(ctx, "week")
 	userStake, found := k.GetUserStake(ctx, staker, amount.Denom)
 	if !found {
 		userStake = types.UserStake{
 			Address: staker.String(),
 			Shares:  userShares.Amount,
-			Epoch:   0,
+			Epoch:   currentEpoch.CurrentEpoch,
 		}
 	} else {
 		userStake.Shares = userStake.Shares.Add(userShares.Amount)
-		//TODO: how do not override previous stake and correct distribute rewards?
+		userStake.Epoch = currentEpoch.CurrentEpoch
 	}
 
 	k.SetUserStake(ctx, userStake, amount.Denom)
@@ -50,6 +55,10 @@ func (k Keeper) StakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.C
 }
 
 func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.Coin) (*types.MsgUnstakeTokensResponse, error) {
+	if !types.IsAllowedToken(amount.Denom) {
+		return nil, fmt.Errorf("unsupported token: %s", amount.Denom)
+	}
+
 	pool, _ := k.GetPool(ctx, amount.Denom)
 	if pool.TotalStaked.IsZero() {
 		return nil, fmt.Errorf("total staked is zero")
@@ -68,14 +77,9 @@ func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk
 	stakedBalance.Shares = stakedBalance.Shares.Sub(sharesToRemove)
 	k.SetUserStake(ctx, stakedBalance, amount.Denom)
 	k.AddUnbondingRequest(ctx, staker, amount)
-	//TODO: send coins to user after unbonding period
-	//err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, sdk.NewCoins(unstakeAmount))
-	//if err != nil {
-	//	return err
-	//}
 
 	pool.TotalStaked = pool.TotalStaked.Sub(math.LegacyDec(amount.Amount))
-	pool.TotalShares = pool.TotalShares.Add(sharesToRemove)
+	pool.TotalShares = pool.TotalShares.Sub(sharesToRemove)
 	k.SetPool(ctx, pool)
 
 	return &types.MsgUnstakeTokensResponse{}, nil
@@ -83,21 +87,25 @@ func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk
 
 func (k Keeper) AddUnbondingRequest(ctx sdk.Context, staker sdk.AccAddress, amount sdk.Coin) {
 	store := ctx.KVStore(k.storeKey)
-	key := k.GetUnbondingKey(staker)
+	key := k.GetUnbondingKey(staker, amount.Denom)
 
-	unbondingTime := ctx.BlockTime().Add(k.GetParams(ctx).UnbondingTime)
+	currentEpoch := k.epochKeeper.GetEpochInfo(ctx, "day")
+	countDays := k.GetParams(ctx).UnbondingDuration.Milliseconds() / 1000 / 60 / 60 / 24 // milliseconds, minutes, hours, days
+	unbondingEpoch := currentEpoch.CurrentEpoch + countDays
+
 	unbondingRequest := types.UnbondingRequest{
-		Address:    staker.String(),
-		Shares:     math.LegacyDec(amount.Amount),
-		UnbondTime: unbondingTime.UnixMicro(), //TODO: check if it's correct
+		Address:     staker.String(),
+		Shares:      math.LegacyDec(amount.Amount),
+		Denom:       amount.Denom,
+		UnbondEpoch: unbondingEpoch,
 	}
 
 	store.Set(key, k.cdc.MustMarshal(&unbondingRequest))
 }
 
-func (k Keeper) GetUnbondingInfo(ctx sdk.Context, staker sdk.AccAddress) (types.UnbondingRequest, bool) {
+func (k Keeper) GetUnbondingInfo(ctx sdk.Context, staker sdk.AccAddress, denom string) (types.UnbondingRequest, bool) {
 	store := ctx.KVStore(k.storeKey)
-	key := k.GetUnbondingKey(staker)
+	key := k.GetUnbondingKey(staker, denom)
 	bz := store.Get(key)
 	if bz == nil {
 		return types.UnbondingRequest{}, false
@@ -108,8 +116,8 @@ func (k Keeper) GetUnbondingInfo(ctx sdk.Context, staker sdk.AccAddress) (types.
 	return info, true
 }
 
-func (k Keeper) GetUnbondingKey(staker sdk.AccAddress) []byte {
-	return []byte(fmt.Sprintf("unbonding:%s", staker.String()))
+func (k Keeper) GetUnbondingKey(staker sdk.AccAddress, denom string) []byte {
+	return []byte(fmt.Sprintf("%s:%s%s", types.UserStakeKey, staker.String(), denom))
 }
 
 func (k Keeper) GetPool(ctx sdk.Context, token string) (types.StakingPool, bool) {
@@ -131,7 +139,7 @@ func (k Keeper) SetPool(ctx sdk.Context, pool types.StakingPool) {
 }
 
 func (k Keeper) GetUserStake(ctx sdk.Context, address sdk.AccAddress, token string) (types.UserStake, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PoolKey))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserStakeKey))
 	bz := store.Get([]byte(address.String() + token))
 	if bz == nil {
 		return types.UserStake{}, false
@@ -143,7 +151,7 @@ func (k Keeper) GetUserStake(ctx sdk.Context, address sdk.AccAddress, token stri
 }
 
 func (k Keeper) SetUserStake(ctx sdk.Context, stake types.UserStake, token string) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PoolKey))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserStakeKey))
 	bz := k.cdc.MustMarshal(&stake)
 	store.Set([]byte(stake.Address+token), bz)
 }

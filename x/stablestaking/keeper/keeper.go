@@ -14,6 +14,7 @@ type Keeper struct {
 	cdc        codec.Codec
 	paramSpace paramstypes.Subspace
 
+	epochKeeper   types.EpochKeeper
 	AccountKeeper types.AccountKeeper
 	BankKeeper    types.BankKeeper
 	OracleKeeper  types.OracleKeeper
@@ -23,6 +24,7 @@ func NewKeeper(
 	cdc codec.Codec,
 	storeKey storetypes.StoreKey,
 	paramstore paramstypes.Subspace,
+	epochKeeper types.EpochKeeper,
 	accKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	oracleKeeper types.OracleKeeper,
@@ -40,6 +42,7 @@ func NewKeeper(
 		storeKey:      storeKey,
 		cdc:           cdc,
 		paramSpace:    paramstore,
+		epochKeeper:   epochKeeper,
 		BankKeeper:    bankKeeper,
 		AccountKeeper: accKeeper,
 		OracleKeeper:  oracleKeeper,

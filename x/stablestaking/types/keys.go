@@ -1,5 +1,7 @@
 package types
 
 const (
-	PoolKey = "pool"
+	PoolKey          = "pool"
+	UserStakeKey     = "user_stake"
+	UserUnbondingKey = "unbonding"
 )

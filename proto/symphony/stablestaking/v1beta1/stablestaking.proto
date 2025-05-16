@@ -10,7 +10,7 @@ import "cosmos/base/v1beta1/coin.proto";
 
 message Params {
    string reward_rate = 1;
-   google.protobuf.Duration unbonding_time = 2 [(gogoproto.nullable) = false, (gogoproto.stdduration) = true];
+   google.protobuf.Duration unbonding_duration = 2 [(gogoproto.nullable) = false, (gogoproto.stdduration) = true];
    repeated string supported_tokens = 3;
 }
 
@@ -55,5 +55,7 @@ message UnbondingRequest {
       (gogoproto.nullable) = false
    ];
 
-   int64 unbondTime = 3;
+   string denom = 3;
+
+   int64 unbond_epoch = 4;
 }

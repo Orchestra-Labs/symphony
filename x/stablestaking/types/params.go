@@ -35,9 +35,9 @@ var _ paramstypes.ParamSet = &Params{}
 
 func DefaultParams() Params {
 	return Params{
-		RewardRate:      osmomath.NewDecWithPrec(5, 2).String(), // 0.05%
-		UnbondingTime:   time.Hour * 24 * 14,
-		SupportedTokens: AllowedTokens,
+		RewardRate:        osmomath.NewDecWithPrec(5, 2).String(), // 0.05%
+		UnbondingDuration: time.Hour * 24 * 14,
+		SupportedTokens:   AllowedTokens,
 	}
 }
 
@@ -52,7 +52,7 @@ func ParamKeyTable() paramstypes.KeyTable {
 func (p *Params) ParamSetPairs() types.ParamSetPairs {
 	return types.ParamSetPairs{
 		types.NewParamSetPair(KeyRewardRate, &p.RewardRate, validateRate),
-		types.NewParamSetPair(KeyUnbondingTime, &p.UnbondingTime, validateUnbondingTime),
+		types.NewParamSetPair(KeyUnbondingTime, &p.UnbondingDuration, validateUnbondingDuration),
 		types.NewParamSetPair(KeySupportedTokens, &p.SupportedTokens, validateSupportedTokens),
 	}
 }
@@ -75,7 +75,7 @@ func validateRate(i interface{}) error {
 	return nil
 }
 
-func isAllowedToken(token string) bool {
+func IsAllowedToken(token string) bool {
 	for _, t := range AllowedTokens {
 		if t == token {
 			return true
@@ -95,7 +95,7 @@ func validateSupportedTokens(i interface{}) error {
 	}
 
 	for _, token := range v {
-		if !isAllowedToken(token) {
+		if !IsAllowedToken(token) {
 			return fmt.Errorf("unsupported token: %s", token)
 		}
 	}
@@ -103,7 +103,7 @@ func validateSupportedTokens(i interface{}) error {
 	return nil
 }
 
-func validateUnbondingTime(i interface{}) error {
+func validateUnbondingDuration(i interface{}) error {
 	unbondingTime, ok := i.(time.Duration)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)

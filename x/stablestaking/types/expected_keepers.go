@@ -4,6 +4,7 @@ import (
 	"context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/osmosis-labs/osmosis/osmomath"
+	epochstypes "github.com/osmosis-labs/osmosis/v27/x/epochs/types"
 )
 
 // AccountKeeper is expected keeper for auth module
@@ -31,4 +32,9 @@ type OracleKeeper interface {
 	// GetMelodyExchangeRate returns the exchange rate of the given denom to melody. Returned value is in melody.
 	GetMelodyExchangeRate(ctx sdk.Context, denom string) (price osmomath.Dec, err error)
 	GetTobinTax(ctx sdk.Context, denom string) (tobinTax osmomath.Dec, err error)
+}
+
+// EpochKeeper defines the contract needed to be fulfilled for epochs keeper.
+type EpochKeeper interface {
+	GetEpochInfo(ctx sdk.Context, identifier string) epochstypes.EpochInfo
 }

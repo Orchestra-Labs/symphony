@@ -601,6 +601,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appCodec,
 		appKeepers.keys[stablestakingtypes.StoreKey],
 		appKeepers.GetSubspace(stablestakingtypes.ModuleName),
+		appKeepers.EpochsKeeper,
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.OracleKeeper)
