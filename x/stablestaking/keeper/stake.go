@@ -3,6 +3,7 @@ package keeper
 import (
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
@@ -27,7 +28,7 @@ func (k Keeper) StakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.C
 		userShares.Amount = userShares.Amount.Mul(pool.TotalShares).Quo(pool.TotalStaked)
 	}
 
-	pool.TotalStaked = pool.TotalStaked.Add(math.LegacyDec(amount.Amount))
+	pool.TotalStaked = pool.TotalStaked.Add(math.LegacyNewDecFromInt(amount.Amount))
 	pool.TotalShares = pool.TotalShares.Add(userShares.Amount)
 	k.SetPool(ctx, pool)
 
@@ -132,6 +133,23 @@ func (k Keeper) GetPool(ctx sdk.Context, token string) (types.StakingPool, bool)
 	return pool, true
 }
 
+func (k Keeper) GetPools(ctx sdk.Context) []types.StakingPool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PoolKey))
+	var pools []types.StakingPool
+
+	iterator := store.Iterator(nil, nil)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var pool types.StakingPool
+		k.cdc.MustUnmarshal(iterator.Value(), &pool)
+
+		pools = append(pools, pool)
+	}
+
+	return pools
+}
+
 func (k Keeper) SetPool(ctx sdk.Context, pool types.StakingPool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PoolKey))
 	bz := k.cdc.MustMarshal(&pool)
@@ -154,4 +172,50 @@ func (k Keeper) SetUserStake(ctx sdk.Context, stake types.UserStake, token strin
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserStakeKey))
 	bz := k.cdc.MustMarshal(&stake)
 	store.Set([]byte(stake.Address+token), bz)
+}
+
+func (k Keeper) GetUserTotalStake(ctx sdk.Context, address sdk.AccAddress) []sdk.DecCoin {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserStakeKey))
+	var stakes []sdk.DecCoin
+
+	iterator := storetypes.KVStorePrefixIterator(store, []byte(address.String()))
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var stake types.UserStake
+		k.cdc.MustUnmarshal(iterator.Value(), &stake)
+
+		key := string(iterator.Key())
+		token := key[len(address.String()):]
+
+		stakes = append(stakes, sdk.DecCoin{
+			Denom:  token,
+			Amount: stake.Shares,
+		})
+	}
+
+	return stakes
+}
+
+func (k Keeper) SetEpochSnapshot(ctx sdk.Context, snapshot types.EpochSnapshot, denom string) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.SnapshotKey))
+	bz := k.cdc.MustMarshal(&snapshot)
+	store.Set([]byte("latest"), bz)
+}
+
+func (k Keeper) GetEpochSnapshot(ctx sdk.Context, denom string) types.EpochSnapshot {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.SnapshotKey))
+	bz := store.Get([]byte("latest"))
+
+	if bz == nil {
+		return types.EpochSnapshot{}
+	}
+
+	var snapshot types.EpochSnapshot
+	k.cdc.MustUnmarshal(bz, &snapshot)
+	return snapshot
+}
+
+func (k Keeper) GetEpochSnapshotKey(denom string) []byte {
+	return []byte(fmt.Sprintf("%s:%s", types.SnapshotKey, denom))
 }

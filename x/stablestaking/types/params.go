@@ -13,6 +13,8 @@ const (
 	ModuleName = "stablestaking"
 	StoreKey   = ModuleName
 	RouterKey  = ModuleName
+
+	NativeRewardsCollectorName = "native_rewards_collector"
 )
 
 const MinUnbondingTime = time.Hour * 24 * 6
