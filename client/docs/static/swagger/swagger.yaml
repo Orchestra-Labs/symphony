@@ -15138,6 +15138,549 @@ paths:
           type: string
       tags:
         - Query
+  /symphony/stablestaking/v1beta1/params:
+    get:
+      operationId: StableStakingParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                type: object
+                properties:
+                  reward_rate:
+                    type: string
+                  unbonding_duration:
+                    type: string
+                  supported_tokens:
+                    type: array
+                    items:
+                      type: string
+                  epoch_identifier:
+                    type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /symphony/stablestaking/v1beta1/stable_pool:
+    get:
+      operationId: StablePool
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              pool:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  total_staked:
+                    type: string
+                    format: byte
+                  total_shares:
+                    type: string
+                    format: byte
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: denom
+          in: query
+          required: false
+          type: string
+      tags:
+        - Query
+  /symphony/stablestaking/v1beta1/stable_pools:
+    get:
+      operationId: StablePools
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              pools:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                    total_staked:
+                      type: string
+                      format: byte
+                    total_shares:
+                      type: string
+                      format: byte
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /symphony/stablestaking/v1beta1/user_stake:
+    get:
+      operationId: UserStake
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              stakes:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  shares:
+                    type: string
+                    format: byte
+                  epoch:
+                    type: string
+                    format: int64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          in: query
+          required: false
+          type: string
+        - name: token
+          in: query
+          required: false
+          type: string
+      tags:
+        - Query
+  /symphony/stablestaking/v1beta1/user_total_stake:
+    get:
+      operationId: UserTotalStake
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              stakes:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    DecCoin defines a token with a denomination and a decimal
+                    amount.
+
+
+                    NOTE: The amount field is an Dec which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          in: query
+          required: false
+          type: string
+      tags:
+        - Query
+  /symphony/stablestaking/v1beta1/user_total_unbonding:
+    get:
+      operationId: UserTotalUnbonding
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              info:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                    amount:
+                      type: string
+                      format: byte
+                    denom:
+                      type: string
+                    unbond_epoch:
+                      type: string
+                      format: int64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          in: query
+          required: false
+          type: string
+      tags:
+        - Query
+  /symphony/stablestaking/v1beta1/user_unbonding:
+    get:
+      operationId: UserUnbonding
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              info:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  amount:
+                    type: string
+                    format: byte
+                  denom:
+                    type: string
+                  unbond_epoch:
+                    type: string
+                    format: int64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          in: query
+          required: false
+          type: string
+        - name: denom
+          in: query
+          required: false
+          type: string
+      tags:
+        - Query
+  /symphony/market/v1beta1/exchange_requirements:
+    get:
+      operationId: ExchangeRequirements
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              exchange_requirements:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    base_currency:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a token with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                    exchange_rate:
+                      type: string
+              total:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+            description: |-
+              QueryExchangeRequirementsResponse is the response type for the
+              Query/ExchangeRequirements RPC method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /symphony/market/v1beta1/params:
+    get:
+      summary: Params queries all parameters.
+      operationId: MarketParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params defines the parameters of the module.
+                type: object
+                properties:
+                  exchange_pool:
+                    type: string
+                    format: byte
+                  min_stability_spread:
+                    type: string
+                    format: byte
+                  tax_receiver:
+                    type: string
+            description: >-
+              QueryParamsResponse is the response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /symphony/market/v1beta1/swap:
+    get:
+      summary: Swap returns simulated swap amount.
+      operationId: Swap
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              return_coin:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+            description: >-
+              QuerySwapResponse is the response type for the Query/Swap RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: offer_coin
+          description: offer_coin defines the coin being offered (i.e. 1000000uluna).
+          in: query
+          required: false
+          type: string
+        - name: ask_denom
+          description: ask_denom defines the denom of the coin to swap to.
+          in: query
+          required: false
+          type: string
+      tags:
+        - Query
   /cosmos/auth/v1beta1/account_info/{address}:
     get:
       summary: AccountInfo queries account info which is common to all account types.
@@ -49370,6 +49913,278 @@ definitions:
         type: array
         items:
           type: string
+  cosmos.base.v1beta1.DecCoin:
+    type: object
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+    description: |-
+      DecCoin defines a token with a denomination and a decimal amount.
+
+      NOTE: The amount field is an Dec which implements the custom method
+      signatures required by gogoproto.
+  symphony.stablestaking.v1beta1.Params:
+    type: object
+    properties:
+      reward_rate:
+        type: string
+      unbonding_duration:
+        type: string
+      supported_tokens:
+        type: array
+        items:
+          type: string
+      epoch_identifier:
+        type: string
+  symphony.stablestaking.v1beta1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        type: object
+        properties:
+          reward_rate:
+            type: string
+          unbonding_duration:
+            type: string
+          supported_tokens:
+            type: array
+            items:
+              type: string
+          epoch_identifier:
+            type: string
+  symphony.stablestaking.v1beta1.QueryPoolResponse:
+    type: object
+    properties:
+      pool:
+        type: object
+        properties:
+          token:
+            type: string
+          total_staked:
+            type: string
+            format: byte
+          total_shares:
+            type: string
+            format: byte
+  symphony.stablestaking.v1beta1.QueryPoolsResponse:
+    type: object
+    properties:
+      pools:
+        type: array
+        items:
+          type: object
+          properties:
+            token:
+              type: string
+            total_staked:
+              type: string
+              format: byte
+            total_shares:
+              type: string
+              format: byte
+  symphony.stablestaking.v1beta1.QueryUserStakeResponse:
+    type: object
+    properties:
+      stakes:
+        type: object
+        properties:
+          address:
+            type: string
+          shares:
+            type: string
+            format: byte
+          epoch:
+            type: string
+            format: int64
+  symphony.stablestaking.v1beta1.QueryUserTotalStakeResponse:
+    type: object
+    properties:
+      stakes:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            DecCoin defines a token with a denomination and a decimal amount.
+
+            NOTE: The amount field is an Dec which implements the custom method
+            signatures required by gogoproto.
+  symphony.stablestaking.v1beta1.QueryUserTotalUnbondingResponse:
+    type: object
+    properties:
+      info:
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+            amount:
+              type: string
+              format: byte
+            denom:
+              type: string
+            unbond_epoch:
+              type: string
+              format: int64
+  symphony.stablestaking.v1beta1.QueryUserUnbondingResponse:
+    type: object
+    properties:
+      info:
+        type: object
+        properties:
+          address:
+            type: string
+          amount:
+            type: string
+            format: byte
+          denom:
+            type: string
+          unbond_epoch:
+            type: string
+            format: int64
+  symphony.stablestaking.v1beta1.StakingPool:
+    type: object
+    properties:
+      token:
+        type: string
+      total_staked:
+        type: string
+        format: byte
+      total_shares:
+        type: string
+        format: byte
+  symphony.stablestaking.v1beta1.UnbondingInfo:
+    type: object
+    properties:
+      address:
+        type: string
+      amount:
+        type: string
+        format: byte
+      denom:
+        type: string
+      unbond_epoch:
+        type: string
+        format: int64
+  symphony.stablestaking.v1beta1.UserStake:
+    type: object
+    properties:
+      address:
+        type: string
+      shares:
+        type: string
+        format: byte
+      epoch:
+        type: string
+        format: int64
+  symphony.market.v1beta1.ExchangeRequirement:
+    type: object
+    properties:
+      base_currency:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      exchange_rate:
+        type: string
+  symphony.market.v1beta1.Params:
+    type: object
+    properties:
+      exchange_pool:
+        type: string
+        format: byte
+      min_stability_spread:
+        type: string
+        format: byte
+      tax_receiver:
+        type: string
+    description: Params defines the parameters for the market module.
+  symphony.market.v1beta1.QueryExchangeRequirementsResponse:
+    type: object
+    properties:
+      exchange_requirements:
+        type: array
+        items:
+          type: object
+          properties:
+            base_currency:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a token with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+            exchange_rate:
+              type: string
+      total:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+    description: |-
+      QueryExchangeRequirementsResponse is the response type for the
+      Query/ExchangeRequirements RPC method.
+  symphony.market.v1beta1.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params defines the parameters of the module.
+        type: object
+        properties:
+          exchange_pool:
+            type: string
+            format: byte
+          min_stability_spread:
+            type: string
+            format: byte
+          tax_receiver:
+            type: string
+    description: QueryParamsResponse is the response type for the Query/Params RPC method.
+  symphony.market.v1beta1.QuerySwapResponse:
+    type: object
+    properties:
+      return_coin:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+    description: QuerySwapResponse is the response type for the Query/Swap RPC method.
   cosmos.auth.v1beta1.AddressBytesToStringResponse:
     type: object
     properties:
@@ -59592,18 +60407,6 @@ definitions:
       cosmos_sdk_version:
         type: string
     description: VersionInfo is the type for the GetNodeInfoResponse message.
-  cosmos.base.v1beta1.DecCoin:
-    type: object
-    properties:
-      denom:
-        type: string
-      amount:
-        type: string
-    description: |-
-      DecCoin defines a token with a denomination and a decimal amount.
-
-      NOTE: The amount field is an Dec which implements the custom method
-      signatures required by gogoproto.
   cosmos.distribution.v1beta1.DelegationDelegatorReward:
     type: object
     properties:

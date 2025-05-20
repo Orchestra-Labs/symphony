@@ -9,69 +9,68 @@ import "google/protobuf/duration.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
 message Params {
-   string reward_rate = 1;
-   google.protobuf.Duration unbonding_duration = 2 [(gogoproto.nullable) = false, (gogoproto.stdduration) = true];
-   repeated string supported_tokens = 3;
-   string epoch_identifier = 4;
+  string reward_rate = 1;
+  google.protobuf.Duration unbonding_duration = 2
+      [ (gogoproto.nullable) = false, (gogoproto.stdduration) = true ];
+  repeated string supported_tokens = 3;
+  string epoch_identifier = 4;
 }
 
-message GenesisState {
-   Params params = 1 [ (gogoproto.nullable) = false ];
-}
+message GenesisState { Params params = 1 [ (gogoproto.nullable) = false ]; }
 
 message StakingPool {
-   string token = 1;
+  string token = 1;
 
-   bytes total_staked = 2 [
-      (gogoproto.moretags) = "yaml:\"total_staked\"",
-      (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-      (gogoproto.nullable) = false
-   ];
+  bytes total_staked = 2 [
+    (gogoproto.moretags) = "yaml:\"total_staked\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 
-   bytes total_shares = 3 [
-      (gogoproto.moretags) = "yaml:\"total_shares\"",
-      (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-      (gogoproto.nullable) = false
-   ];
+  bytes total_shares = 3 [
+    (gogoproto.moretags) = "yaml:\"total_shares\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message UserStake {
-   string address = 1;
+  string address = 1;
 
-   bytes shares = 2 [
-      (gogoproto.moretags) = "yaml:\"shares\"",
-      (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-      (gogoproto.nullable) = false
-   ];
+  bytes shares = 2 [
+    (gogoproto.moretags) = "yaml:\"shares\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 
-   int64 epoch = 3;
+  int64 epoch = 3;
 }
 
 message UnbondingInfo {
-   string address = 1;
+  string address = 1;
 
-   bytes amount = 2 [
-      (gogoproto.moretags) = "yaml:\"shares\"",
-      (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-      (gogoproto.nullable) = false
-   ];
+  bytes amount = 2 [
+    (gogoproto.moretags) = "yaml:\"shares\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 
-   string denom = 3;
+  string denom = 3;
 
-   int64 unbond_epoch = 4;
+  int64 unbond_epoch = 4;
 }
 
 message EpochSnapshot {
-   bytes total_staked = 1 [
-      (gogoproto.moretags) = "yaml:\"total_staked\"",
-      (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-      (gogoproto.nullable) = false
-   ];
+  bytes total_staked = 1 [
+    (gogoproto.moretags) = "yaml:\"total_staked\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 
-   bytes total_shares = 2 [
-      (gogoproto.moretags) = "yaml:\"total_shares\"",
-      (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-      (gogoproto.nullable) = false
-   ];
-   repeated UserStake stakers = 3;
+  bytes total_shares = 2 [
+    (gogoproto.moretags) = "yaml:\"total_shares\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  repeated UserStake stakers = 3;
 }
