@@ -87,38 +87,55 @@ func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk
 }
 
 func (k Keeper) AddUnbondingRequest(ctx sdk.Context, staker sdk.AccAddress, amount sdk.Coin) {
-	store := ctx.KVStore(k.storeKey)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserUnbondingKey))
 	key := k.GetUnbondingKey(staker, amount.Denom)
 
 	currentEpoch := k.epochKeeper.GetEpochInfo(ctx, "day")
 	countDays := k.GetParams(ctx).UnbondingDuration.Milliseconds() / 1000 / 60 / 60 / 24 // milliseconds, minutes, hours, days
 	unbondingEpoch := currentEpoch.CurrentEpoch + countDays
 
-	unbondingRequest := types.UnbondingRequest{
+	// TODO: accumulate unbonding amount by denom?
+	unbondingInfo := types.UnbondingInfo{
 		Address:     staker.String(),
-		Shares:      math.LegacyDec(amount.Amount),
+		Amount:      math.LegacyDec(amount.Amount),
 		Denom:       amount.Denom,
 		UnbondEpoch: unbondingEpoch,
 	}
 
-	store.Set(key, k.cdc.MustMarshal(&unbondingRequest))
+	store.Set(key, k.cdc.MustMarshal(&unbondingInfo))
 }
 
-func (k Keeper) GetUnbondingInfo(ctx sdk.Context, staker sdk.AccAddress, denom string) (types.UnbondingRequest, bool) {
-	store := ctx.KVStore(k.storeKey)
+func (k Keeper) GetUnbondingInfo(ctx sdk.Context, staker sdk.AccAddress, denom string) (types.UnbondingInfo, bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserUnbondingKey))
 	key := k.GetUnbondingKey(staker, denom)
 	bz := store.Get(key)
 	if bz == nil {
-		return types.UnbondingRequest{}, false
+		return types.UnbondingInfo{}, false
 	}
 
-	var info types.UnbondingRequest
+	var info types.UnbondingInfo
 	k.cdc.MustUnmarshal(bz, &info)
 	return info, true
 }
 
+func (k Keeper) GetUnbondingTotalInfo(ctx sdk.Context, staker sdk.AccAddress) []types.UnbondingInfo {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserUnbondingKey))
+	var totalUnbondingInfo []types.UnbondingInfo
+
+	iterator := storetypes.KVStorePrefixIterator(store, []byte(staker.String()))
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var unbondingInfo types.UnbondingInfo
+		k.cdc.MustUnmarshal(iterator.Value(), &unbondingInfo)
+		totalUnbondingInfo = append(totalUnbondingInfo, unbondingInfo)
+	}
+
+	return totalUnbondingInfo
+}
+
 func (k Keeper) GetUnbondingKey(staker sdk.AccAddress, denom string) []byte {
-	return []byte(fmt.Sprintf("%s:%s%s", types.UserStakeKey, staker.String(), denom))
+	return []byte(fmt.Sprintf("%s:%s%s", types.UserUnbondingKey, staker.String(), denom))
 }
 
 func (k Keeper) GetPool(ctx sdk.Context, token string) (types.StakingPool, bool) {
@@ -174,9 +191,9 @@ func (k Keeper) SetUserStake(ctx sdk.Context, stake types.UserStake, token strin
 	store.Set([]byte(stake.Address+token), bz)
 }
 
-func (k Keeper) GetUserTotalStake(ctx sdk.Context, address sdk.AccAddress) []sdk.DecCoin {
+func (k Keeper) GetUserTotalStake(ctx sdk.Context, address sdk.AccAddress) sdk.DecCoins {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserStakeKey))
-	var stakes []sdk.DecCoin
+	var stakes sdk.DecCoins
 
 	iterator := storetypes.KVStorePrefixIterator(store, []byte(address.String()))
 	defer iterator.Close()
