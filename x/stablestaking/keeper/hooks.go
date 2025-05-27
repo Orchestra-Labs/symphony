@@ -36,28 +36,23 @@ func (k Keeper) BeforeEpochStart(_ctx sdk.Context, _epochIdentifier string, _epo
 
 // AfterEpochEnd at the end of each epoch, take snapshot and distribute rewards to Stakers for previous epoch
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _epochNumber int64) error {
-	if epochIdentifier != k.GetParams(ctx).EpochIdentifier {
+	params := k.GetParams(ctx)
+	if epochIdentifier != params.EpochIdentifier {
 		return nil
 	}
 
+	// 1. Take snapshot of current active stakers
+	k.SnapshotCurrentEpoch(ctx)
+
+	//// 2. Distribute rewards to stakers from last snapshot
+	//rewardPerEpoch := k.GetEpochReward(ctx) // припустимо: 1000 USD або ATOM
+	//k.DistributeRewardsToLastEpochStakers(ctx, rewardPerEpoch)
+	//
+	//return nil
+
 	//TODO:
-	// 1 - take snapshot
-	// 2 - distribute rewards to Stakers
-	//defaultFeesDenom, _ := k.GetBaseDenom(ctx)
-	//nonNativefeeTokenCollectorAddress := k.accountKeeper.GetModuleAddress(txfeestypes.NonNativeTxFeeCollectorName)
-	//
-	//// Non-native fee token collector for staking rewards get swapped entirely into base denom.
-	//k.swapNonNativeFeeToDenom(ctx, defaultFeesDenom, nonNativefeeTokenCollectorAddress)
-	//
-	//// Now that the rewards have been swapped, transfer any base denom existing in the non-native tx fee collector to the auth fee token collector (indirectly distributing to stakers)
-	//baseDenomCoins := sdk.NewCoins(k.bankKeeper.GetBalance(ctx, nonNativefeeTokenCollectorAddress, defaultFeesDenom))
-	//err := osmoutils.ApplyFuncIfNoError(ctx, func(cacheCtx sdk.Context) error {
-	//	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, txfeestypes.NonNativeTxFeeCollectorName, authtypes.FeeCollectorName, baseDenomCoins)
-	//	return err
-	//})
-	//if err != nil {
-	//	incTelementryCounter(txfeestypes.TakerFeeFailedNativeRewardUpdateMetricName, baseDenomCoins.String(), err.Error())
-	//}
+	//1 - take snapshot
+	//2 - distribute rewards to Stakers
 
 	return nil
 }

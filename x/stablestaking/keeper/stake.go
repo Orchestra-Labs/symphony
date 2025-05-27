@@ -94,12 +94,15 @@ func (k Keeper) AddUnbondingRequest(ctx sdk.Context, staker sdk.AccAddress, amou
 	countDays := k.GetParams(ctx).UnbondingDuration.Milliseconds() / 1000 / 60 / 60 / 24 // milliseconds, minutes, hours, days
 	unbondingEpoch := currentEpoch.CurrentEpoch + countDays
 
-	// TODO: accumulate unbonding amount by denom?
-	unbondingInfo := types.UnbondingInfo{
-		Address:     staker.String(),
-		Amount:      math.LegacyDec(amount.Amount),
-		Denom:       amount.Denom,
-		UnbondEpoch: unbondingEpoch,
+	unbondingInfo, found := k.GetUnbondingInfo(ctx, staker, amount.Denom)
+	if found {
+		unbondingInfo.Amount = unbondingInfo.Amount.Add(math.LegacyDec(amount.Amount))
+		unbondingInfo.UnbondEpoch = unbondingEpoch
+	} else {
+		unbondingInfo.UnbondEpoch = unbondingEpoch
+		unbondingInfo.Denom = amount.Denom
+		unbondingInfo.Amount = math.LegacyDec(amount.Amount)
+		unbondingInfo.Address = staker.String()
 	}
 
 	store.Set(key, k.cdc.MustMarshal(&unbondingInfo))
@@ -212,27 +215,4 @@ func (k Keeper) GetUserTotalStake(ctx sdk.Context, address sdk.AccAddress) sdk.D
 	}
 
 	return stakes
-}
-
-func (k Keeper) SetEpochSnapshot(ctx sdk.Context, snapshot types.EpochSnapshot, denom string) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.SnapshotKey))
-	bz := k.cdc.MustMarshal(&snapshot)
-	store.Set([]byte("latest"), bz)
-}
-
-func (k Keeper) GetEpochSnapshot(ctx sdk.Context, denom string) types.EpochSnapshot {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.SnapshotKey))
-	bz := store.Get([]byte("latest"))
-
-	if bz == nil {
-		return types.EpochSnapshot{}
-	}
-
-	var snapshot types.EpochSnapshot
-	k.cdc.MustUnmarshal(bz, &snapshot)
-	return snapshot
-}
-
-func (k Keeper) GetEpochSnapshotKey(denom string) []byte {
-	return []byte(fmt.Sprintf("%s:%s", types.SnapshotKey, denom))
 }
