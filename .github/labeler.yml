@@ -3,7 +3,7 @@
 "C:app-wiring":
   - changed-files:
       - any-glob-to-any-file:
-          # Match all of app folder except wasm sub-folder
+          # Match all app folder except wasm sub-folder
           - app/*.go
           - app/apptesting/**
           - app/keepers/**
@@ -14,7 +14,7 @@
 "C:simulator":
   - changed-files:
       - any-glob-to-any-file:
-          # Match all of simulation & tests/simulator folder
+          # Match all simulation & tests/simulator folder
           - simulation/**
           - tests/simulator/**
           # Match any module update
@@ -22,7 +22,7 @@
 "C:wasm":
   - changed-files:
       - any-glob-to-any-file:
-          # Match all of app/wasm folder
+          # Match all app/wasm folder
           - app/wasm/**
 "C:x/claim":
   - changed-files:

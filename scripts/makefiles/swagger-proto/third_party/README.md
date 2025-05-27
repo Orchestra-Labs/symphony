@@ -6,7 +6,7 @@ a maintainer by running `buf push` in this folder.
 
 User facing documentation should not be placed here but instead goes in
 `buf.md` and in each protobuf package following the guidelines in
-https://docs.buf.build/bsr/documentation.
+<https://docs.buf.build/bsr/documentation>.
 
 ## SDK x Buf
 
@@ -20,7 +20,7 @@ https://docs.buf.build/bsr/documentation.
 
 ## Generate
 
-To get the Cosmos SDK proto given a commit, run: 
+To get the Cosmos SDK proto given a commit, run:
 
 ```bash
 buf export buf.build/cosmos/cosmos-sdk:${commit} --output .

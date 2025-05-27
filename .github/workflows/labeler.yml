@@ -1,13 +1,24 @@
 name: "Pull Request Labeler"
 on:
   - pull_request_target
+  - pull_request:
+    types: [ opened, synchronize, reopened ]
+
+permissions:
+  pull-requests: write
+  contents: read
 
 jobs:
   labeler:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
     steps:
+      - name: Checkout code
+      - uses: actions/checkout@v3
+
+      - name: Run Labeler
       - uses: actions/labeler@v5
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
