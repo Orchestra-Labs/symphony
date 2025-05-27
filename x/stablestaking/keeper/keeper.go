@@ -88,11 +88,11 @@ func (k Keeper) SnapshotCurrentEpoch(ctx sdk.Context) {
 	var totalStaked math.LegacyDec
 	var stakers []*types.UserStake
 
-	k.IterateActiveStakers(ctx, func(addr sdk.AccAddress, stake types.UserStake) {
-		stakers = append(stakers, &stake)
-		totalShares = totalShares.Add(stake.Shares)
-		totalStaked = totalStaked.Add(stake.Shares)
-	})
+	//k.IterateActiveStakers(ctx, func(addr sdk.AccAddress, stake types.UserStake) {
+	//	stakers = append(stakers, &stake)
+	//	totalShares = totalShares.Add(stake.Shares)
+	//	totalStaked = totalStaked.Add(stake.Shares)
+	//})
 
 	snapshot := types.EpochSnapshot{
 		TotalShares: totalShares,
@@ -105,52 +105,52 @@ func (k Keeper) SnapshotCurrentEpoch(ctx sdk.Context) {
 	store.Set(key, k.cdc.MustMarshal(&snapshot))
 }
 
-func (k Keeper) IterateActiveStakers(ctx sdk.Context, cb func(addr sdk.AccAddress, stake types.StakeInfo)) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.ActiveStakerPrefix))
+//func (k Keeper) IterateActiveStakers(ctx sdk.Context, cb func(addr sdk.AccAddress, stake types.StakeInfo)) {
+//	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.ActiveStakerPrefix))
+//
+//	iterator := sdk.KVStorePrefixIterator(store, nil)
+//	defer iterator.Close()
+//
+//	for ; iterator.Valid(); iterator.Next() {
+//		var stakeInfo types.StakeInfo
+//		k.cdc.MustUnmarshal(iterator.Value(), &stakeInfo)
+//
+//		addr, err := sdk.AccAddressFromBech32(string(iterator.Key()))
+//		if err != nil {
+//			panic(fmt.Sprintf("invalid address in active staker store: %s", err))
+//		}
+//
+//		cb(addr, stakeInfo)
+//	}
+//}
 
-	iterator := sdk.KVStorePrefixIterator(store, nil)
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		var stakeInfo types.StakeInfo
-		k.cdc.MustUnmarshal(iterator.Value(), &stakeInfo)
-
-		addr, err := sdk.AccAddressFromBech32(string(iterator.Key()))
-		if err != nil {
-			panic(fmt.Sprintf("invalid address in active staker store: %s", err))
-		}
-
-		cb(addr, stakeInfo)
-	}
-}
-
-func (k Keeper) DistributeRewardsToLastEpochStakers(ctx sdk.Context, totalReward sdk.Int) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.SnapshotPrefix))
-
-	currentEpoch := k.epochKeeper.GetEpochInfo(ctx, k.GetParams(ctx).EpochIdentifier).CurrentEpoch
-	lastEpochKey := sdk.Uint64ToBigEndian(uint64(currentEpoch - 1))
-
-	bz := store.Get(lastEpochKey)
-	if bz == nil {
-		return // нема знімку — нема винагороди
-	}
-
-	var snapshot types.EpochSnapshot
-	k.cdc.MustUnmarshal(bz, &snapshot)
-
-	for addrStr, stakeInfo := range snapshot.Stakers {
-		if snapshot.TotalShares.IsZero() {
-			continue
-		}
-
-		reward := stakeInfo.Shares.Quo(snapshot.TotalShares).MulInt(totalReward).TruncateInt()
-		addr, _ := sdk.AccAddressFromBech32(addrStr)
-
-		// нарахування токенів
-		rewardCoin := sdk.NewCoin(k.GetParams(ctx).RewardDenom, reward)
-		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addr, sdk.NewCoins(rewardCoin))
-		if err != nil {
-			panic(err)
-		}
-	}
-}
+//func (k Keeper) DistributeRewardsToLastEpochStakers(ctx sdk.Context, totalReward sdk.Int) {
+//	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.SnapshotPrefix))
+//
+//	currentEpoch := k.epochKeeper.GetEpochInfo(ctx, k.GetParams(ctx).EpochIdentifier).CurrentEpoch
+//	lastEpochKey := sdk.Uint64ToBigEndian(uint64(currentEpoch - 1))
+//
+//	bz := store.Get(lastEpochKey)
+//	if bz == nil {
+//		return // нема знімку — нема винагороди
+//	}
+//
+//	var snapshot types.EpochSnapshot
+//	k.cdc.MustUnmarshal(bz, &snapshot)
+//
+//	for addrStr, stakeInfo := range snapshot.Stakers {
+//		if snapshot.TotalShares.IsZero() {
+//			continue
+//		}
+//
+//		reward := stakeInfo.Shares.Quo(snapshot.TotalShares).MulInt(totalReward).TruncateInt()
+//		addr, _ := sdk.AccAddressFromBech32(addrStr)
+//
+//		// нарахування токенів
+//		rewardCoin := sdk.NewCoin(k.GetParams(ctx).RewardDenom, reward)
+//		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addr, sdk.NewCoins(rewardCoin))
+//		if err != nil {
+//			panic(err)
+//		}
+//	}
+//}

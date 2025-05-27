@@ -10,7 +10,6 @@ import (
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
 	"github.com/osmosis-labs/osmosis/v27/app"
-	v8 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v8"
 	v9 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v9"
 )
 
@@ -27,6 +26,7 @@ func TestMsgFilterDecorator(t *testing.T) {
 	addr1 := sdk.AccAddress([]byte("addr1_______________"))
 	addr2 := sdk.AccAddress([]byte("addr2_______________"))
 
+	upgradeHeight := sdk.Context{}.BlockHeight() - 1
 	testCases := []struct {
 		name      string
 		ctx       sdk.Context
@@ -35,7 +35,7 @@ func TestMsgFilterDecorator(t *testing.T) {
 	}{
 		{
 			name: "valid tx",
-			ctx:  sdk.Context{}.WithBlockHeight(v8.UpgradeHeight - 1),
+			ctx:  sdk.Context{}.WithBlockHeight(upgradeHeight - 1),
 			msgs: []sdk.Msg{
 				banktypes.NewMsgSend(addr1, addr2, sdk.NewCoins(sdk.NewInt64Coin("foo", 5))),
 			},
@@ -43,7 +43,7 @@ func TestMsgFilterDecorator(t *testing.T) {
 		},
 		{
 			name: "invalid tx",
-			ctx:  sdk.Context{}.WithBlockHeight(v8.UpgradeHeight),
+			ctx:  sdk.Context{}.WithBlockHeight(upgradeHeight),
 			msgs: []sdk.Msg{
 				banktypes.NewMsgSend(addr1, addr2, sdk.NewCoins(sdk.NewInt64Coin("foo", 5))),
 				&ibcchanneltypes.MsgTimeoutOnClose{},

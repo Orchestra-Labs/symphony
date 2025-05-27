@@ -44,15 +44,15 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _epochNum
 	// 1. Take snapshot of current active stakers
 	k.SnapshotCurrentEpoch(ctx)
 
-	// 2. Distribute rewards to stakers from last snapshot
-	rewardPerEpoch := k.GetEpochReward(ctx) // припустимо: 1000 USD або ATOM
-	k.DistributeRewardsToLastEpochStakers(ctx, rewardPerEpoch)
-
-	return nil
+	//// 2. Distribute rewards to stakers from last snapshot
+	//rewardPerEpoch := k.GetEpochReward(ctx) // припустимо: 1000 USD або ATOM
+	//k.DistributeRewardsToLastEpochStakers(ctx, rewardPerEpoch)
+	//
+	//return nil
 
 	//TODO:
-	// 1 - take snapshot
-	// 2 - distribute rewards to Stakers
+	//1 - take snapshot
+	//2 - distribute rewards to Stakers
 
 	return nil
 }
