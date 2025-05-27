@@ -79,4 +79,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: symphonyd-${{ matrix.targetos }}-${{ matrix.arch }}
-          path: cmd/symphonyd/symphonyd
+          path: cmd/symphonyd
