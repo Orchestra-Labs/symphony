@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - "main"
-      - "concentrated-liquidity-main"
       - "v[0-9]**"
   workflow_dispatch:
 
@@ -35,7 +34,8 @@ jobs:
             .github/workflows/test.yml
       - name: Set output
         id: vars
-        run: echo "::set-output name=git_diff::$GIT_DIFF"
+        run: echo "git_diff=$GIT_DIFF" >> $GITHUB_OUTPUT
+
     outputs:
       git_diff: ${{ steps.vars.outputs.git_diff }}
 
@@ -102,6 +102,16 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: "${{ github.sha }}-${{ matrix.part }}"
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       - name: Test & coverage report creation
         run: |
           VERSION=$(echo $(git describe --tags) | sed 's/^v//') || VERSION=${GITHUB_SHA}

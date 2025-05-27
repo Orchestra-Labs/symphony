@@ -58,7 +58,7 @@ jobs:
       -
         name: 🐿 Setup Golang
         uses: actions/setup-go@v5
-        if: env.GIT_DIFF
+        #if: env.GIT_DIFF
         with:
           go-version-file: go.mod
         env:
@@ -66,16 +66,16 @@ jobs:
           GOARCH: ${{ matrix.arch }}
       -
         name: Download Dependencies
-        if: env.GIT_DIFF
+        #if: env.GIT_DIFF
         run: go mod download
       -
         name: Build symphonyd
-        if: env.GIT_DIFF
+        #if: env.GIT_DIFF
         run: |
           GOWRK=off go build cmd/symphonyd/main.go
       -
         name: Upload symphonyd artifact
-        if: env.GIT_DIFF
+        #if: env.GIT_DIFF
         uses: actions/upload-artifact@v3
         with:
           name: symphonyd-${{ matrix.targetos }}-${{ matrix.arch }}
