@@ -3,10 +3,12 @@ package keeper
 import (
 	"context"
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
 )
 
 var _ types.QueryServer = Querier{}
@@ -86,11 +88,38 @@ func (q Querier) UserTotalStake(c context.Context, request *types.QueryUserTotal
 }
 
 func (q Querier) UserUnbonding(ctx context.Context, request *types.QueryUserUnbondingRequest) (*types.QueryUserUnbondingResponse, error) {
-	//TODO implement me
-	return &types.QueryUserUnbondingResponse{}, nil
+	if request == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	if err := sdk.ValidateDenom(request.Denom); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid denom")
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	unbondingInfo, found := q.GetUnbondingInfo(sdkCtx, sdk.AccAddress(request.Address), request.Denom)
+	if !found {
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("Unbonding info not found for address %s and denom %s", request.Address, request.Denom))
+	}
+
+	return &types.QueryUserUnbondingResponse{
+		Info: &unbondingInfo,
+	}, nil
 }
 
 func (q Querier) UserTotalUnbonding(ctx context.Context, request *types.QueryUserTotalUnbondingRequest) (*types.QueryUserTotalUnbondingResponse, error) {
-	//TODO implement me
-	return &types.QueryUserTotalUnbondingResponse{}, nil
+	if request == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	unbondingInfos := q.GetUnbondingTotalInfo(sdkCtx, sdk.AccAddress(request.Address))
+
+	var unbondInfos []*types.UnbondingInfo
+	for _, info := range unbondingInfos {
+		unbondInfos = append(unbondInfos, &info)
+	}
+	return &types.QueryUserTotalUnbondingResponse{
+		Info: unbondInfos,
+	}, nil
 }

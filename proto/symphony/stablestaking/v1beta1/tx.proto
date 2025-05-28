@@ -6,6 +6,8 @@ option go_package = "github.com/osmosis-labs/osmosis/v27/x/stablestaking/types";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/tx/v1beta1/tx.proto";
 import "google/protobuf/any.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 
 service Msg {
   rpc StakeTokens(MsgStakeTokens) returns (MsgStakeTokensResponse);
@@ -18,11 +20,39 @@ message MsgStakeTokens {
   cosmos.base.v1beta1.Coin amount = 2;
 }
 
-message MsgStakeTokensResponse {}
+message MsgStakeTokensResponse {
+  string staker = 1;
+  cosmos.base.v1beta1.Coin amount = 2;
+  bytes total_staked = 3 [
+    (gogoproto.moretags) = "yaml:\"total_staked\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  bytes total_shares = 4 [
+    (gogoproto.moretags) = "yaml:\"total_shares\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
 
 message MsgUnstakeTokens {
   string staker = 1;
   cosmos.base.v1beta1.Coin amount = 2;
 }
 
-message MsgUnstakeTokensResponse {}
+message MsgUnstakeTokensResponse {
+  string staker = 1;
+  cosmos.base.v1beta1.DecCoin amount = 2;
+  bytes total_staked = 3 [
+    (gogoproto.moretags) = "yaml:\"total_staked\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  bytes total_shares = 4 [
+    (gogoproto.moretags) = "yaml:\"total_shares\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}

@@ -137,21 +137,21 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 		// Verify staking pool
 		poolUsd, found := s.App.StableStakingKeeper.GetPool(s.Ctx, assets.MicroUSDDenom)
 		require.True(s.T(), found)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(amountUsd.Amount), poolUsd.TotalShares)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(amountUsd.Amount), poolUsd.TotalStaked)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(1100)), poolUsd.TotalShares)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(1100)), poolUsd.TotalStaked)
 
 		// Verify user stake
 		stakerUsdStake, found := s.App.StableStakingKeeper.GetUserStake(s.Ctx, staker, assets.MicroUSDDenom)
 		require.True(s.T(), found)
-		require.Equal(s.T(), math.LegacyNewDec(amountUsd.Amount.Int64()), stakerUsdStake.Shares)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(800)), stakerUsdStake.Shares)
 		require.Equal(s.T(), s.App.EpochsKeeper.GetEpochInfo(s.Ctx, "week").CurrentEpoch, stakerUsdStake.Epoch)
 
 		// check the balance of the MicroUSDDenom in module
 		moduleAddr := s.App.AccountKeeper.GetModuleAddress(types.ModuleName)
 		moduleUsdBalance := s.App.BankKeeper.GetBalance(s.Ctx, moduleAddr, assets.MicroUSDDenom)
 
-		// check that the total osmo amount has been transferred to module account
-		s.Equal(moduleUsdBalance.Amount.String(), amountUsd.Amount.String())
+		// check that the total osmo amount has been transferred to a module account
+		s.Equal("1100", moduleUsdBalance.Amount.String())
 
 		amountSdr := sdk.NewCoin(assets.MicroHKDDenom, math.NewInt(100))
 		resp, err = s.App.StableStakingKeeper.StakeTokens(s.Ctx, staker, amountSdr)
@@ -190,31 +190,31 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 		// Verify updated staking pool
 		poolUsd, found = s.App.StableStakingKeeper.GetPool(s.Ctx, assets.MicroUSDDenom)
 		require.True(s.T(), found)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(1000)), poolUsd.TotalShares) // 100 + 600 + 300
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(1000)), poolUsd.TotalStaked) // 100 + 600 + 300
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(2000)), poolUsd.TotalShares)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(2000)), poolUsd.TotalStaked)
 
 		// Verify updated user stake
 		stakerUsdStake, found = s.App.StableStakingKeeper.GetUserStake(s.Ctx, staker, assets.MicroUSDDenom)
 		require.True(s.T(), found)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(700)), stakerUsdStake.Shares) // 100 + 600
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(1400)), stakerUsdStake.Shares)
 
 		staker2UsdStake, found := s.App.StableStakingKeeper.GetUserStake(s.Ctx, staker2, assets.MicroUSDDenom)
 		require.True(s.T(), found)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(300)), staker2UsdStake.Shares) // 100 + 600
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(600)), staker2UsdStake.Shares)
 
 		// check the balance of the MicroUSDDenom in module
 		moduleUsdBalance = s.App.BankKeeper.GetBalance(s.Ctx, moduleAddr, assets.MicroUSDDenom)
-		s.Equal(moduleUsdBalance.Amount.String(), "1000")
+		s.Equal(moduleUsdBalance.Amount.String(), "2000")
 
 		moduleSdrBalance = s.App.BankKeeper.GetBalance(s.Ctx, moduleAddr, assets.MicroHKDDenom)
 		s.Equal(moduleSdrBalance.Amount.String(), "100")
 
-		// check staker total stake
+		// check the total stake
 		stakerStakes := s.App.StableStakingKeeper.GetUserTotalStake(s.Ctx, staker)
 		require.Equal(s.T(),
-			[]sdk.DecCoin{
+			sdk.DecCoins{
 				sdk.NewDecCoin("ukhd", math.NewInt(100)),
-				sdk.NewDecCoin("uusd", math.NewInt(700)),
+				sdk.NewDecCoin("uusd", math.NewInt(1400)),
 			},
 			stakerStakes,
 		)
@@ -222,8 +222,8 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 		// check staker2 total stake
 		staker2Stakes := s.App.StableStakingKeeper.GetUserTotalStake(s.Ctx, staker2)
 		require.Equal(s.T(),
-			[]sdk.DecCoin{
-				sdk.NewDecCoin("uusd", math.NewInt(300)),
+			sdk.DecCoins{
+				sdk.NewDecCoin("uusd", math.NewInt(600)),
 			},
 			staker2Stakes,
 		)
@@ -240,8 +240,8 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 				},
 				{
 					Token:       "uusd",
-					TotalStaked: math.LegacyNewDecFromInt(math.NewInt(1000)),
-					TotalShares: math.LegacyNewDecFromInt(math.NewInt(1000)),
+					TotalStaked: math.LegacyNewDecFromInt(math.NewInt(2000)),
+					TotalShares: math.LegacyNewDecFromInt(math.NewInt(2000)),
 				}},
 			pools,
 		)

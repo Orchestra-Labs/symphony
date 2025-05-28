@@ -2,6 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	epochstypes "github.com/osmosis-labs/osmosis/v27/x/epochs/types"
 	txfeestypes "github.com/osmosis-labs/osmosis/v27/x/txfees/types"
 )
@@ -41,18 +42,14 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _epochNum
 		return nil
 	}
 
-	// 1. Take snapshot of current active stakers
+	// 1. Take a snapshot of current active stakers
 	k.SnapshotCurrentEpoch(ctx)
 
-	//// 2. Distribute rewards to stakers from last snapshot
-	//rewardPerEpoch := k.GetEpochReward(ctx) // припустимо: 1000 USD або ATOM
-	//k.DistributeRewardsToLastEpochStakers(ctx, rewardPerEpoch)
-	//
-	//return nil
-
-	//TODO:
-	// 1 - take snapshot
-	// 2 - distribute rewards to Stakers
+	// 2. Distribute rewards to stakers from last snapshot
+	rewardPerEpoch := k.GetEpochReward(ctx)
+	if !rewardPerEpoch.IsZero() {
+		k.DistributeRewardsToLastEpochStakers(ctx, rewardPerEpoch)
+	}
 
 	return nil
 }

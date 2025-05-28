@@ -14,6 +14,11 @@ message Params {
       [ (gogoproto.nullable) = false, (gogoproto.stdduration) = true ];
   repeated string supported_tokens = 3;
   string epoch_identifier = 4;
+  bytes max_staking_amount = 5 [
+    (gogoproto.moretags) = "yaml:\"max_staking_amount\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message GenesisState { Params params = 1 [ (gogoproto.nullable) = false ]; }

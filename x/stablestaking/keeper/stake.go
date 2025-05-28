@@ -1,11 +1,13 @@
 package keeper
 
 import (
+	"fmt"
+
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
 )
 
@@ -13,6 +15,12 @@ func (k Keeper) StakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.C
 	if !types.IsAllowedToken(amount.Denom) {
 		return nil, fmt.Errorf("unsupported token: %s", amount.Denom)
 	}
+
+	// TODO: do we need this param?
+	//params := k.GetParams(ctx)
+	//if amount.Amount.GT(math.Int(params.MaxStakingAmount)) {
+	//	return nil, fmt.Errorf("max staking amount: %s", params.MaxStakingAmount.String())
+	//}
 
 	pool, found := k.GetPool(ctx, amount.Denom)
 	if !found {
@@ -83,11 +91,19 @@ func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk
 	pool.TotalShares = pool.TotalShares.Sub(sharesToRemove)
 	k.SetPool(ctx, pool)
 
-	return &types.MsgUnstakeTokensResponse{}, nil
+	return &types.MsgUnstakeTokensResponse{
+		Staker: staker.String(),
+		Amount: &sdk.DecCoin{
+			Denom:  amount.Denom,
+			Amount: math.LegacyNewDecFromInt(amount.Amount),
+		},
+		TotalShares: pool.TotalShares,
+		TotalStaked: pool.TotalStaked,
+	}, nil
 }
 
 func (k Keeper) AddUnbondingRequest(ctx sdk.Context, staker sdk.AccAddress, amount sdk.Coin) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserUnbondingKey))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UnbondingKey))
 	key := k.GetUnbondingKey(staker, amount.Denom)
 
 	currentEpoch := k.epochKeeper.GetEpochInfo(ctx, "day")
@@ -109,7 +125,7 @@ func (k Keeper) AddUnbondingRequest(ctx sdk.Context, staker sdk.AccAddress, amou
 }
 
 func (k Keeper) GetUnbondingInfo(ctx sdk.Context, staker sdk.AccAddress, denom string) (types.UnbondingInfo, bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserUnbondingKey))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UnbondingKey))
 	key := k.GetUnbondingKey(staker, denom)
 	bz := store.Get(key)
 	if bz == nil {
@@ -122,7 +138,7 @@ func (k Keeper) GetUnbondingInfo(ctx sdk.Context, staker sdk.AccAddress, denom s
 }
 
 func (k Keeper) GetUnbondingTotalInfo(ctx sdk.Context, staker sdk.AccAddress) []types.UnbondingInfo {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserUnbondingKey))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UnbondingKey))
 	var totalUnbondingInfo []types.UnbondingInfo
 
 	iterator := storetypes.KVStorePrefixIterator(store, []byte(staker.String()))
@@ -138,7 +154,7 @@ func (k Keeper) GetUnbondingTotalInfo(ctx sdk.Context, staker sdk.AccAddress) []
 }
 
 func (k Keeper) GetUnbondingKey(staker sdk.AccAddress, denom string) []byte {
-	return []byte(fmt.Sprintf("%s:%s%s", types.UserUnbondingKey, staker.String(), denom))
+	return []byte(fmt.Sprintf("%s:%s%s", types.UnbondingKey, staker.String(), denom))
 }
 
 func (k Keeper) GetPool(ctx sdk.Context, token string) (types.StakingPool, bool) {

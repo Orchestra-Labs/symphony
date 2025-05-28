@@ -2,19 +2,13 @@ package types
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/x/params/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
 	"github.com/osmosis-labs/osmosis/osmomath"
 	appParams "github.com/osmosis-labs/osmosis/v27/app/params"
-	"time"
-)
-
-const (
-	ModuleName = "stablestaking"
-	StoreKey   = ModuleName
-	RouterKey  = ModuleName
-
-	NativeRewardsCollectorName = "native_rewards_collector"
 )
 
 const MinUnbondingTime = time.Hour * 24 * 6
@@ -28,6 +22,8 @@ var (
 	KeyUnbondingTime = []byte("UnbondingTime")
 	// KeySupportedTokens the list of tokens which can be staked
 	KeySupportedTokens = []byte("SupportedTokens")
+	// KeyMaxStakingAmount the value of maximum staking
+	KeyMaxStakingAmount = []byte("MaxStakingAmount")
 )
 
 // AllowedTokens the list of stable coins to be allowed to stake
