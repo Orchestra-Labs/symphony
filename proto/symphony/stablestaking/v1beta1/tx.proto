@@ -8,11 +8,16 @@ import "cosmos/tx/v1beta1/tx.proto";
 import "google/protobuf/any.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
 service Msg {
-  rpc StakeTokens(MsgStakeTokens) returns (MsgStakeTokensResponse);
+  rpc StakeTokens(MsgStakeTokens) returns (MsgStakeTokensResponse) {
+    option (google.api.http).post = "/symphony/stablestaking/v1beta1/stake_tokens";
+  };
 
-  rpc UnstakeTokens(MsgUnstakeTokens) returns (MsgUnstakeTokensResponse);
+  rpc UnstakeTokens(MsgUnstakeTokens) returns (MsgUnstakeTokensResponse){
+    option (google.api.http).post = "/symphony/stablestaking/v1beta1/unstake_tokens";
+  };
 }
 
 message MsgStakeTokens {
