@@ -78,7 +78,7 @@ func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk
 		return nil, fmt.Errorf("not found staked amount for user %s and denom %s", staker.String(), amount.Denom)
 	}
 
-	sharesToRemove := math.LegacyDec(amount.Amount).Mul(pool.TotalShares).Quo(pool.TotalStaked)
+	sharesToRemove := math.LegacyNewDecFromInt(amount.Amount).Mul(pool.TotalShares).Quo(pool.TotalStaked)
 	if stakedBalance.Shares.LT(sharesToRemove) {
 		return nil, fmt.Errorf("unstake amount exceeds user's share: %s", stakedBalance.Shares.String())
 	}
@@ -87,7 +87,7 @@ func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk
 	k.SetUserStake(ctx, stakedBalance, amount.Denom)
 	k.AddUnbondingRequest(ctx, staker, amount)
 
-	pool.TotalStaked = pool.TotalStaked.Sub(math.LegacyDec(amount.Amount))
+	pool.TotalStaked = pool.TotalStaked.Sub(math.LegacyNewDecFromInt(amount.Amount))
 	pool.TotalShares = pool.TotalShares.Sub(sharesToRemove)
 	k.SetPool(ctx, pool)
 
@@ -112,12 +112,12 @@ func (k Keeper) AddUnbondingRequest(ctx sdk.Context, staker sdk.AccAddress, amou
 
 	unbondingInfo, found := k.GetUnbondingInfo(ctx, staker, amount.Denom)
 	if found {
-		unbondingInfo.Amount = unbondingInfo.Amount.Add(math.LegacyDec(amount.Amount))
+		unbondingInfo.Amount = unbondingInfo.Amount.Add(math.LegacyNewDecFromInt(amount.Amount))
 		unbondingInfo.UnbondEpoch = unbondingEpoch
 	} else {
 		unbondingInfo.UnbondEpoch = unbondingEpoch
 		unbondingInfo.Denom = amount.Denom
-		unbondingInfo.Amount = math.LegacyDec(amount.Amount)
+		unbondingInfo.Amount = math.LegacyNewDecFromInt(amount.Amount)
 		unbondingInfo.Address = staker.String()
 	}
 
@@ -141,7 +141,8 @@ func (k Keeper) GetUnbondingTotalInfo(ctx sdk.Context, staker sdk.AccAddress) []
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UnbondingKey))
 	var totalUnbondingInfo []types.UnbondingInfo
 
-	iterator := storetypes.KVStorePrefixIterator(store, []byte(staker.String()))
+	key := k.GetUnbondingKey(staker, "")
+	iterator := storetypes.KVStorePrefixIterator(store, key)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {

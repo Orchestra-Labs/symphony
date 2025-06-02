@@ -61,6 +61,8 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 	err = s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, FaucetAccountName, staker2, InitUSDDCoins)
 	s.Require().NoError(err)
 
+	stakerBaseBalance := s.App.BankKeeper.GetBalance(s.Ctx, staker, assets.MicroUSDDenom)
+
 	s.Run("fail on unsupported token", func() {
 		staker := sdk.AccAddress("staker1")
 		unsupportedToken := sdk.NewCoin("stable1", math.NewInt(100000))
@@ -92,7 +94,7 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 		moduleAddr := s.App.AccountKeeper.GetModuleAddress(types.ModuleName)
 		moduleBaseDenomBalance := s.App.BankKeeper.GetBalance(s.Ctx, moduleAddr, assets.MicroUSDDenom)
 
-		// check that the total osmo amount has been transferred to module account
+		// check that the total osmo amount has been transferred to a module account
 		s.Equal(moduleBaseDenomBalance.Amount.String(), token1.Amount.String())
 
 		// stake additional tokens
@@ -121,10 +123,95 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 		require.True(s.T(), found)
 		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(300)), staker2Stake.Shares) // 100 + 600
 
+		// get total stake of staker1
+		totalStake := s.App.StableStakingKeeper.GetUserTotalStake(s.Ctx, staker)
+		require.Equal(s.T(), sdk.DecCoins{
+			{Denom: assets.MicroUSDDenom, Amount: math.LegacyNewDec(700)},
+		}, totalStake) // 100 + 600
+
 		// check the balance of the MicroUSDDenom in module
 		moduleBaseDenomBalance = s.App.BankKeeper.GetBalance(s.Ctx, moduleAddr, assets.MicroUSDDenom)
 		s.Equal(moduleBaseDenomBalance.Amount.String(), "1000")
 
+		//  unstake tokens
+		resp1, err := s.App.StableStakingKeeper.UnStakeTokens(s.Ctx, staker, token1)
+		require.Nil(s.T(), err)
+		require.NotNil(s.T(), resp1)
+
+		// Verify staking pool
+		pool, found = s.App.StableStakingKeeper.GetPool(s.Ctx, assets.MicroUSDDenom)
+		require.True(s.T(), found)
+		require.Equal(s.T(), math.LegacyNewDec(900), pool.TotalShares)
+		require.Equal(s.T(), math.LegacyNewDec(900), pool.TotalStaked)
+
+		// Verify user stake
+		userStake, found = s.App.StableStakingKeeper.GetUserStake(s.Ctx, staker, assets.MicroUSDDenom)
+		require.True(s.T(), found)
+		require.Equal(s.T(), math.LegacyNewDec(600), userStake.Shares)
+		require.Equal(s.T(), s.App.EpochsKeeper.GetEpochInfo(s.Ctx, "week").CurrentEpoch, userStake.Epoch)
+
+		// check unbonding
+		userUnbondInfo, found := s.App.StableStakingKeeper.GetUnbondingInfo(s.Ctx, staker, assets.MicroUSDDenom)
+		require.True(s.T(), found)
+		require.Equal(s.T(), types.UnbondingInfo{
+			Address:     staker.String(),
+			Amount:      math.LegacyNewDec(100),
+			Denom:       assets.MicroUSDDenom,
+			UnbondEpoch: math.NewInt(14).Int64(),
+		}, userUnbondInfo)
+
+		// check user balance
+		stakerBalance := s.App.BankKeeper.GetBalance(s.Ctx, staker, assets.MicroUSDDenom)
+		s.Equal(stakerBalance.Amount.String(), stakerBaseBalance.Amount.Sub(math.NewInt(700)).String())
+
+		// check module balance
+		moduleBaseDenomBalance = s.App.BankKeeper.GetBalance(s.Ctx, moduleAddr, assets.MicroUSDDenom)
+		s.Equal(moduleBaseDenomBalance.Amount.String(), "1000")
+
+		//  full unstake tokens
+		resp1, err = s.App.StableStakingKeeper.UnStakeTokens(s.Ctx, staker, amount1)
+		require.Nil(s.T(), err)
+		require.NotNil(s.T(), resp1)
+
+		// Verify staking pool
+		pool, found = s.App.StableStakingKeeper.GetPool(s.Ctx, assets.MicroUSDDenom)
+		require.True(s.T(), found)
+		require.Equal(s.T(), math.LegacyNewDec(300), pool.TotalShares)
+		require.Equal(s.T(), math.LegacyNewDec(300), pool.TotalStaked)
+
+		// Verify user stake
+		userStake, found = s.App.StableStakingKeeper.GetUserStake(s.Ctx, staker, assets.MicroUSDDenom)
+		require.True(s.T(), found)
+		require.Equal(s.T(), math.LegacyNewDec(0), userStake.Shares)
+
+		// check unbonding
+		userUnbondInfo, found = s.App.StableStakingKeeper.GetUnbondingInfo(s.Ctx, staker, assets.MicroUSDDenom)
+		require.True(s.T(), found)
+		require.Equal(s.T(), types.UnbondingInfo{
+			Address:     staker.String(),
+			Amount:      math.LegacyNewDec(700),
+			Denom:       assets.MicroUSDDenom,
+			UnbondEpoch: math.NewInt(14).Int64(),
+		}, userUnbondInfo)
+
+		// get total unbondings
+		userUnbondTotalInfo := s.App.StableStakingKeeper.GetUnbondingTotalInfo(s.Ctx, staker)
+		require.Equal(s.T(), []types.UnbondingInfo{
+			{
+				Address:     staker.String(),
+				Amount:      math.LegacyNewDec(700),
+				Denom:       assets.MicroUSDDenom,
+				UnbondEpoch: math.NewInt(14).Int64(),
+			},
+		}, userUnbondTotalInfo)
+
+		// check user balance
+		stakerBalance = s.App.BankKeeper.GetBalance(s.Ctx, staker, assets.MicroUSDDenom)
+		s.Equal(stakerBalance.Amount.String(), stakerBaseBalance.Amount.Sub(math.NewInt(700)).String())
+
+		// check module balance
+		moduleBaseDenomBalance = s.App.BankKeeper.GetBalance(s.Ctx, moduleAddr, assets.MicroUSDDenom)
+		s.Equal(moduleBaseDenomBalance.Amount.String(), "1000")
 	})
 
 	s.Run("stake multiple token successfully", func() {
@@ -173,7 +260,7 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 		// check the balance of the MicroUSDDenom in module
 		moduleSdrBalance := s.App.BankKeeper.GetBalance(s.Ctx, moduleAddr, assets.MicroHKDDenom)
 
-		// check that the total osmo amount has been transferred to module account
+		// check that the total osmo amount has been transferred to a module account
 		s.Equal(moduleSdrBalance.Amount.String(), amountSdr.Amount.String())
 
 		// stake additional tokens
