@@ -1,14 +1,15 @@
 package ante_test
 
 import (
-	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
+	"github.com/osmosis-labs/osmosis/v27/app/apptesting/assets"
 	"testing"
+
+	"github.com/osmosis-labs/osmosis/osmomath"
 
 	"github.com/stretchr/testify/suite"
 
-	dbm "github.com/cometbft/cometbft-db"
-	"github.com/cometbft/cometbft/libs/log"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"cosmossdk.io/log"
+	dbm "github.com/cosmos/cosmos-db"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -19,7 +20,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"github.com/osmosis-labs/osmosis/v27/app"
@@ -48,13 +48,16 @@ func createTestApp(isCheckTx bool, tempDir string) (*app.SymphonyApp, sdk.Contex
 		tempDir, 0,
 		simtestutil.EmptyAppOptions{}, wasmOpts,
 	)
-	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
-	app.AccountKeeper.SetParams(ctx, authtypes.DefaultParams())
+	ctx := app.BaseApp.NewContext(isCheckTx)
 	app.TreasuryKeeper.SetParams(ctx, treasurytypes.DefaultParams())
 	app.TreasuryKeeper.SetTaxRate(ctx, osmomath.NewDecWithPrec(1, 2)) // 0.01%
-	app.DistrKeeper.SetParams(ctx, distributiontypes.DefaultParams())
-	app.DistrKeeper.SetFeePool(ctx, distributiontypes.InitialFeePool())
-	app.TxFeesKeeper.SetBaseDenom(ctx, appparams.BaseCoinUnit)
+	app.OracleKeeper.SetTobinTax(ctx, assets.MicroSDRDenom, osmomath.NewDecWithPrec(1, 2))
+	app.OracleKeeper.SetTobinTax(ctx, assets.MicroUSDDenom, osmomath.NewDecWithPrec(1, 2))
+	app.OracleKeeper.SetTobinTax(ctx, assets.MicroHKDDenom, osmomath.NewDecWithPrec(1, 2))
+	err := app.DistrKeeper.FeePool.Set(ctx, distributiontypes.InitialFeePool())
+	if err != nil {
+		return nil, sdk.Context{}
+	}
 
 	return app, ctx
 }
@@ -90,7 +93,7 @@ func (suite *AnteTestSuite) CreateTestTx(privs []cryptotypes.PrivKey, accNums []
 		sigV2 := signing.SignatureV2{
 			PubKey: priv.PubKey(),
 			Data: &signing.SingleSignatureData{
-				SignMode:  suite.clientCtx.TxConfig.SignModeHandler().DefaultMode(),
+				SignMode:  signing.SignMode(suite.clientCtx.TxConfig.SignModeHandler().DefaultMode()),
 				Signature: nil,
 			},
 			Sequence: accSeqs[i],
@@ -111,9 +114,13 @@ func (suite *AnteTestSuite) CreateTestTx(privs []cryptotypes.PrivKey, accNums []
 			AccountNumber: accNums[i],
 			Sequence:      accSeqs[i],
 		}
-		sigV2, err := tx.SignWithPrivKey(
-			suite.clientCtx.TxConfig.SignModeHandler().DefaultMode(), signerData,
-			suite.txBuilder, priv, suite.clientCtx.TxConfig, accSeqs[i])
+		sigV2, err := tx.SignWithPrivKey(sdk.Context{},
+			signing.SignMode(suite.clientCtx.TxConfig.SignModeHandler().DefaultMode()),
+			signerData,
+			suite.txBuilder,
+			priv,
+			suite.clientCtx.TxConfig,
+			accSeqs[i])
 		if err != nil {
 			return nil, err
 		}
