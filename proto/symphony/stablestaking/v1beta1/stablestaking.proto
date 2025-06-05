@@ -13,8 +13,9 @@ message Params {
   google.protobuf.Duration unbonding_duration = 2
       [ (gogoproto.nullable) = false, (gogoproto.stdduration) = true ];
   repeated string supported_tokens = 3;
-  string epoch_identifier = 4;
-  bytes max_staking_amount = 5 [
+  string reward_epoch_identifier = 4;
+  string unbonding_epoch_identifier = 5;
+  bytes max_staking_amount = 6 [
     (gogoproto.moretags) = "yaml:\"max_staking_amount\"",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false

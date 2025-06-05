@@ -16,11 +16,10 @@ func (k Keeper) StakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.C
 		return nil, fmt.Errorf("unsupported token: %s", amount.Denom)
 	}
 
-	// TODO: do we need this param?
-	//params := k.GetParams(ctx)
-	//if amount.Amount.GT(math.Int(params.MaxStakingAmount)) {
-	//	return nil, fmt.Errorf("max staking amount: %s", params.MaxStakingAmount.String())
-	//}
+	_, err := sdk.AccAddressFromBech32(staker.String())
+	if err != nil {
+		panic(fmt.Sprintf("invalid staker address : %s", err))
+	}
 
 	pool, found := k.GetPool(ctx, amount.Denom)
 	if !found {
@@ -55,7 +54,7 @@ func (k Keeper) StakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.C
 
 	k.SetUserStake(ctx, userStake, amount.Denom)
 
-	err := k.BankKeeper.SendCoinsFromAccountToModule(ctx, staker, types.ModuleName, sdk.NewCoins(amount))
+	err = k.BankKeeper.SendCoinsFromAccountToModule(ctx, staker, types.ModuleName, sdk.NewCoins(amount))
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +67,16 @@ func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk
 		return nil, fmt.Errorf("unsupported token: %s", amount.Denom)
 	}
 
-	pool, _ := k.GetPool(ctx, amount.Denom)
+	_, err := sdk.AccAddressFromBech32(staker.String())
+	if err != nil {
+		panic(fmt.Sprintf("invalid staker address : %s", err))
+	}
+
+	pool, find := k.GetPool(ctx, amount.Denom)
+	if !find {
+		return nil, fmt.Errorf("not found pool for denom %s", amount.Denom)
+	}
+
 	if pool.TotalStaked.IsZero() {
 		return nil, fmt.Errorf("total staked is zero")
 	}

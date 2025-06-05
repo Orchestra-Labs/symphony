@@ -24,18 +24,25 @@ var (
 	KeySupportedTokens = []byte("SupportedTokens")
 	// KeyMaxStakingAmount the value of maximum staking
 	KeyMaxStakingAmount = []byte("MaxStakingAmount")
+	// KeyRewardEpochIdentifier the period required to distribute rewards
+	KeyRewardEpochIdentifier = []byte("RewardEpochIdentifier")
+	// KeyUnbondingEpochIdentifier the period required to unbond stake
+	KeyUnbondingEpochIdentifier = []byte("UnbondingEpochIdentifier")
 )
 
 // AllowedTokens the list of stable coins to be allowed to stake
 var AllowedTokens = []string{appParams.MicroUSDDenom, appParams.MicroHKDDenom, appParams.MicroVNDDenom}
+var AllowedEpochs = []string{"week", "day"}
 
 var _ paramstypes.ParamSet = &Params{}
 
 func DefaultParams() Params {
 	return Params{
-		RewardRate:        osmomath.NewDecWithPrec(5, 2).String(), // 0.05%
-		UnbondingDuration: time.Hour * 24 * 14,
-		SupportedTokens:   AllowedTokens,
+		RewardRate:               osmomath.NewDecWithPrec(5, 2).String(), // 0.05%
+		UnbondingDuration:        time.Hour * 24 * 14,
+		SupportedTokens:          AllowedTokens,
+		UnbondingEpochIdentifier: AllowedEpochs[1],
+		RewardEpochIdentifier:    AllowedEpochs[0],
 	}
 }
 
@@ -49,10 +56,27 @@ func ParamKeyTable() paramstypes.KeyTable {
 
 func (p *Params) ParamSetPairs() types.ParamSetPairs {
 	return types.ParamSetPairs{
+		types.NewParamSetPair(KeyRewardEpochIdentifier, &p.RewardEpochIdentifier, validateEpoch),
+		types.NewParamSetPair(KeyUnbondingEpochIdentifier, &p.UnbondingEpochIdentifier, validateEpoch),
 		types.NewParamSetPair(KeyRewardRate, &p.RewardRate, validateRate),
 		types.NewParamSetPair(KeyUnbondingTime, &p.UnbondingDuration, validateUnbondingDuration),
 		types.NewParamSetPair(KeySupportedTokens, &p.SupportedTokens, validateSupportedTokens),
 	}
+}
+
+func validateEpoch(i interface{}) error {
+	v, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	for _, a := range AllowedEpochs {
+		if v == a {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("invalid epoch identifier: %s", v)
 }
 
 func validateRate(i interface{}) error {

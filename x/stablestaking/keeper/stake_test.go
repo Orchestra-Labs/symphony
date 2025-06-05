@@ -47,14 +47,16 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 	err = s.App.BankKeeper.MintCoins(s.Ctx, FaucetAccountName, totalSdrSupply)
 	s.Require().NoError(err)
 
-	staker := sdk.AccAddress("staker1")
+	staker, err := sdk.AccAddressFromBech32("symphony1cvtrs9jhacf0p7xlmeq0ejhq83udmcqx40nyg9")
+	require.NoError(s.T(), err)
 	err = s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, FaucetAccountName, staker, InitUSDRCoins)
 	s.Require().NoError(err)
 
 	err = s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, FaucetAccountName, staker, InitUSDDCoins)
 	s.Require().NoError(err)
 
-	staker2 := sdk.AccAddress("staker2")
+	staker2, err := sdk.AccAddressFromBech32("symphony137jfmwnjgzuy4fvd60mmg50uyfye877q56uca6")
+	require.NoError(s.T(), err)
 	err = s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, FaucetAccountName, staker2, InitUSDRCoins)
 	s.Require().NoError(err)
 
@@ -64,7 +66,6 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 	stakerBaseBalance := s.App.BankKeeper.GetBalance(s.Ctx, staker, assets.MicroUSDDenom)
 
 	s.Run("fail on unsupported token", func() {
-		staker := sdk.AccAddress("staker1")
 		unsupportedToken := sdk.NewCoin("stable1", math.NewInt(100000))
 		_, err := s.App.StableStakingKeeper.StakeTokens(s.Ctx, staker, unsupportedToken)
 		require.NotNil(s.T(), err)
@@ -224,13 +225,13 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 		// Verify staking pool
 		poolUsd, found := s.App.StableStakingKeeper.GetPool(s.Ctx, assets.MicroUSDDenom)
 		require.True(s.T(), found)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(1100)), poolUsd.TotalShares)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(1100)), poolUsd.TotalStaked)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(400)), poolUsd.TotalShares)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(400)), poolUsd.TotalStaked)
 
 		// Verify user stake
 		stakerUsdStake, found := s.App.StableStakingKeeper.GetUserStake(s.Ctx, staker, assets.MicroUSDDenom)
 		require.True(s.T(), found)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(800)), stakerUsdStake.Shares)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(100)), stakerUsdStake.Shares)
 		require.Equal(s.T(), s.App.EpochsKeeper.GetEpochInfo(s.Ctx, "week").CurrentEpoch, stakerUsdStake.Epoch)
 
 		// check the balance of the MicroUSDDenom in module
@@ -277,13 +278,13 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 		// Verify updated staking pool
 		poolUsd, found = s.App.StableStakingKeeper.GetPool(s.Ctx, assets.MicroUSDDenom)
 		require.True(s.T(), found)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(2000)), poolUsd.TotalShares)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(2000)), poolUsd.TotalStaked)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(1300)), poolUsd.TotalShares)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(1300)), poolUsd.TotalStaked)
 
 		// Verify updated user stake
 		stakerUsdStake, found = s.App.StableStakingKeeper.GetUserStake(s.Ctx, staker, assets.MicroUSDDenom)
 		require.True(s.T(), found)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(1400)), stakerUsdStake.Shares)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(700)), stakerUsdStake.Shares)
 
 		staker2UsdStake, found := s.App.StableStakingKeeper.GetUserStake(s.Ctx, staker2, assets.MicroUSDDenom)
 		require.True(s.T(), found)
@@ -301,7 +302,7 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 		require.Equal(s.T(),
 			sdk.DecCoins{
 				sdk.NewDecCoin("ukhd", math.NewInt(100)),
-				sdk.NewDecCoin("uusd", math.NewInt(1400)),
+				sdk.NewDecCoin("uusd", math.NewInt(700)),
 			},
 			stakerStakes,
 		)
@@ -327,15 +328,11 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 				},
 				{
 					Token:       "uusd",
-					TotalStaked: math.LegacyNewDecFromInt(math.NewInt(2000)),
-					TotalShares: math.LegacyNewDecFromInt(math.NewInt(2000)),
+					TotalStaked: math.LegacyNewDecFromInt(math.NewInt(1300)),
+					TotalShares: math.LegacyNewDecFromInt(math.NewInt(1300)),
 				}},
 			pools,
 		)
 
 	})
-
-	s.Run("stake, unstake, unbonding, rewards by epoch", func() { // TODO:
-	})
-
 }

@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
+
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
@@ -69,7 +71,7 @@ func (k Keeper) SetEpochSnapshot(ctx sdk.Context, snapshot types.EpochSnapshot, 
 	bz := k.cdc.MustMarshal(&snapshot)
 
 	// Store both by epoch and as latest
-	epoch := k.epochKeeper.GetEpochInfo(ctx, k.GetParams(ctx).EpochIdentifier).CurrentEpoch
+	epoch := k.epochKeeper.GetEpochInfo(ctx, k.GetParams(ctx).RewardEpochIdentifier).CurrentEpoch
 	epochKey := sdk.Uint64ToBigEndian(uint64(epoch))
 	store.Set(epochKey, bz)
 
@@ -77,18 +79,18 @@ func (k Keeper) SetEpochSnapshot(ctx sdk.Context, snapshot types.EpochSnapshot, 
 	store.Set([]byte(fmt.Sprintf("latest:%s", denom)), bz)
 }
 
-func (k Keeper) GetEpochSnapshot(ctx sdk.Context, denom string) types.EpochSnapshot {
+func (k Keeper) GetEpochSnapshot(ctx sdk.Context, denom string) (types.EpochSnapshot, error) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.SnapshotKey))
 
 	// Try to get the latest snapshot first
 	bz := store.Get([]byte(fmt.Sprintf("latest:%s", denom)))
 	if bz == nil {
-		return types.EpochSnapshot{}
+		return types.EpochSnapshot{}, fmt.Errorf("epoch snapshot not found")
 	}
 
 	var snapshot types.EpochSnapshot
 	k.cdc.MustUnmarshal(bz, &snapshot)
-	return snapshot
+	return snapshot, nil
 }
 
 func (k Keeper) SnapshotCurrentEpoch(ctx sdk.Context) {
@@ -97,30 +99,32 @@ func (k Keeper) SnapshotCurrentEpoch(ctx sdk.Context) {
 		return
 	}
 
-	var totalShares math.LegacyDec
-	var totalStaked math.LegacyDec
-	var stakers []*types.UserStake
+	// Get the current epoch
+	currentEpoch := k.epochKeeper.GetEpochInfo(ctx, params.RewardEpochIdentifier).CurrentEpoch
+	pools := k.GetPools(ctx)
 
-	// Iterate through all stakers and collect their stakes
-	k.IterateActiveStakers(ctx, func(addr sdk.AccAddress, stake types.UserStake) {
-		// Get the denom from the key
-		key := addr.String() + params.SupportedTokens[0]
-		store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UserStakeKey))
-		if store.Has([]byte(key)) {
-			stakers = append(stakers, &stake)
-			totalShares = totalShares.Add(stake.Shares)
-			totalStaked = totalStaked.Add(stake.Shares)
+	// For each supported token, create a snapshot
+	for _, pool := range pools {
+		var stakers []*types.UserStake
+
+		// Iterate through all stakers and collect their stakes for this denom
+		k.IterateActiveStakers(ctx, func(addr sdk.AccAddress, stake types.UserStake) {
+			// Only include stakers for this specific denom
+			if stake.Epoch <= currentEpoch-1 { // Only include stakers from previous epochs
+				stakers = append(stakers, &stake)
+			}
+		})
+
+		// Create a snapshot for this pool
+		snapshot := types.EpochSnapshot{
+			TotalShares: pool.TotalShares,
+			TotalStaked: pool.TotalStaked,
+			Stakers:     stakers,
 		}
-	})
 
-	snapshot := types.EpochSnapshot{
-		TotalShares: totalShares,
-		TotalStaked: totalStaked,
-		Stakers:     stakers,
+		// Store the snapshot
+		k.SetEpochSnapshot(ctx, snapshot, pool.Token)
 	}
-
-	// Store the snapshot
-	k.SetEpochSnapshot(ctx, snapshot, params.SupportedTokens[0])
 }
 
 func (k Keeper) IterateActiveStakers(ctx sdk.Context, cb func(addr sdk.AccAddress, stake types.UserStake)) {
@@ -142,45 +146,72 @@ func (k Keeper) IterateActiveStakers(ctx sdk.Context, cb func(addr sdk.AccAddres
 	}
 }
 
-func (k Keeper) DistributeRewardsToLastEpochStakers(ctx sdk.Context, totalReward math.Int) {
+func (k Keeper) DistributeRewardsToLastEpochStakers(ctx sdk.Context) {
 	params := k.GetParams(ctx)
 	if len(params.SupportedTokens) == 0 {
 		return
 	}
 
-	snapshot := k.GetEpochSnapshot(ctx, params.SupportedTokens[0])
-	if snapshot.TotalShares.IsZero() {
-		return // No snapshot - no rewards
+	// Get total rewards available
+	moduleRewardsAddr := k.AccountKeeper.GetModuleAddress(types.NativeRewardsCollectorName)
+	totalReward := k.BankKeeper.GetBalance(ctx, moduleRewardsAddr, appparams.BaseCoinUnit)
+	if totalReward.IsZero() {
+		return // No rewards to distribute
 	}
 
-	// Verify we have enough balances in the module account
-	moduleAddr := k.AccountKeeper.GetModuleAddress(types.ModuleName)
-	balance := k.BankKeeper.GetBalance(ctx, moduleAddr, params.SupportedTokens[0])
-	if balance.Amount.LT(totalReward) {
-		panic(fmt.Sprintf("insufficient balance in module account: %s < %s", balance.Amount, totalReward))
+	// Calculate the total staked amount across all pools
+	var totalStakedAcrossPools math.LegacyDec
+	poolSnapshots := make(map[string]types.EpochSnapshot)
+
+	for _, denom := range params.SupportedTokens {
+		snapshot, err := k.GetEpochSnapshot(ctx, denom)
+		if err != nil {
+			continue
+		}
+		if snapshot.TotalStaked.IsZero() {
+			continue
+		}
+		totalStakedAcrossPools = totalStakedAcrossPools.Add(snapshot.TotalStaked)
+		poolSnapshots[denom] = snapshot
 	}
 
-	for _, staker := range snapshot.Stakers {
-		if staker.Shares.IsZero() {
+	if totalStakedAcrossPools.IsZero() {
+		return // No staked amount across any pool
+	}
+
+	// Distribute rewards proportionally to each pool based on their total staked amount
+	for _, snapshot := range poolSnapshots {
+		// Calculate pool's share of total rewards based on its total staked amount
+		poolRewardShare := snapshot.TotalStaked.Quo(totalStakedAcrossPools)
+		poolReward := poolRewardShare.MulInt(totalReward.Amount).TruncateInt()
+
+		if poolReward.IsZero() {
 			continue
 		}
 
-		// Calculate reward based on a share ratio
-		reward := staker.Shares.Quo(snapshot.TotalShares).MulInt(totalReward).TruncateInt()
-		if reward.IsZero() {
-			continue
-		}
+		// Distribute pool's rewards to its stakers
+		for _, staker := range snapshot.Stakers {
+			if staker.Shares.IsZero() {
+				continue
+			}
 
-		addr, err := sdk.AccAddressFromBech32(staker.Address)
-		if err != nil {
-			panic(fmt.Sprintf("invalid address in snapshot: %s", err))
-		}
+			// Calculate staker's share of pool rewards
+			stakerReward := staker.Shares.Quo(snapshot.TotalShares).MulInt(poolReward).TruncateInt()
+			if stakerReward.IsZero() {
+				continue
+			}
 
-		// Send reward tokens
-		rewardCoin := sdk.NewCoin(params.SupportedTokens[0], reward)
-		err = k.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addr, sdk.NewCoins(rewardCoin))
-		if err != nil {
-			panic(fmt.Sprintf("failed to send rewards: %s", err))
+			addr, err := sdk.AccAddressFromBech32(staker.Address)
+			if err != nil {
+				panic(fmt.Sprintf("invalid address in snapshot: %s", err))
+			}
+
+			// Send reward tokens
+			rewardCoin := sdk.NewCoin(appparams.BaseCoinUnit, stakerReward)
+			err = k.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.NativeRewardsCollectorName, addr, sdk.NewCoins(rewardCoin))
+			if err != nil {
+				panic(fmt.Sprintf("failed to send rewards: %s", err))
+			}
 		}
 	}
 }
@@ -206,4 +237,38 @@ func (k Keeper) GetEpochReward(ctx sdk.Context) math.Int {
 	// Calculate reward: total_staked * reward_rate
 	reward := pool.TotalStaked.Mul(rewardRate).TruncateInt()
 	return reward
+}
+
+func (k Keeper) CompleteUnbonding(ctx sdk.Context, currentEpoch int64) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.UnbondingKey))
+	iterator := storetypes.KVStorePrefixIterator(store, nil)
+	defer iterator.Close()
+
+	//currentEpoch := k.epochKeeper.GetEpochInfo(ctx, "day").CurrentEpoch
+
+	for ; iterator.Valid(); iterator.Next() {
+		var unbondingInfo types.UnbondingInfo
+		k.cdc.MustUnmarshal(iterator.Value(), &unbondingInfo)
+
+		// Check if unbonding period has passed
+		if unbondingInfo.UnbondEpoch <= currentEpoch {
+			// Convert address string to AccAddress
+			addr, err := sdk.AccAddressFromBech32(unbondingInfo.Address)
+			if err != nil {
+				panic(fmt.Sprintf("invalid address in unbonding info: %s", err))
+			}
+
+			// Create coin from unbonding amount
+			unbondAmount := sdk.NewCoin(unbondingInfo.Denom, unbondingInfo.Amount.TruncateInt())
+
+			// Send tokens back to user
+			err = k.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addr, sdk.NewCoins(unbondAmount))
+			if err != nil {
+				panic(fmt.Sprintf("failed to send unbonded tokens: %s", err))
+			}
+
+			// Delete the unbonding info
+			store.Delete(iterator.Key())
+		}
+	}
 }

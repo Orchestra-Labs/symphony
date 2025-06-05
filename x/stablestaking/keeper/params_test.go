@@ -35,7 +35,8 @@ func (s *ParamsTestSuite) SetupTest() {
 	s.Require().NoError(err)
 
 	// Fund test accounts
-	staker := sdk.AccAddress("staker1")
+	staker, err := sdk.AccAddressFromBech32("symphony1cvtrs9jhacf0p7xlmeq0ejhq83udmcqx40nyg9")
+	require.NoError(s.T(), err)
 	err = s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, FaucetAccountName, staker, InitUSDDCoins)
 	s.Require().NoError(err)
 }
@@ -47,19 +48,19 @@ func (s *ParamsTestSuite) TestGetSetParams() {
 
 	// Modify params
 	newParams := types.Params{
-		EpochIdentifier:   "week",
-		RewardRate:        "0.5",
-		SupportedTokens:   []string{"uusd"},
-		UnbondingDuration: time.Hour * 24 * 7,
-		MaxStakingAmount:  math.LegacyNewDecFromInt(math.NewInt(1000)),
+		RewardEpochIdentifier:    "day",
+		UnbondingEpochIdentifier: "day",
+		RewardRate:               "0.4",
+		SupportedTokens:          []string{"uusd"},
+		UnbondingDuration:        time.Hour * 24 * 7,
+		MaxStakingAmount:         math.LegacyNewDecFromInt(math.NewInt(1000)),
 	}
 
 	// Set new params
 	s.App.StableStakingKeeper.SetParams(s.Ctx, newParams)
 
-	// check if params did not set via method
 	updatedParams := s.App.StableStakingKeeper.GetParams(s.Ctx)
-	require.Equal(s.T(), "", updatedParams.EpochIdentifier)
+	require.Equal(s.T(), "day", updatedParams.RewardEpochIdentifier)
 	require.Equal(s.T(), newParams.RewardRate, updatedParams.RewardRate)
 	require.Equal(s.T(), newParams.UnbondingDuration, updatedParams.UnbondingDuration)
 	require.Equal(s.T(), math.LegacyDec{}, updatedParams.MaxStakingAmount)
@@ -71,11 +72,12 @@ func (s *ParamsTestSuite) TestParamValidationInUnbonding() {
 	params.UnbondingDuration = time.Hour * 24 * 7
 	s.App.StableStakingKeeper.SetParams(s.Ctx, params)
 
-	staker := sdk.AccAddress("staker1")
+	staker, err := sdk.AccAddressFromBech32("symphony1cvtrs9jhacf0p7xlmeq0ejhq83udmcqx40nyg9")
+	require.NoError(s.T(), err)
 
 	// Stake some tokens
 	token := sdk.NewCoin(assets.MicroUSDDenom, math.NewInt(100))
-	_, err := s.App.StableStakingKeeper.StakeTokens(s.Ctx, staker, token)
+	_, err = s.App.StableStakingKeeper.StakeTokens(s.Ctx, staker, token)
 	require.NoError(s.T(), err)
 
 	// Unbond tokens
@@ -86,6 +88,6 @@ func (s *ParamsTestSuite) TestParamValidationInUnbonding() {
 	// Verify unbonding info
 	require.Equal(s.T(), staker.String(), unbonding.Staker)
 	require.Equal(s.T(), unbondAmount.String(), unbonding.Amount.Amount.TruncateInt().String())
-	require.Equal(s.T(), "99", unbonding.TotalStaked.TruncateInt().String())
-	require.Equal(s.T(), "99", unbonding.TotalShares.TruncateInt().String())
+	require.Equal(s.T(), "50", unbonding.TotalStaked.TruncateInt().String())
+	require.Equal(s.T(), "50", unbonding.TotalShares.TruncateInt().String())
 }

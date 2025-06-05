@@ -11,6 +11,7 @@ import (
 	"github.com/osmosis-labs/osmosis/osmomath"
 	"github.com/osmosis-labs/osmosis/v27/app/apptesting"
 	"github.com/osmosis-labs/osmosis/v27/app/apptesting/assets"
+	"github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
 )
 
 type HooksTestSuite struct {
@@ -33,13 +34,17 @@ func (s *HooksTestSuite) SetupTest() {
 	s.Require().NoError(err)
 
 	// Fund test accounts
-	staker := sdk.AccAddress("staker1")
+	staker, err := sdk.AccAddressFromBech32("symphony137jfmwnjgzuy4fvd60mmg50uyfye877q56uca6")
+	require.NoError(s.T(), err)
 	err = s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, FaucetAccountName, staker, InitUSDDCoins)
 	s.Require().NoError(err)
+
+	s.App.StableStakingKeeper.SetParams(s.Ctx, types.DefaultParams())
 }
 
 func (s *HooksTestSuite) TestAfterEpochEnd() {
-	staker := sdk.AccAddress("staker1")
+	staker, err := sdk.AccAddressFromBech32("symphony137jfmwnjgzuy4fvd60mmg50uyfye877q56uca6")
+	require.NoError(s.T(), err)
 
 	s.Run("no action on wrong epoch identifier", func() {
 		// First stake some tokens
@@ -52,8 +57,9 @@ func (s *HooksTestSuite) TestAfterEpochEnd() {
 		require.NoError(s.T(), err)
 
 		// Verify no snapshot was taken
-		snapshot := s.App.StableStakingKeeper.GetEpochSnapshot(s.Ctx, assets.MicroUSDDenom)
-		require.True(s.T(), snapshot.TotalShares.IsZero())
+		snapshot, err := s.App.StableStakingKeeper.GetEpochSnapshot(s.Ctx, assets.MicroUSDDenom)
+		require.Error(s.T(), err, "epoch snapshot not found")
+		require.Equal(s.T(), snapshot, types.EpochSnapshot{})
 	})
 
 	s.Run("take snapshot and distribute rewards", func() {
@@ -64,20 +70,20 @@ func (s *HooksTestSuite) TestAfterEpochEnd() {
 
 		// Call AfterEpochEnd with correct identifier
 		params := s.App.StableStakingKeeper.GetParams(s.Ctx)
-		err = s.App.StableStakingKeeper.AfterEpochEnd(s.Ctx, params.EpochIdentifier, 1)
+		err = s.App.StableStakingKeeper.AfterEpochEnd(s.Ctx, params.RewardEpochIdentifier, 1)
 		require.NoError(s.T(), err)
 
 		// Verify snapshot was taken
-		snapshot := s.App.StableStakingKeeper.GetEpochSnapshot(s.Ctx, assets.MicroUSDDenom)
+		snapshot, err := s.App.StableStakingKeeper.GetEpochSnapshot(s.Ctx, assets.MicroUSDDenom)
 		require.False(s.T(), snapshot.TotalShares.IsZero())
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(100)), snapshot.TotalShares)
-		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(100)), snapshot.TotalStaked)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(200)), snapshot.TotalShares)
+		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(200)), snapshot.TotalStaked)
 		require.Len(s.T(), snapshot.Stakers, 1)
 		require.Equal(s.T(), staker.String(), snapshot.Stakers[0].Address)
 		require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(100)), snapshot.Stakers[0].Shares)
 
 		// Move to the next epoch
-		err = s.App.StableStakingKeeper.AfterEpochEnd(s.Ctx, params.EpochIdentifier, 2)
+		err = s.App.StableStakingKeeper.AfterEpochEnd(s.Ctx, params.RewardEpochIdentifier, 2)
 		require.NoError(s.T(), err)
 
 		// Verify rewards were distributed
@@ -87,7 +93,8 @@ func (s *HooksTestSuite) TestAfterEpochEnd() {
 }
 
 func (s *HooksTestSuite) TestGetEpochReward() {
-	staker := sdk.AccAddress("staker1")
+	staker, err := sdk.AccAddressFromBech32("symphony137jfmwnjgzuy4fvd60mmg50uyfye877q56uca6")
+	require.NoError(s.T(), err)
 
 	s.Run("calculate rewards correctly", func() {
 		// First stake some tokens
@@ -114,8 +121,10 @@ func (s *HooksTestSuite) TestGetEpochReward() {
 }
 
 func (s *HooksTestSuite) TestDistributeRewardsToLastEpochStakers() {
-	staker1 := sdk.AccAddress("staker1")
-	staker2 := sdk.AccAddress("staker2")
+	staker1, err := sdk.AccAddressFromBech32("symphony137jfmwnjgzuy4fvd60mmg50uyfye877q56uca6")
+	require.NoError(s.T(), err)
+	staker2, err := sdk.AccAddressFromBech32("symphony1cvtrs9jhacf0p7xlmeq0ejhq83udmcqx40nyg9")
+	require.NoError(s.T(), err)
 
 	s.Run("distribute rewards proportionally", func() {
 		// Fund second staker
@@ -134,14 +143,14 @@ func (s *HooksTestSuite) TestDistributeRewardsToLastEpochStakers() {
 
 		// Take snapshot
 		params := s.App.StableStakingKeeper.GetParams(s.Ctx)
-		err = s.App.StableStakingKeeper.AfterEpochEnd(s.Ctx, params.EpochIdentifier, 1)
+		err = s.App.StableStakingKeeper.AfterEpochEnd(s.Ctx, params.RewardEpochIdentifier, 1)
 		require.NoError(s.T(), err)
 
 		// Calculate total reward
 		totalReward := s.App.StableStakingKeeper.GetEpochReward(s.Ctx)
 
 		// Distribute rewards
-		s.App.StableStakingKeeper.DistributeRewardsToLastEpochStakers(s.Ctx, totalReward)
+		s.App.StableStakingKeeper.DistributeRewardsToLastEpochStakers(s.Ctx)
 
 		// Verify rewards were distributed proportionally
 		balance1 := s.App.BankKeeper.GetBalance(s.Ctx, staker1, assets.MicroUSDDenom)

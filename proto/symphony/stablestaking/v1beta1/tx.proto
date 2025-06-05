@@ -12,11 +12,18 @@ import "google/api/annotations.proto";
 
 service Msg {
   rpc StakeTokens(MsgStakeTokens) returns (MsgStakeTokensResponse) {
-    option (google.api.http).post = "/symphony/stablestaking/v1beta1/stake_tokens";
+    option (google.api.http) = {
+      post: "/symphony/stablestaking/v1beta1/stake_tokens"
+      body: "*"
+    };
+
   };
 
   rpc UnstakeTokens(MsgUnstakeTokens) returns (MsgUnstakeTokensResponse){
-    option (google.api.http).post = "/symphony/stablestaking/v1beta1/unstake_tokens";
+    option (google.api.http) = {
+      post: "/symphony/stablestaking/v1beta1/unstake_tokens"
+      body: "*"
+    };
   };
 }
 

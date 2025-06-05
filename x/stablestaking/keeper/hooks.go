@@ -36,19 +36,18 @@ func (k Keeper) BeforeEpochStart(_ctx sdk.Context, _epochIdentifier string, _epo
 }
 
 // AfterEpochEnd at the end of each epoch, take snapshot and distribute rewards to Stakers for previous epoch
-func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, _epochNumber int64) error {
+func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) error {
 	params := k.GetParams(ctx)
-	if epochIdentifier != params.EpochIdentifier {
-		return nil
+	if epochIdentifier == params.UnbondingEpochIdentifier {
+		k.CompleteUnbonding(ctx, epochNumber)
 	}
 
-	// 1. Take a snapshot of current active stakers
-	k.SnapshotCurrentEpoch(ctx)
+	if epochIdentifier == params.RewardEpochIdentifier {
+		// 1. Take a snapshot of current active stakers
+		k.SnapshotCurrentEpoch(ctx)
 
-	// 2. Distribute rewards to stakers from last snapshot
-	rewardPerEpoch := k.GetEpochReward(ctx)
-	if !rewardPerEpoch.IsZero() {
-		k.DistributeRewardsToLastEpochStakers(ctx, rewardPerEpoch)
+		// 2. Distribute rewards to stakers from last snapshot
+		k.DistributeRewardsToLastEpochStakers(ctx)
 	}
 
 	return nil

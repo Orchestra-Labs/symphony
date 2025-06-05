@@ -22,6 +22,10 @@ func (q Querier) StablePool(c context.Context, request *types.QueryPoolRequest) 
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
+	if err := sdk.ValidateDenom(request.Denom); err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid stake denom")
+	}
+
 	ctx := sdk.UnwrapSDKContext(c)
 	pool, find := q.GetPool(ctx, request.Denom)
 	if !find {
@@ -64,6 +68,11 @@ func (q Querier) UserStake(c context.Context, request *types.QueryUserStakeReque
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
+	_, err := sdk.AccAddressFromBech32(request.Address)
+	if err != nil {
+		panic(fmt.Sprintf("invalid staker address : %s", err))
+	}
+
 	if err := sdk.ValidateDenom(request.Token); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid stake denom")
 	}
@@ -81,6 +90,11 @@ func (q Querier) UserTotalStake(c context.Context, request *types.QueryUserTotal
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
+	_, err := sdk.AccAddressFromBech32(request.Address)
+	if err != nil {
+		panic(fmt.Sprintf("invalid staker address : %s", err))
+	}
+
 	ctx := sdk.UnwrapSDKContext(c)
 	userTotalStake := q.GetUserTotalStake(ctx, sdk.AccAddress(request.Address))
 
@@ -90,6 +104,11 @@ func (q Querier) UserTotalStake(c context.Context, request *types.QueryUserTotal
 func (q Querier) UserUnbonding(ctx context.Context, request *types.QueryUserUnbondingRequest) (*types.QueryUserUnbondingResponse, error) {
 	if request == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	_, err := sdk.AccAddressFromBech32(request.Address)
+	if err != nil {
+		panic(fmt.Sprintf("invalid staker address : %s", err))
 	}
 
 	if err := sdk.ValidateDenom(request.Denom); err != nil {
@@ -110,6 +129,11 @@ func (q Querier) UserUnbonding(ctx context.Context, request *types.QueryUserUnbo
 func (q Querier) UserTotalUnbonding(ctx context.Context, request *types.QueryUserTotalUnbondingRequest) (*types.QueryUserTotalUnbondingResponse, error) {
 	if request == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	_, err := sdk.AccAddressFromBech32(request.Address)
+	if err != nil {
+		panic(fmt.Sprintf("invalid staker address : %s", err))
 	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
