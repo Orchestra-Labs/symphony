@@ -322,12 +322,12 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 			s.T(),
 			[]types.StakingPool{
 				{
-					Token:       "ukhd",
+					Denom:       "ukhd",
 					TotalStaked: math.LegacyNewDecFromInt(math.NewInt(100)),
 					TotalShares: math.LegacyNewDecFromInt(math.NewInt(100)),
 				},
 				{
-					Token:       "uusd",
+					Denom:       "uusd",
 					TotalStaked: math.LegacyNewDecFromInt(math.NewInt(1300)),
 					TotalShares: math.LegacyNewDecFromInt(math.NewInt(1300)),
 				}},

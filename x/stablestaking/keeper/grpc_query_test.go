@@ -71,7 +71,7 @@ func (s *GRPCQueryTestSuite) TestStakingPool() {
 	require.NoError(s.T(), err)
 	require.NotNil(s.T(), resp)
 	require.NotNil(s.T(), resp.Pool)
-	require.Equal(s.T(), assets.MicroUSDDenom, resp.Pool.Token)
+	require.Equal(s.T(), assets.MicroUSDDenom, resp.Pool.Denom)
 	require.Equal(s.T(), math.LegacyNewDecFromInt(math.NewInt(100)), resp.Pool.TotalShares)
 	require.Equal(s.T(), math.NewInt(100), resp.Pool.TotalStaked)
 }

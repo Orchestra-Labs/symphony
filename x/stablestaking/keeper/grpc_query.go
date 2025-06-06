@@ -73,14 +73,14 @@ func (q Querier) UserStake(c context.Context, request *types.QueryUserStakeReque
 		panic(fmt.Sprintf("invalid staker address : %s", err))
 	}
 
-	if err := sdk.ValidateDenom(request.Token); err != nil {
+	if err := sdk.ValidateDenom(request.Denom); err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid stake denom")
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	userStake, found := q.GetUserStake(ctx, sdk.AccAddress(request.Address), request.Token)
+	userStake, found := q.GetUserStake(ctx, sdk.AccAddress(request.Address), request.Denom)
 	if !found {
-		return nil, status.Error(codes.NotFound, fmt.Sprintf("User stake not found with %s", request.Token))
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("User stake not found with %s", request.Denom))
 	}
 	return &types.QueryUserStakeResponse{Stakes: &userStake}, nil
 }

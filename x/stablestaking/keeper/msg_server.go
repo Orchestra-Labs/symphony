@@ -25,7 +25,7 @@ func (m msgServer) StakeTokens(goCtx context.Context, msg *types.MsgStakeTokens)
 		return nil, err
 	}
 
-	return m.handleStakeTokensRequest(ctx, addr, *msg.Amount)
+	return m.handleStakeTokensRequest(ctx, addr, msg.Amount)
 }
 
 func (m msgServer) UnstakeTokens(goCtx context.Context, msg *types.MsgUnstakeTokens) (*types.MsgUnstakeTokensResponse, error) {
@@ -35,7 +35,7 @@ func (m msgServer) UnstakeTokens(goCtx context.Context, msg *types.MsgUnstakeTok
 		return nil, err
 	}
 
-	return m.handleUnStakeTokensRequest(ctx, addr, *msg.Amount)
+	return m.handleUnStakeTokensRequest(ctx, addr, msg.Amount)
 }
 
 func (m msgServer) handleStakeTokensRequest(ctx sdk.Context, staker sdk.AccAddress, amount sdk.Coin) (*types.MsgStakeTokensResponse, error) {

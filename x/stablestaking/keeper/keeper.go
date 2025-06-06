@@ -123,7 +123,7 @@ func (k Keeper) SnapshotCurrentEpoch(ctx sdk.Context) {
 		}
 
 		// Store the snapshot
-		k.SetEpochSnapshot(ctx, snapshot, pool.Token)
+		k.SetEpochSnapshot(ctx, snapshot, pool.Denom)
 	}
 }
 

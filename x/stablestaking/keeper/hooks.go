@@ -35,7 +35,7 @@ func (k Keeper) BeforeEpochStart(_ctx sdk.Context, _epochIdentifier string, _epo
 	return nil
 }
 
-// AfterEpochEnd at the end of each epoch, take snapshot and distribute rewards to Stakers for previous epoch
+// AfterEpochEnd at the end of each epoch, take snapshot and distribute rewards to Stakers for the previous epoch
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) error {
 	params := k.GetParams(ctx)
 	if epochIdentifier == params.UnbondingEpochIdentifier {

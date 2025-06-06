@@ -73,7 +73,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *g
 }
 
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return nil
+	return cli.GetTxCmd()
 }
 
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {

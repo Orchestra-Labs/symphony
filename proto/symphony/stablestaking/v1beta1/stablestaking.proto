@@ -25,7 +25,7 @@ message Params {
 message GenesisState { Params params = 1 [ (gogoproto.nullable) = false ]; }
 
 message StakingPool {
-  string token = 1;
+  string denom = 1;
 
   bytes total_staked = 2 [
     (gogoproto.moretags) = "yaml:\"total_staked\"",
@@ -56,7 +56,7 @@ message UnbondingInfo {
   string address = 1;
 
   bytes amount = 2 [
-    (gogoproto.moretags) = "yaml:\"shares\"",
+    (gogoproto.moretags) = "yaml:\"amount\"",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];

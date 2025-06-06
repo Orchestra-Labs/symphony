@@ -52,7 +52,7 @@ message QueryParamsResponse {
 
 message QueryUserStakeRequest {
   string address = 1;
-  string token = 2;
+  string denom = 2;
 }
 
 message QueryUserStakeResponse {

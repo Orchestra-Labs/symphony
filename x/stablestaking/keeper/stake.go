@@ -24,7 +24,7 @@ func (k Keeper) StakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.C
 	pool, found := k.GetPool(ctx, amount.Denom)
 	if !found {
 		pool = types.StakingPool{
-			Token:       amount.Denom,
+			Denom:       amount.Denom,
 			TotalStaked: math.LegacyZeroDec(),
 			TotalShares: math.LegacyZeroDec(),
 		}
@@ -101,7 +101,7 @@ func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk
 
 	return &types.MsgUnstakeTokensResponse{
 		Staker: staker.String(),
-		Amount: &sdk.DecCoin{
+		Amount: sdk.DecCoin{
 			Denom:  amount.Denom,
 			Amount: math.LegacyNewDecFromInt(amount.Amount),
 		},
@@ -198,7 +198,7 @@ func (k Keeper) GetPools(ctx sdk.Context) []types.StakingPool {
 func (k Keeper) SetPool(ctx sdk.Context, pool types.StakingPool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PoolKey))
 	bz := k.cdc.MustMarshal(&pool)
-	store.Set([]byte(pool.Token), bz)
+	store.Set([]byte(pool.Denom), bz)
 }
 
 func (k Keeper) GetUserStake(ctx sdk.Context, address sdk.AccAddress, token string) (types.UserStake, bool) {
