@@ -15182,7 +15182,9 @@ paths:
                     type: array
                     items:
                       type: string
-                  epoch_identifier:
+                  reward_epoch_identifier:
+                    type: string
+                  unbonding_epoch_identifier:
                     type: string
                   max_staking_amount:
                     type: string
@@ -15223,7 +15225,7 @@ paths:
               pool:
                 type: object
                 properties:
-                  token:
+                  denom:
                     type: string
                   total_staked:
                     type: string
@@ -15274,7 +15276,7 @@ paths:
                 items:
                   type: object
                   properties:
-                    token:
+                    denom:
                       type: string
                     total_staked:
                       type: string
@@ -15353,7 +15355,7 @@ paths:
           in: query
           required: false
           type: string
-        - name: token
+        - name: denom
           in: query
           required: false
           type: string
@@ -15753,6 +15755,30 @@ paths:
                           "@type": "type.googleapis.com/google.protobuf.Duration",
                           "value": "1.212s"
                         }
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              staker:
+                type: string
+              amount:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
       tags:
         - Msg
   /symphony/stablestaking/v1beta1/unstake_tokens:
@@ -15986,6 +16012,30 @@ paths:
                           "@type": "type.googleapis.com/google.protobuf.Duration",
                           "value": "1.212s"
                         }
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              staker:
+                type: string
+              amount:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
       tags:
         - Msg
   /symphony/market/v1beta1/exchange_requirements:
@@ -50556,7 +50606,9 @@ definitions:
         type: array
         items:
           type: string
-      epoch_identifier:
+      reward_epoch_identifier:
+        type: string
+      unbonding_epoch_identifier:
         type: string
       max_staking_amount:
         type: string
@@ -50575,7 +50627,9 @@ definitions:
             type: array
             items:
               type: string
-          epoch_identifier:
+          reward_epoch_identifier:
+            type: string
+          unbonding_epoch_identifier:
             type: string
           max_staking_amount:
             type: string
@@ -50586,7 +50640,7 @@ definitions:
       pool:
         type: object
         properties:
-          token:
+          denom:
             type: string
           total_staked:
             type: string
@@ -50602,7 +50656,7 @@ definitions:
         items:
           type: object
           properties:
-            token:
+            denom:
               type: string
             total_staked:
               type: string
@@ -50678,7 +50732,7 @@ definitions:
   symphony.stablestaking.v1beta1.StakingPool:
     type: object
     properties:
-      token:
+      denom:
         type: string
       total_staked:
         type: string
@@ -50710,6 +50764,23 @@ definitions:
       epoch:
         type: string
         format: int64
+  symphony.stablestaking.v1beta1.MsgStakeTokens:
+    type: object
+    properties:
+      staker:
+        type: string
+      amount:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
   symphony.stablestaking.v1beta1.MsgStakeTokensResponse:
     type: object
     properties:
@@ -50733,6 +50804,23 @@ definitions:
       total_shares:
         type: string
         format: byte
+  symphony.stablestaking.v1beta1.MsgUnstakeTokens:
+    type: object
+    properties:
+      staker:
+        type: string
+      amount:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
   symphony.stablestaking.v1beta1.MsgUnstakeTokensResponse:
     type: object
     properties:
