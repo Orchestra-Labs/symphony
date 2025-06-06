@@ -33,7 +33,7 @@ update_genesis () {
 }
 
 # create validator node with tokens
-symphonyd add-genesis-account $(symphonyd keys show validator1 -a --keyring-backend=test --home=$HOME/.symphonyd/validator1) 100000000000note,10000000usdr --home=$HOME/.symphonyd/validator1
+symphonyd add-genesis-account $(symphonyd keys show validator1 -a --keyring-backend=test --home=$HOME/.symphonyd/validator1) 100000000000note,100000000000usdr,100000000000uusd,100000000000ukhd --home=$HOME/.symphonyd/validator1
 symphonyd gentx validator1 5000000000note --moniker="validator1" --chain-id=$CHAIN_ID --keyring-backend=test --home=$HOME/.symphonyd/validator1 --chain-id=$CHAIN_ID
 symphonyd collect-gentxs --home=$HOME/.symphonyd/validator1
 
@@ -90,6 +90,9 @@ update_genesis '.app_state["oracle"]["tobin_taxes"][3]["tobin_tax"]="0.015"'
 update_genesis '.app_state["oracle"]["tobin_taxes"][4]["denom"]="usdr"'
 update_genesis '.app_state["oracle"]["tobin_taxes"][4]["tobin_tax"]="0.01"'
 
+update_genesis '.app_state["oracle"]["tobin_taxes"][4]["denom"]="uusd"'
+update_genesis '.app_state["oracle"]["tobin_taxes"][4]["tobin_tax"]="0.01"'
+
 # update oracle genesis by adding exchange rate for test tokens
 update_genesis '.app_state["oracle"]["exchange_rates"][0]["denom"]="peppe"'
 update_genesis '.app_state["oracle"]["exchange_rates"][0]["exchange_rate"]="1.7"'
@@ -97,6 +100,8 @@ update_genesis '.app_state["oracle"]["exchange_rates"][0]["exchange_rate"]="1.7"
 update_genesis '.app_state["oracle"]["exchange_rates"][1]["denom"]="usdr"'
 update_genesis '.app_state["oracle"]["exchange_rates"][1]["exchange_rate"]="2.0"'
 
+update_genesis '.app_state["oracle"]["exchange_rates"][1]["denom"]="uusd"'
+update_genesis '.app_state["oracle"]["exchange_rates"][1]["exchange_rate"]="3.0"'
 
 update_genesis '.app_state["stablestakingincentives"]["params"]["distribution_contract_address"] = "symphony14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9s748pj4"'
 
