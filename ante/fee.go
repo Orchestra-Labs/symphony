@@ -41,6 +41,9 @@ func NewDeductFeeDecorator(txk txfeestypes.TxFeesKeeper, ak ante.AccountKeeper, 
 }
 
 func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	if ctx.BlockHeight() == 0 {
+		return next(ctx, tx, simulate)
+	}
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
 		return ctx, errorsmod.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
