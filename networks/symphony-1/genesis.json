@@ -403,7 +403,7 @@
             "original_vesting": [
               {
                 "denom": "note",
-                "amount": "14999950000000"
+                "amount": "15030000000000"
               }
             ],
             "delegated_free": [],
@@ -453,6 +453,223 @@
             "end_time": "1812051176"
           },
           "start_time": "1749843176"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1pf5wd5w3crpekj3mqvaa20av8r2ltczecsfyh6",
+          "pub_key": null,
+          "account_number": "20",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1nhfhxk692c9svf0th9ktlpsfsr6askcr8fs2xv",
+          "pub_key": null,
+          "account_number": "21",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony10nvahvp446zuhrdj9y9vnkduenmjmxmkek4rxz",
+          "pub_key": null,
+          "account_number": "22",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony13k0u3znu6maz26r8gkp93ae8pnyn36jvfjpydp",
+          "pub_key": null,
+          "account_number": "23",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony19ua4hvunr4g5rdyzg64x22qstz0mp4kmh0galv",
+          "pub_key": null,
+          "account_number": "24",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1jw770sh9srxzf9gvuvqpu7kdlh2w3nze5xzcga",
+          "pub_key": null,
+          "account_number": "25",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony12c3yc0wpvx5afa3fdgs4eulum4pn8rdna6h945",
+          "pub_key": null,
+          "account_number": "26",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1swayw9a9wa97gpw4xye37dvektzsfq6hkwpznw",
+          "pub_key": null,
+          "account_number": "27",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony18tfcees25kwm7p2mqutv0tjx9wzyuu8za0quz6",
+          "pub_key": null,
+          "account_number": "28",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1lhg4jj4qmmkkvcujly0lx3x5jnk465v63naan3",
+          "pub_key": null,
+          "account_number": "29",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1qrfk6d2uus52ndfcl6s6fgds20phn0fr2mcyx2",
+          "pub_key": null,
+          "account_number": "30",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1cmtggvey9qrucfsdx6d3qf8gejczeqkqsxkh62",
+          "pub_key": null,
+          "account_number": "31",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony16pejglnxpftkt4w6g4uh22rqhgtqkgael982dj",
+          "pub_key": null,
+          "account_number": "32",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1nx44yj7dazwl7wqanc67fy0emzsra0wrs3esxf",
+          "pub_key": null,
+          "account_number": "33",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1rl8988ugjllepjlcrulajplrpn90w2qshl6ehp",
+          "pub_key": null,
+          "account_number": "34",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1v8w8gmc4zahffmkdq3r8ha7nrptuhpcm6jcqzn",
+          "pub_key": null,
+          "account_number": "35",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1faxk8vzaerat35wyulqngkarfwqpzpkxu6z9pg",
+          "pub_key": null,
+          "account_number": "36",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1c9l75tg0xaggvpraye0g5t48444h57sskfvtcc",
+          "pub_key": null,
+          "account_number": "37",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1sfq6mjwvm2vlzg50s998ts2m4xm0wc0wmuvul2",
+          "pub_key": null,
+          "account_number": "38",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1jt9w26mpxxjsk63mvd4m2ynj0af09csl5e7fmh",
+          "pub_key": null,
+          "account_number": "39",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1hel9md4mwxtwfrjjna60fwynfuqe55avw4mask",
+          "pub_key": null,
+          "account_number": "40",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1gjtp7h65q8k6zaqmevmu3qrvsuvff9nfts492k",
+          "pub_key": null,
+          "account_number": "41",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1044f5uwzmjn87m6uutj8tmvanak7nnz35r8gxa",
+          "pub_key": null,
+          "account_number": "42",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1m2g04dg8wqs8n4v508fqpma5s22ys2vkgdw779",
+          "pub_key": null,
+          "account_number": "43",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1m77eksxfz9q50qejnqf720sns7q0xtx8l044fa",
+          "pub_key": null,
+          "account_number": "44",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1thae4udp56smafcnc9na9nc4vndedxtr66ht2h",
+          "pub_key": null,
+          "account_number": "45",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1qgq33f9desr7hxpfarrkyr0sww4esuz3emd7sq",
+          "pub_key": null,
+          "account_number": "46",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1pz0wsj2pnvp5mt9nn2megzvnalf39w5lps2sr4",
+          "pub_key": null,
+          "account_number": "47",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1xkv75tnqjpawgy49plghtwztpfyyhql0zffw3m",
+          "pub_key": null,
+          "account_number": "48",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1sgk50ehgzpul7dcjmd0gn8rqg5glcc9t6k6qe0",
+          "pub_key": null,
+          "account_number": "49",
+          "sequence": "0"
+        },
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "symphony1eaqj00782usyt40axy0h2utkw3udun4q8j5flt",
+          "pub_key": null,
+          "account_number": "50",
+          "sequence": "0"
         }
       ]
     },
@@ -736,7 +953,7 @@
           "coins": [
             {
               "denom": "note",
-              "amount": "14999950000000"
+              "amount": "15030000000000"
             }
           ]
         },
@@ -1203,7 +1420,7 @@
             "weight": "1.000000000000000000"
           }
         ],
-        "minting_rewards_distribution_start_epoch": "1"
+        "minting_rewards_distribution_start_epoch": "2"
       },
       "reduction_started_epoch": "0"
     },

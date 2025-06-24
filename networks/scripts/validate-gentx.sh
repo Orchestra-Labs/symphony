@@ -5,7 +5,7 @@ CHAIN_ID=osmosis-1
 DENOM=uosmo
 MAXBOND=50000000000000 # 500 Million OSMO
 
-GENTX_FILE=$(find ./$CHAIN_ID/gentxs -iname "*.json")
+GENTX_FILE=$(find ./$CHAIN_ID/gentx -iname "*.json")
 LEN_GENTX=$(echo ${#GENTX_FILE})
 
 # Gentx Start date
@@ -95,7 +95,7 @@ else
     cp ../$GENTX_FILE $OSMOSIS_HOME/config/gentx/
 
     echo "..........Collecting gentxs......."
-    ./build/osmosisd collect-gentxs --home $OSMOSIS_HOME
+    ./build/osmosisd collect-gentx --home $OSMOSIS_HOME
     sed -i '/persistent_peers =/c\persistent_peers = ""' $OSMOSIS_HOME/config/config.toml
 
     ./build/osmosisd validate-genesis --home $OSMOSIS_HOME
