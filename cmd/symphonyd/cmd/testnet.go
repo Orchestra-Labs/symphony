@@ -149,7 +149,7 @@ func InitTestnet(
 	for i := 0; i < numValidators; i++ {
 		nodeDirName := fmt.Sprintf("%s%d", nodeDirPrefix, i)
 		nodeDir := filepath.Join(outputDir, nodeDirName, nodeDaemonHome)
-		gentxsDir := filepath.Join(outputDir, "gentxs")
+		gentxsDir := filepath.Join(outputDir, "gentx")
 
 		nodeConfig.SetRoot(nodeDir)
 		nodeConfig.RPC.ListenAddress = "tcp://0.0.0.0:26657"
@@ -337,7 +337,7 @@ func collectGenFiles(
 	for i := 0; i < numValidators; i++ {
 		nodeDirName := fmt.Sprintf("%s%d", nodeDirPrefix, i)
 		nodeDir := filepath.Join(outputDir, nodeDirName, nodeDaemonHome)
-		gentxsDir := filepath.Join(outputDir, "gentxs")
+		gentxsDir := filepath.Join(outputDir, "gentx")
 		nodeConfig.Moniker = nodeDirName
 
 		nodeConfig.SetRoot(nodeDir)
