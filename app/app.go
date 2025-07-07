@@ -518,7 +518,7 @@ func NewSymphonyApp(
 		}
 	}
 
-	upgradePlan := upgradetypes.Plan{
+	upgradePlan := upgradetypes.Plan{ // TODO: remove it before merged into main
 		Name:   v28.UpgradeName,
 		Height: app.CommitMultiStore().LastCommitID().Version + 1,
 	}
@@ -1011,7 +1011,7 @@ func (app *SymphonyApp) setupUpgradeStoreLoaders() {
 		app.customPreUpgradeHandler(upgradeInfo)
 	}
 
-	upgradeInfo.Name = "v28"
+	upgradeInfo.Name = "v28" // TODO: remove it before merged into main
 	upgradeInfo.Height = currentHeight + 1
 
 	for _, upgrade := range Upgrades {
