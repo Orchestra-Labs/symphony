@@ -108,6 +108,7 @@ import (
 	"github.com/osmosis-labs/osmosis/v27/app/keepers"
 	"github.com/osmosis-labs/osmosis/v27/app/upgrades"
 	v27 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v27"
+	v28 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v28"
 	_ "github.com/osmosis-labs/osmosis/v27/client/docs/statik"
 	"github.com/osmosis-labs/osmosis/v27/x/mint"
 
@@ -150,7 +151,7 @@ var (
 
 	_ runtime.AppI = (*SymphonyApp)(nil)
 
-	Upgrades = []upgrades.Upgrade{v27.Upgrade}
+	Upgrades = []upgrades.Upgrade{v27.Upgrade, v28.Upgrade}
 	Forks    = []upgrades.Fork{}
 
 	// rpcAddressConfigName is the name of the config key that holds the RPC address.
@@ -515,6 +516,18 @@ func NewSymphonyApp(
 		if err := ibcwasmkeeper.InitializePinnedCodes(ctx); err != nil {
 			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
+	}
+
+	upgradePlan := upgradetypes.Plan{
+		Name:   v28.UpgradeName,
+		Height: app.CommitMultiStore().LastCommitID().Version + 1,
+	}
+	ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{
+		Height: upgradePlan.Height,
+	})
+	err = app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan)
+	if err != nil {
+		panic(err)
 	}
 
 	return app
@@ -997,6 +1010,9 @@ func (app *SymphonyApp) setupUpgradeStoreLoaders() {
 	if upgradeInfo.Height == currentHeight+1 {
 		app.customPreUpgradeHandler(upgradeInfo)
 	}
+
+	upgradeInfo.Name = "v28"
+	upgradeInfo.Height = currentHeight + 1
 
 	for _, upgrade := range Upgrades {
 		if upgradeInfo.Name == upgrade.UpgradeName {
