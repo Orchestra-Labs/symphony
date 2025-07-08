@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"fmt"
+	appParams "github.com/osmosis-labs/osmosis/v27/app/params"
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
@@ -54,19 +55,24 @@ func NewParams(
 // DefaultParams returns the default minting module parameters.
 func DefaultParams() Params {
 	return Params{
-		MintDenom:               sdk.DefaultBondDenom,
-		GenesisEpochProvisions:  osmomath.NewDec(5000000),
+		MintDenom:               appParams.BaseCoinUnit,
+		GenesisEpochProvisions:  osmomath.NewDec(15025000000),
 		EpochIdentifier:         "week",                        // 1 week
-		ReductionPeriodInEpochs: 156,                           // 3 years
+		ReductionPeriodInEpochs: 208,                           // 3 years
 		ReductionFactor:         osmomath.NewDecWithPrec(5, 1), // 0.5
 		DistributionProportions: DistributionProportions{
-			Staking:          osmomath.NewDecWithPrec(4, 1), // 0.4
-			PoolIncentives:   osmomath.NewDecWithPrec(3, 1), // 0.3
-			DeveloperRewards: osmomath.NewDecWithPrec(2, 1), // 0.2
-			CommunityPool:    osmomath.NewDecWithPrec(1, 1), // 0.1
+			Staking:          osmomath.NewDecWithPrec(45, 2), // 0.45
+			PoolIncentives:   osmomath.NewDecWithPrec(25, 2), // 0.25
+			DeveloperRewards: osmomath.NewDecWithPrec(25, 2), // 0.25
+			CommunityPool:    osmomath.NewDecWithPrec(5, 2),  // 0.05
 		},
-		WeightedDeveloperRewardsReceivers:    []WeightedAddress{},
-		MintingRewardsDistributionStartEpoch: 0,
+		WeightedDeveloperRewardsReceivers: []WeightedAddress{
+			{
+				Address: "symphony1v4slg40yz2r34t93m6w7mgt0zemy4xzqnyllvv",
+				Weight:  osmomath.MustNewDecFromStr("1.0"),
+			},
+		},
+		MintingRewardsDistributionStartEpoch: 6,
 	}
 }
 

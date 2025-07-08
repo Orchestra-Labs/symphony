@@ -5,7 +5,6 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/osmosis-labs/osmosis/osmomath"
 	"github.com/osmosis-labs/osmosis/v27/app/keepers"
 	"github.com/osmosis-labs/osmosis/v27/app/upgrades"
 	minttypes "github.com/osmosis-labs/osmosis/v27/x/mint/types"
@@ -29,13 +28,11 @@ func CreateUpgradeHandler(
 			return nil, err
 		}
 
-		ctx.Logger().Warn("❌ Run init genesis for Mint module")
-		minter := minttypes.NewMinter(osmomath.NewDec(15000000000000))
-		params := minttypes.DefaultParams()
-		initMintParams := minttypes.NewGenesisState(minter, params, int64(1))
+		ctx.Logger().Warn("✅ Run init genesis for Mint module")
+		initMintParams := minttypes.DefaultGenesisState()
 		keepers.MintKeeper.InitGenesis(ctx, initMintParams)
 
-		ctx.Logger().Warn("❌ Migration completed!")
+		ctx.Logger().Warn("✅ Migration completed!")
 		return newVM, nil
 	}
 }
