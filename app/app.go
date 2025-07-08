@@ -518,18 +518,6 @@ func NewSymphonyApp(
 		}
 	}
 
-	upgradePlan := upgradetypes.Plan{ // TODO: remove it before merged into main
-		Name:   v28.UpgradeName,
-		Height: app.CommitMultiStore().LastCommitID().Version + 1,
-	}
-	ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{
-		Height: upgradePlan.Height,
-	})
-	err = app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan)
-	if err != nil {
-		panic(err)
-	}
-
 	return app
 }
 
@@ -1010,9 +998,6 @@ func (app *SymphonyApp) setupUpgradeStoreLoaders() {
 	if upgradeInfo.Height == currentHeight+1 {
 		app.customPreUpgradeHandler(upgradeInfo)
 	}
-
-	upgradeInfo.Name = "v28" // TODO: remove it before merged into main
-	upgradeInfo.Height = currentHeight + 1
 
 	for _, upgrade := range Upgrades {
 		if upgradeInfo.Name == upgrade.UpgradeName {
