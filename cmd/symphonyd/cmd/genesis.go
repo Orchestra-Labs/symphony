@@ -315,7 +315,7 @@ func MainnetGenesisParams() GenesisParams {
 
 	genParams.MintParams = minttypes.DefaultParams()
 	genParams.MintParams.EpochIdentifier = "week"
-	genParams.MintParams.GenesisEpochProvisions = osmomath.NewDec(150250000000)
+	genParams.MintParams.GenesisEpochProvisions = osmomath.NewDec(15025000000)
 	genParams.MintParams.MintDenom = genParams.NativeCoinMetadatas[0].Base
 	genParams.MintParams.ReductionFactor = osmomath.NewDecWithPrec(5, 1) // 0.5
 	genParams.MintParams.ReductionPeriodInEpochs = 208                   // 4 years
