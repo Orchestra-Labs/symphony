@@ -42,6 +42,18 @@ service Query {
     option (google.api.http).get =
         "/symphony/stablestaking/v1beta1/user_total_unbonding";
   }
+
+  rpc RewardAmountPerPool(QueryPoolRequest) returns (QueryRewardPerPoolResponse) {
+    option (google.api.http).get = "/symphony/stablestaking/v1beta1/reward_amount_per_pool";
+  }
+
+  rpc TotalStakersPerPool(QueryPoolRequest) returns (QueryTotalStakersPerPoolResponse) {
+    option (google.api.http).get = "/symphony/stablestaking/v1beta1/total_stakers_per_pool";
+  }
+
+  rpc TotalStakers(QueryPoolsRequest) returns (QueryTotalStakersResponse) {
+    option (google.api.http).get = "/symphony/stablestaking/v1beta1/total_stakers";
+  }
 }
 
 message QueryParamsRequest {}
@@ -68,6 +80,19 @@ message QueryUserTotalStakeResponse {
   ];
 }
 
+message TotalStakers {
+  string denom = 1;
+  string count = 2;
+}
+
+message QueryTotalStakersPerPoolResponse {
+  TotalStakers stakers = 1;
+}
+
+message QueryTotalStakersResponse {
+  repeated TotalStakers stakers = 1;
+}
+
 message QueryPoolRequest { string denom = 1; }
 
 message QueryPoolResponse { StakingPool pool = 1; }
@@ -86,3 +111,8 @@ message QueryUserUnbondingResponse { UnbondingInfo info = 1; }
 message QueryUserTotalUnbondingRequest { string address = 1; }
 
 message QueryUserTotalUnbondingResponse { repeated UnbondingInfo info = 1; }
+
+message QueryRewardPerPoolResponse {
+  StakingPool pool = 1;
+  cosmos.base.v1beta1.Coin reward = 2;
+}

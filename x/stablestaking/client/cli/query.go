@@ -29,6 +29,9 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryStablePools(),
 		GetCmdQueryUserUnbonding(),
 		GetCmdQueryUserTotalUnbonding(),
+		GetCmdQueryTotalStakersPerPool(),
+		GetCmdQueryTotalStakers(),
+		GetCmdQueryRewardAmountPerPool(),
 	)
 
 	return cmd
@@ -245,6 +248,103 @@ $ %s query stablestaking user-total-unbonding symphony1...
 			queryClient := types.NewQueryClient(clientCtx)
 			res, err := queryClient.UserTotalUnbonding(cmd.Context(), &types.QueryUserTotalUnbondingRequest{
 				Address: args[0],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetCmdQueryTotalStakersPerPool implements the user total unbonding query command
+func GetCmdQueryTotalStakersPerPool() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "total-stakers-per-pool [denom]",
+		Short: "Query total stakers for provided pool",
+		Long: fmt.Sprintf(`Query total stakers for provided pool.
+
+Example:
+$ %s query stablestaking total-stakers-per-pool ukhd
+`, version.AppName),
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.TotalStakersPerPool(cmd.Context(), &types.QueryPoolRequest{
+				Denom: args[0],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetCmdQueryTotalStakers implements the user total unbonding query command
+func GetCmdQueryTotalStakers() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "total-stakers",
+		Short: "Query total stakers across all pools",
+		Long: fmt.Sprintf(`Query total stakers across all pools.
+
+Example:
+$ %s query stablestaking total-stakers
+`, version.AppName),
+		Args: cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.TotalStakers(cmd.Context(), &types.QueryPoolsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetCmdQueryRewardAmountPerPool implements the reward amount per pool query command
+func GetCmdQueryRewardAmountPerPool() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "reward-amount-per-pool",
+		Short: "Query total reward amount of pool",
+		Long: fmt.Sprintf(`Query total reward amount of pool.
+
+Example:
+$ %s query stablestaking reward-amount-per-pool uusd
+`, version.AppName),
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.RewardAmountPerPool(cmd.Context(), &types.QueryPoolRequest{
+				Denom: args[0],
 			})
 			if err != nil {
 				return err
