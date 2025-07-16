@@ -15213,6 +15213,70 @@ paths:
                       format: byte
       tags:
         - Query
+  /symphony/stablestaking/v1beta1/reward_amount_per_pool:
+    get:
+      operationId: RewardAmountPerPool
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              pool:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  total_staked:
+                    type: string
+                    format: byte
+                  total_shares:
+                    type: string
+                    format: byte
+              reward:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: denom
+          in: query
+          required: false
+          type: string
+      tags:
+        - Query
   /symphony/stablestaking/v1beta1/stable_pool:
     get:
       operationId: StablePool
@@ -15306,6 +15370,93 @@ paths:
                     value:
                       type: string
                       format: byte
+      tags:
+        - Query
+  /symphony/stablestaking/v1beta1/total_stakers:
+    get:
+      operationId: TotalStakers
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              stakers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    count:
+                      type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /symphony/stablestaking/v1beta1/total_stakers_per_pool:
+    get:
+      operationId: TotalStakersPerPool
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              stakers:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  count:
+                    type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: denom
+          in: query
+          required: false
+          type: string
       tags:
         - Query
   /symphony/stablestaking/v1beta1/user_stake:
@@ -50664,6 +50815,54 @@ definitions:
             total_shares:
               type: string
               format: byte
+  symphony.stablestaking.v1beta1.QueryRewardPerPoolResponse:
+    type: object
+    properties:
+      pool:
+        type: object
+        properties:
+          denom:
+            type: string
+          total_staked:
+            type: string
+            format: byte
+          total_shares:
+            type: string
+            format: byte
+      reward:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+  symphony.stablestaking.v1beta1.QueryTotalStakersPerPoolResponse:
+    type: object
+    properties:
+      stakers:
+        type: object
+        properties:
+          denom:
+            type: string
+          count:
+            type: string
+  symphony.stablestaking.v1beta1.QueryTotalStakersResponse:
+    type: object
+    properties:
+      stakers:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            count:
+              type: string
   symphony.stablestaking.v1beta1.QueryUserStakeResponse:
     type: object
     properties:
@@ -50740,6 +50939,13 @@ definitions:
       total_shares:
         type: string
         format: byte
+  symphony.stablestaking.v1beta1.TotalStakers:
+    type: object
+    properties:
+      denom:
+        type: string
+      count:
+        type: string
   symphony.stablestaking.v1beta1.UnbondingInfo:
     type: object
     properties:
