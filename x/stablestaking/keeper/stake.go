@@ -1,12 +1,13 @@
 package keeper
 
 import (
-	"fmt"
-
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	storetypes "cosmossdk.io/store/types"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"strconv"
+	"strings"
 
 	"github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
 )
@@ -192,7 +193,7 @@ func (k Keeper) SetPool(ctx sdk.Context, pool types.StakingPool) {
 }
 
 func (k Keeper) GetUserStakeKey(staker string, denom string) []byte {
-	return []byte(fmt.Sprintf("%s:%s%s", types.UserStakeKey, staker, denom))
+	return []byte(fmt.Sprintf("%s:%s:%s", types.UserStakeKey, staker, denom))
 }
 
 func (k Keeper) GetUserStake(ctx sdk.Context, address sdk.AccAddress, token string) (types.UserStake, bool) {
@@ -237,4 +238,64 @@ func (k Keeper) GetUserTotalStake(ctx sdk.Context, address sdk.AccAddress) sdk.D
 	}
 
 	return stakes
+}
+
+func (k Keeper) GetTotalStakersPerPool(ctx sdk.Context, token string) (int32, error) {
+	store := ctx.KVStore(k.storeKey)
+
+	_, found := k.GetPool(ctx, token)
+	if !found {
+		return 0, fmt.Errorf("not found pool with denom %s", token)
+	}
+
+	keyPrefix := k.GetUserStakeKey("", "")
+	iterator := storetypes.KVStorePrefixIterator(store, keyPrefix)
+	defer iterator.Close()
+
+	var stakers int32
+	for ; iterator.Valid(); iterator.Next() {
+		var stake types.UserStake
+		k.cdc.MustUnmarshal(iterator.Value(), &stake)
+
+		key := string(iterator.Key())
+		parts := strings.Split(key, ":")
+
+		if len(parts) >= 3 {
+			denom := parts[2]
+			if denom == token {
+				stakers += 1
+			}
+		}
+	}
+
+	return stakers, nil
+}
+
+func (k Keeper) GetTotalStakers(ctx sdk.Context) []*types.TotalStakers {
+	store := ctx.KVStore(k.storeKey)
+	counts := make(map[string]int)
+
+	keyPrefix := k.GetUserStakeKey("", "")
+	iterator := storetypes.KVStorePrefixIterator(store, keyPrefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var stake types.UserStake
+		k.cdc.MustUnmarshal(iterator.Value(), &stake)
+
+		key := string(iterator.Key())
+		parts := strings.Split(key, ":")
+
+		if len(parts) >= 3 {
+			denom := parts[2]
+			counts[denom] = counts[denom] + 1
+		}
+	}
+
+	kvList := make([]*types.TotalStakers, 0, len(counts))
+	for k, v := range counts {
+		kvList = append(kvList, &types.TotalStakers{Denom: k, Count: strconv.Itoa(v)})
+	}
+
+	return kvList
 }

@@ -98,3 +98,34 @@ message MsgUnstakeTokensResponse {
     (gogoproto.nullable) = false
   ];
 }
+
+message MsgClaimRewardByToken {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "staker";
+
+  string staker = 1 [
+    (gogoproto.moretags) = "yaml:\"staker\"",
+    (cosmos_proto.scalar) = "cosmos.AddressString"
+  ];
+  string token = 2;
+}
+
+message MsgClaimRewardByTokenResponse {
+  cosmos.base.v1beta1.Coin reward = 1;
+}
+
+message MsgClaimAllRewards {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "staker";
+
+  string staker = 1 [
+    (gogoproto.moretags) = "yaml:\"staker\"",
+    (cosmos_proto.scalar) = "cosmos.AddressString"
+  ];
+}
+
+message MsgClaimAllRewardsResponse {
+  repeated cosmos.base.v1beta1.Coin rewards = 1;
+}

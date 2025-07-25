@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/grpc/codes"
@@ -145,5 +146,83 @@ func (q Querier) UserTotalUnbonding(ctx context.Context, request *types.QueryUse
 	}
 	return &types.QueryUserTotalUnbondingResponse{
 		Info: unbondInfos,
+	}, nil
+}
+
+func (q Querier) TotalStakersPerPool(ctx context.Context, request *types.QueryPoolRequest) (*types.QueryTotalStakersPerPoolResponse, error) {
+	if request == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	totalStakers, err := q.GetTotalStakersPerPool(sdkCtx, request.Denom)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryTotalStakersPerPoolResponse{
+		Stakers: &types.TotalStakers{
+			Denom: request.Denom,
+			Count: string(totalStakers),
+		},
+	}, nil
+}
+
+func (q Querier) TotalStakers(ctx context.Context, request *types.QueryPoolsRequest) (*types.QueryTotalStakersResponse, error) {
+	if request == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	totalStakers := q.GetTotalStakers(sdkCtx)
+
+	return &types.QueryTotalStakersResponse{
+		Stakers: totalStakers,
+	}, nil
+}
+
+func (q Querier) RewardAmountPerPool(ctx context.Context, request *types.QueryPoolRequest) (*types.QueryRewardPerPoolResponse, error) {
+	if request == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	// Get total rewards available
+	moduleRewardsAddr := q.AccountKeeper.GetModuleAddress(types.NativeRewardsCollectorName)
+	totalReward := q.BankKeeper.GetBalance(ctx, moduleRewardsAddr, appparams.BaseCoinUnit)
+	if totalReward.IsZero() {
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("Rewards not found for pool with %s", request.Denom))
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	snapshotData, err := q.CalculateStakedPools(sdkCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	if snapshotData.TotalStakedAcrossPools.IsZero() {
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("Rewards not found for pool with %s", request.Denom))
+	}
+
+	poolSnapshot, ok := snapshotData.PoolSnapshots[request.Denom]
+	if !ok {
+		return nil, fmt.Errorf("no snapshot found for denom: %s", request.Denom)
+	}
+	poolRewardShare := poolSnapshot.TotalStaked.Quo(snapshotData.TotalStakedAcrossPools)
+	poolReward := poolRewardShare.MulInt(totalReward.Amount).TruncateInt()
+
+	if poolReward.IsZero() {
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("Rewards not found for pool with %s", request.Denom))
+	}
+
+	return &types.QueryRewardPerPoolResponse{
+		Pool: &types.StakingPool{
+			Denom:       request.Denom,
+			TotalStaked: poolSnapshot.TotalStaked,
+			TotalShares: poolSnapshot.TotalShares,
+		},
+		Reward: &sdk.Coin{
+			Denom:  request.Denom,
+			Amount: poolReward,
+		},
 	}, nil
 }

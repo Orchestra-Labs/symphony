@@ -146,25 +146,20 @@ func (k Keeper) IterateActiveStakers(ctx sdk.Context, cb func(addr sdk.AccAddres
 	}
 }
 
-func (k Keeper) DistributeRewardsToLastEpochStakers(ctx sdk.Context) {
-	params := k.GetParams(ctx)
-	if len(params.SupportedTokens) == 0 {
-		return
-	}
+type SnapshotData struct {
+	TotalStakedAcrossPools math.LegacyDec
+	PoolSnapshots          map[string]types.EpochSnapshot
+}
 
-	// Get total rewards available
-	moduleRewardsAddr := k.AccountKeeper.GetModuleAddress(types.NativeRewardsCollectorName)
-	totalReward := k.BankKeeper.GetBalance(ctx, moduleRewardsAddr, appparams.BaseCoinUnit)
-	if totalReward.IsZero() {
-		return // No rewards to distribute
-	}
+func (k Keeper) CalculateStakedPools(ctx sdk.Context) (*SnapshotData, error) {
+	pools := k.GetPools(ctx)
 
 	// Calculate the total staked amount across all pools
 	var totalStakedAcrossPools math.LegacyDec
 	poolSnapshots := make(map[string]types.EpochSnapshot)
 
-	for _, denom := range params.SupportedTokens {
-		snapshot, err := k.GetEpochSnapshot(ctx, denom)
+	for i := range pools {
+		snapshot, err := k.GetEpochSnapshot(ctx, pools[i].Denom)
 		if err != nil {
 			continue
 		}
@@ -172,17 +167,47 @@ func (k Keeper) DistributeRewardsToLastEpochStakers(ctx sdk.Context) {
 			continue
 		}
 		totalStakedAcrossPools = totalStakedAcrossPools.Add(snapshot.TotalStaked)
-		poolSnapshots[denom] = snapshot
+		poolSnapshots[pools[i].Denom] = snapshot
 	}
 
-	if totalStakedAcrossPools.IsZero() {
-		return // No staked amount across any pool
+	if len(poolSnapshots) == 0 {
+		return nil, fmt.Errorf("pools not found")
+	}
+
+	return &SnapshotData{
+		TotalStakedAcrossPools: totalStakedAcrossPools,
+		PoolSnapshots:          poolSnapshots,
+	}, nil
+}
+
+func (k Keeper) DistributeRewardsToLastEpochStakers(ctx sdk.Context) error {
+	params := k.GetParams(ctx)
+	if len(params.SupportedTokens) == 0 {
+		return fmt.Errorf("Supported tokens not specified")
+	}
+
+	// Get total rewards available
+	moduleRewardsAddr := k.AccountKeeper.GetModuleAddress(types.NativeRewardsCollectorName)
+	totalReward := k.BankKeeper.GetBalance(ctx, moduleRewardsAddr, appparams.BaseCoinUnit)
+	if totalReward.IsZero() {
+		ctx.Logger().Warn("distributeReward", "module", types.ModuleName, "Msg", "Total reward is zero", "height", ctx.BlockHeight())
+		return nil
+	}
+
+	snapshotData, err := k.CalculateStakedPools(ctx)
+	if err != nil {
+		return err
+	}
+
+	if snapshotData.TotalStakedAcrossPools.IsZero() {
+		ctx.Logger().Warn("distributeReward", "module", types.ModuleName, "Msg", "Total staked across pools is zero", "height", ctx.BlockHeight())
+		return nil
 	}
 
 	// Distribute rewards proportionally to each pool based on their total staked amount
-	for _, snapshot := range poolSnapshots {
+	for _, snapshot := range snapshotData.PoolSnapshots {
 		// Calculate pool's share of total rewards based on its total staked amount
-		poolRewardShare := snapshot.TotalStaked.Quo(totalStakedAcrossPools)
+		poolRewardShare := snapshot.TotalStaked.Quo(snapshotData.TotalStakedAcrossPools)
 		poolReward := poolRewardShare.MulInt(totalReward.Amount).TruncateInt()
 
 		if poolReward.IsZero() {
@@ -203,17 +228,19 @@ func (k Keeper) DistributeRewardsToLastEpochStakers(ctx sdk.Context) {
 
 			addr, err := sdk.AccAddressFromBech32(staker.Address)
 			if err != nil {
-				panic(fmt.Sprintf("invalid address in snapshot: %s", err))
+				return fmt.Errorf("invalid address in snapshot: %s", err)
 			}
 
 			// Send reward tokens
 			rewardCoin := sdk.NewCoin(appparams.BaseCoinUnit, stakerReward)
 			err = k.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.NativeRewardsCollectorName, addr, sdk.NewCoins(rewardCoin))
 			if err != nil {
-				panic(fmt.Sprintf("failed to send rewards: %s", err))
+				return fmt.Errorf("failed to send rewards: %s", err)
 			}
 		}
 	}
+
+	return nil
 }
 
 func (k Keeper) GetEpochReward(ctx sdk.Context) math.Int {

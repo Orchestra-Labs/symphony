@@ -72,7 +72,7 @@ func DefaultParams() Params {
 				Weight:  osmomath.MustNewDecFromStr("1.0"),
 			},
 		},
-		MintingRewardsDistributionStartEpoch: 6,
+		MintingRewardsDistributionStartEpoch: 15,
 	}
 }
 
