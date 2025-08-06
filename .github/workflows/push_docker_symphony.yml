@@ -1,4 +1,4 @@
-name: Docker Build
+name: push_docker_symphony
 
 on:
   push:
