@@ -18,9 +18,13 @@ jobs:
     - name: Login to GHCR
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
     
+    - name: Set lowercase repository name
+      id: repo
+      run: echo "name=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+    
     - name: Build and Push
       run: |
-        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/symphonyd
+        IMAGE_NAME=ghcr.io/${{ steps.repo.outputs.name }}
         docker build \
           --build-arg GIT_VERSION=${{ github.ref_name }} \
           --build-arg GIT_COMMIT=${{ github.sha }} \
