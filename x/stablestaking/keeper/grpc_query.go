@@ -155,15 +155,15 @@ func (q Querier) TotalStakersPerPool(ctx context.Context, request *types.QueryPo
 	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
-	totalStakers, err := q.GetTotalStakersPerPool(sdkCtx, request.Denom)
+	totalStakers, err := q.GetTotalStakersPerPool(sdkCtx, request.GetDenom(), request.GetLimit())
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.QueryTotalStakersPerPoolResponse{
 		Stakers: &types.TotalStakers{
-			Denom: request.Denom,
-			Count: string(totalStakers),
+			Denom:   request.Denom,
+			Stakers: totalStakers,
 		},
 	}, nil
 }

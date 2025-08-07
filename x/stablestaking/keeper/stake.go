@@ -7,7 +7,6 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
@@ -194,6 +193,9 @@ func (k Keeper) SetPool(ctx sdk.Context, pool types.StakingPool) {
 }
 
 func (k Keeper) GetUserStakeKey(staker string, denom string) []byte {
+	if staker == "" {
+		return []byte(fmt.Sprintf("%s:", types.UserStakeKey))
+	}
 	return []byte(fmt.Sprintf("%s:%s:%s", types.UserStakeKey, staker, denom))
 }
 
@@ -241,7 +243,7 @@ func (k Keeper) GetUserTotalStake(ctx sdk.Context, address sdk.AccAddress) sdk.D
 	return stakes
 }
 
-func (k Keeper) GetTotalStakersPerPool(ctx sdk.Context, token string, count ...int) ([]types.UserStake, error) {
+func (k Keeper) GetTotalStakersPerPool(ctx sdk.Context, token string, limit ...int32) ([]*types.UserStake, error) {
 	store := ctx.KVStore(k.storeKey)
 
 	_, found := k.GetPool(ctx, token)
@@ -253,7 +255,7 @@ func (k Keeper) GetTotalStakersPerPool(ctx sdk.Context, token string, count ...i
 	iterator := storetypes.KVStorePrefixIterator(store, keyPrefix)
 	defer iterator.Close()
 
-	var totalStakers []types.UserStake
+	var totalStakers []*types.UserStake
 
 	for ; iterator.Valid(); iterator.Next() {
 		var stake types.UserStake
@@ -265,7 +267,7 @@ func (k Keeper) GetTotalStakersPerPool(ctx sdk.Context, token string, count ...i
 		if len(parts) >= 3 {
 			denom := parts[2]
 			if denom == token {
-				totalStakers = append(totalStakers, stake)
+				totalStakers = append(totalStakers, &stake)
 			}
 		}
 	}
@@ -274,10 +276,8 @@ func (k Keeper) GetTotalStakersPerPool(ctx sdk.Context, token string, count ...i
 		return totalStakers[i].Shares.LT(totalStakers[j].Shares)
 	})
 
-	limit := 0
-	if len(count) > 0 {
-		limit = count[0]
-		return totalStakers[:limit], nil
+	if limit[0] > 0 {
+		return totalStakers[:limit[0]], nil
 	} else {
 		return totalStakers, nil
 	}
@@ -293,7 +293,6 @@ func (k Keeper) GetTotalStakers(ctx sdk.Context) []*types.TotalStakers {
 
 	for ; iterator.Valid(); iterator.Next() {
 		var stake types.UserStake
-		var totalStakers []*types.UserStake
 		k.cdc.MustUnmarshal(iterator.Value(), &stake)
 
 		key := string(iterator.Key())
@@ -301,18 +300,15 @@ func (k Keeper) GetTotalStakers(ctx sdk.Context) []*types.TotalStakers {
 
 		if len(parts) >= 3 {
 			denom := parts[2]
-			totalStakers = append(totalStakers, &stake)
-			counts[denom] = &types.TotalStakers{
-				Denom:   denom,
-				Stakers: totalStakers,
-			}
+			counts[denom].Denom = denom
+			counts[denom].Stakers = append(counts[denom].Stakers, &stake)
 		}
 	}
 
 	kvList := make([]*types.TotalStakers, 0, len(counts))
 	for k, v := range counts {
-		kvList = append(kvList, &types.TotalStakers{Denom: k, Stakers: strconv.Itoa(v)})
+		kvList = append(kvList, &types.TotalStakers{Denom: k, Stakers: v.Stakers})
 	}
 
-	return counts
+	return kvList
 }
