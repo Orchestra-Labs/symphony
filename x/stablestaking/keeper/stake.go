@@ -277,7 +277,11 @@ func (k Keeper) GetTotalStakersPerPool(ctx sdk.Context, token string, limit ...i
 	})
 
 	if limit[0] > 0 {
-		return totalStakers[:limit[0]], nil
+		if len(totalStakers) > int(limit[0]) {
+			return totalStakers[:limit[0]], nil
+		} else {
+			return totalStakers, nil
+		}
 	} else {
 		return totalStakers, nil
 	}
@@ -300,8 +304,17 @@ func (k Keeper) GetTotalStakers(ctx sdk.Context) []*types.TotalStakers {
 
 		if len(parts) >= 3 {
 			denom := parts[2]
-			counts[denom].Denom = denom
-			counts[denom].Stakers = append(counts[denom].Stakers, &stake)
+			if counts[denom] == nil {
+				counts[denom] = &types.TotalStakers{
+					Denom: denom,
+					Stakers: []*types.UserStake{
+						&stake,
+					},
+				}
+			} else {
+				counts[denom].Denom = denom
+				counts[denom].Stakers = append(counts[denom].Stakers, &stake)
+			}
 		}
 	}
 
