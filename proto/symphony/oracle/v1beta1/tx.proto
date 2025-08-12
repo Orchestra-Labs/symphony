@@ -62,10 +62,11 @@ message MsgAggregateExchangeRateVoteResponse {}
 message MsgDelegateFeedConsent {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
-  option (cosmos.msg.v1.signer) = "operator";
+  option (cosmos.msg.v1.signer) = "sender";
 
-  string operator = 1 [ (gogoproto.moretags) = "yaml:\"operator\"" ];
-  string delegate = 2 [ (gogoproto.moretags) = "yaml:\"delegate\"" ];
+  string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
+  string operator = 2 [ (gogoproto.moretags) = "yaml:\"operator\"" ];
+  string delegate = 3 [ (gogoproto.moretags) = "yaml:\"delegate\"" ];
 }
 
 // MsgDelegateFeedConsentResponse defines the Msg/DelegateFeedConsent response
