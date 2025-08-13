@@ -150,8 +150,9 @@ func (msg MsgAggregateExchangeRateVote) ValidateBasic() error {
 }
 
 // NewMsgDelegateFeedConsent creates a MsgDelegateFeedConsent instance
-func NewMsgDelegateFeedConsent(operatorAddress sdk.ValAddress, feederAddress sdk.AccAddress) *MsgDelegateFeedConsent {
+func NewMsgDelegateFeedConsent(senderAddress sdk.AccAddress, operatorAddress sdk.ValAddress, feederAddress sdk.AccAddress) *MsgDelegateFeedConsent {
 	return &MsgDelegateFeedConsent{
+		Sender:   senderAddress.String(),
 		Operator: operatorAddress.String(),
 		Delegate: feederAddress.String(),
 	}
@@ -188,6 +189,11 @@ func (msg MsgDelegateFeedConsent) ValidateBasic() error {
 	_, err = sdk.AccAddressFromBech32(msg.Delegate)
 	if err != nil {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid delegate address (%s)", err)
+	}
+
+	_, err = sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
 	}
 
 	return nil

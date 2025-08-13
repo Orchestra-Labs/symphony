@@ -56,9 +56,7 @@ where "symphony1..." is the address you want to delegate your voting rights to.
 				return err
 			}
 
-			// Get from address
 			voter := clientCtx.GetFromAddress()
-
 			// The address the right is being delegated from
 			validator := sdk.ValAddress(voter)
 
@@ -68,7 +66,7 @@ where "symphony1..." is the address you want to delegate your voting rights to.
 				return err
 			}
 
-			msg := types.NewMsgDelegateFeedConsent(validator, feeder)
+			msg := types.NewMsgDelegateFeedConsent(voter, validator, feeder)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

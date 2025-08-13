@@ -129,8 +129,12 @@ func (q querier) FeederDelegation(c context.Context, req *types.QueryFeederDeleg
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
+	feeder, err := q.GetFeederDelegation(ctx, valAddr)
+	if err != nil {
+		return nil, err
+	}
 	return &types.QueryFeederDelegationResponse{
-		FeederAddr: q.GetFeederDelegation(ctx, valAddr).String(),
+		FeederAddr: feeder.String(),
 	}, nil
 }
 
