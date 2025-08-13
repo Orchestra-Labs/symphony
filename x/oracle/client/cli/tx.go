@@ -38,18 +38,17 @@ func GetTxCmd() *cobra.Command {
 // GetCmdDelegateFeederPermission will create a feeder permission delegation tx and sign it with the given key.
 func GetCmdDelegateFeederPermission() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-feeder [feeder] [operator]",
-		Args:  cobra.ExactArgs(2),
+		Use:   "set-feeder [feeder]",
+		Args:  cobra.ExactArgs(1),
 		Short: "Delegate the permission to vote for the oracle to an address",
 		Long: strings.TrimSpace(`
 Delegate the permission to submit exchange rate votes for the oracle to an address.
 
 Delegation can keep your validator operator key offline and use a separate replaceable key online.
 
-$ symphonyd tx oracle set-feeder symphony1... symphony2...
+$ symphonyd tx oracle set-feeder symphony1...
 
 where "symphony1..." is the address you want to delegate your voting rights to.
-where "symphony2..." is the operator address the right is being delegated from.
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -57,7 +56,9 @@ where "symphony2..." is the operator address the right is being delegated from.
 				return err
 			}
 
-			sender := clientCtx.GetFromAddress()
+			voter := clientCtx.GetFromAddress()
+			// The address the right is being delegated from
+			validator := sdk.ValAddress(voter)
 
 			feederStr := args[0]
 			feeder, err := sdk.AccAddressFromBech32(feederStr)
@@ -65,16 +66,7 @@ where "symphony2..." is the operator address the right is being delegated from.
 				return err
 			}
 
-			voterStr := args[1]
-			voter, err := sdk.AccAddressFromBech32(voterStr)
-			if err != nil {
-				return err
-			}
-
-			// The address the right is being delegated from
-			validator := sdk.ValAddress(voter)
-
-			msg := types.NewMsgDelegateFeedConsent(sender, validator, feeder)
+			msg := types.NewMsgDelegateFeedConsent(voter, validator, feeder)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
