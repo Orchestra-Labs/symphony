@@ -304,7 +304,3 @@
     ]
   }
 }
-
-symphonyd tx oracle set-feeder symphony1wljgsg6ga6567ee92k36lq93e7pcqsv46d3fcu --from validator1 --chain-id testing --fees 2500note
-
-symphonyvaloper1wljgsg6ga6567ee92k36lq93e7pcqsv4f0ew0v
