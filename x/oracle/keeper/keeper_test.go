@@ -271,17 +271,17 @@ func (s *KeeperTestSuite) TestParams() {
 
 func (s *KeeperTestSuite) TestFeederDelegation() {
 	// Test default getters and setters
-	delegate := s.App.OracleKeeper.GetFeederDelegation(s.Ctx, ValAddrs[0])
+	delegate, _ := s.App.OracleKeeper.GetFeederDelegation(s.Ctx, ValAddrs[0])
 	s.Require().Equal(Addrs[0], delegate)
 
 	s.App.OracleKeeper.SetFeederDelegation(s.Ctx, ValAddrs[0], Addrs[1])
-	delegate = s.App.OracleKeeper.GetFeederDelegation(s.Ctx, ValAddrs[0])
+	delegate, _ = s.App.OracleKeeper.GetFeederDelegation(s.Ctx, ValAddrs[0])
 	s.Require().Equal(Addrs[1], delegate)
 }
 
 func (s *KeeperTestSuite) TestIterateFeederDelegations() {
 	// Test default getters and setters
-	delegate := s.App.OracleKeeper.GetFeederDelegation(s.Ctx, ValAddrs[0])
+	delegate, _ := s.App.OracleKeeper.GetFeederDelegation(s.Ctx, ValAddrs[0])
 	s.Require().Equal(Addrs[0], delegate)
 
 	s.App.OracleKeeper.SetFeederDelegation(s.Ctx, ValAddrs[0], Addrs[1])

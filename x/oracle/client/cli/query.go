@@ -163,10 +163,11 @@ $ symphonyd query oracle feeder symphonyvaloper...
 			queryClient := types.NewQueryClient(clientCtx)
 
 			valString := args[0]
-			validator, err := sdk.ValAddressFromBech32(valString)
+			valAddr, err := sdk.AccAddressFromBech32(valString)
 			if err != nil {
 				return err
 			}
+			validator := sdk.ValAddress(valAddr)
 
 			res, err := queryClient.FeederDelegation(
 				context.Background(),
