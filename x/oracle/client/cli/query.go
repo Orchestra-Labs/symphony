@@ -204,10 +204,11 @@ $ symphonyd query oracle miss symphonyvaloper...
 			queryClient := types.NewQueryClient(clientCtx)
 
 			valString := args[0]
-			validator, err := sdk.ValAddressFromBech32(valString)
+			valAddr, err := sdk.AccAddressFromBech32(valString)
 			if err != nil {
 				return err
 			}
+			validator := sdk.ValAddress(valAddr)
 
 			res, err := queryClient.MissCounter(
 				context.Background(),
@@ -260,10 +261,11 @@ $ symphonyd query oracle aggregate-prevotes symphonyvaloper...
 			}
 
 			valString := args[0]
-			validator, err := sdk.ValAddressFromBech32(valString)
+			valAddr, err := sdk.AccAddressFromBech32(valString)
 			if err != nil {
 				return err
 			}
+			validator := sdk.ValAddress(valAddr)
 
 			res, err := queryClient.AggregatePrevote(
 				context.Background(),
@@ -316,10 +318,11 @@ $ symphonyd query oracle aggregate-votes symphonyvaloper...
 			}
 
 			valString := args[0]
-			validator, err := sdk.ValAddressFromBech32(valString)
+			valAddr, err := sdk.AccAddressFromBech32(valString)
 			if err != nil {
 				return err
 			}
+			validator := sdk.ValAddress(valAddr)
 
 			res, err := queryClient.AggregateVote(
 				context.Background(),
