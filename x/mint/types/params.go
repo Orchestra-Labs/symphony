@@ -56,7 +56,7 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		MintDenom:               appParams.BaseCoinUnit,
-		GenesisEpochProvisions:  osmomath.NewDec(15025000000),
+		GenesisEpochProvisions:  osmomath.NewDec(60100000000),
 		EpochIdentifier:         "week",                        // 1 week
 		ReductionPeriodInEpochs: 208,                           // 3 years
 		ReductionFactor:         osmomath.NewDecWithPrec(5, 1), // 0.5
