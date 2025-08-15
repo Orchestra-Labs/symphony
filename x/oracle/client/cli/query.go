@@ -153,7 +153,7 @@ func GetCmdQueryFeederDelegation() *cobra.Command {
 		Long: strings.TrimSpace(`
 Query the account the validator's oracle voting right is delegated to.
 
-$ symphonyd query oracle feeder symphonyvaloper...
+$ symphonyd query oracle feeder symphony1...
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -194,7 +194,7 @@ func GetCmdQueryMissCounter() *cobra.Command {
 		Long: strings.TrimSpace(`
 Query the # of vote periods missed in this oracle slash window.
 
-$ symphonyd query oracle miss symphonyvaloper...
+$ symphonyd query oracle miss symphony1...
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -239,7 +239,7 @@ $ symphonyd query oracle aggregate-prevotes
 
 Or, can filter with voter address
 
-$ symphonyd query oracle aggregate-prevotes symphonyvaloper...
+$ symphonyd query oracle aggregate-prevotes symphony1...
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -296,7 +296,7 @@ $ symphonyd query oracle aggregate-votes
 
 Or, can filter with voter address
 
-$ symphonyd query oracle aggregate-votes symphonyvaloper...
+$ symphonyd query oracle aggregate-votes symphony1...
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
