@@ -7,11 +7,10 @@ import (
 	"time"
 
 	//nolint:staticcheck
-	"github.com/golang/protobuf/proto"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	markettypes "github.com/osmosis-labs/osmosis/v27/x/market/types"
 	"github.com/spf13/cobra"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/osmosis-labs/osmosis/osmomath"
 	"github.com/osmosis-labs/osmosis/osmoutils"

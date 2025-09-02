@@ -43,6 +43,10 @@ import (
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
 	custombankkeeper "github.com/osmosis-labs/osmosis/v27/custom/bank/keeper"
+	icacallbackstypes "github.com/osmosis-labs/osmosis/v27/x/icacallbacks/types"
+	icaoracletypes "github.com/osmosis-labs/osmosis/v27/x/icaoracle/types"
+	interchainquerytypes "github.com/osmosis-labs/osmosis/v27/x/interchainquery/types"
+	stakeibctypes "github.com/osmosis-labs/osmosis/v27/x/stakeibc/types"
 
 	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
 	customwasmkeeper "github.com/osmosis-labs/osmosis/v27/custom/wasm/keeper"
@@ -802,18 +806,17 @@ func (appKeepers *AppKeepers) WireICS20PreWasmKeeper(
 		appKeepers.keys[packetforwardtypes.StoreKey],
 		appKeepers.TransferKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
 		// The ICS4Wrapper is replaced by the HooksICS4Wrapper instead of the channel so that sending can be overridden by the middleware
 		appKeepers.HooksICS4Wrapper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+
 	packetForwardMiddleware := packetforward.NewIBCMiddleware(
 		transfer.NewIBCModule(*appKeepers.TransferKeeper),
 		appKeepers.PacketForwardKeeper,
 		0,
 		packetforwardkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
-		packetforwardkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
 	)
 
 	// RateLimiting IBC Middleware
@@ -908,13 +911,17 @@ func (appKeepers *AppKeepers) initParamsKeeper(appCodec codec.BinaryCodec, legac
 	paramsKeeper.Subspace(ibcratelimittypes.ModuleName)
 	paramsKeeper.Subspace(concentratedliquiditytypes.ModuleName)
 	paramsKeeper.Subspace(icqtypes.ModuleName)
-	paramsKeeper.Subspace(packetforwardtypes.ModuleName).WithKeyTable(packetforwardtypes.ParamKeyTable())
+	paramsKeeper.Subspace(packetforwardtypes.ModuleName)
 	paramsKeeper.Subspace(cosmwasmpooltypes.ModuleName)
 	paramsKeeper.Subspace(ibchookstypes.ModuleName)
 	paramsKeeper.Subspace(smartaccounttypes.ModuleName).WithKeyTable(smartaccounttypes.ParamKeyTable())
 	paramsKeeper.Subspace(txfeestypes.ModuleName)
 	paramsKeeper.Subspace(auctiontypes.ModuleName)
 	paramsKeeper.Subspace(stablestakingtypes.ModuleName)
+	paramsKeeper.Subspace(icaoracletypes.ModuleName)
+	paramsKeeper.Subspace(stakeibctypes.ModuleName)
+	paramsKeeper.Subspace(icacallbackstypes.ModuleName)
+	paramsKeeper.Subspace(interchainquerytypes.ModuleName)
 
 	return paramsKeeper
 }

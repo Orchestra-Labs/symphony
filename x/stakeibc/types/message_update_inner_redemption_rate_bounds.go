@@ -1,0 +1,54 @@
+package types
+
+import (
+	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"github.com/osmosis-labs/osmosis/v27/utils"
+)
+
+const TypeMsgUpdateInnerRedemptionRateBounds = "update_inner_redemption_rate_bounds"
+
+var _ sdk.Msg = &MsgUpdateInnerRedemptionRateBounds{}
+
+func NewMsgUpdateInnerRedemptionRateBounds(creator string, chainId string, minInnerRedemptionRate sdkmath.LegacyDec, maxInnerRedemptionRate sdkmath.LegacyDec) *MsgUpdateInnerRedemptionRateBounds {
+	return &MsgUpdateInnerRedemptionRateBounds{
+		Creator:                creator,
+		ChainId:                chainId,
+		MinInnerRedemptionRate: minInnerRedemptionRate,
+		MaxInnerRedemptionRate: maxInnerRedemptionRate,
+	}
+}
+
+func (msg *MsgUpdateInnerRedemptionRateBounds) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgUpdateInnerRedemptionRateBounds) Type() string {
+	return TypeMsgUpdateInnerRedemptionRateBounds
+}
+
+func (msg *MsgUpdateInnerRedemptionRateBounds) GetSigners() []sdk.AccAddress {
+	creator, err := sdk.AccAddressFromBech32(msg.Creator)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{creator}
+}
+
+func (msg *MsgUpdateInnerRedemptionRateBounds) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Creator)
+	if err != nil {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+	}
+	// Confirm the max is greater than the min
+	if msg.MaxInnerRedemptionRate.LTE(msg.MinInnerRedemptionRate) {
+		return errorsmod.Wrapf(ErrInvalidBounds, "Inner max safety threshold (%s) is less than inner min safety threshold (%s)", msg.MaxInnerRedemptionRate, msg.MinInnerRedemptionRate)
+	}
+	if err := utils.ValidateAdminAddress(msg.Creator); err != nil {
+		return err
+	}
+	return nil
+}
