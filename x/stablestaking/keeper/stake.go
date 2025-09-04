@@ -83,7 +83,13 @@ func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk
 	}
 
 	stakedBalance.Shares = stakedBalance.Shares.Sub(sharesToRemove)
-	k.SetUserStake(ctx, stakedBalance, amount.Denom)
+	if !stakedBalance.Shares.IsZero() && stakedBalance.Shares.IsPositive() {
+		k.SetUserStake(ctx, stakedBalance, amount.Denom)
+	} else {
+		store := ctx.KVStore(k.storeKey)
+		keyVal := k.GetUserStakeKey(staker.String(), amount.Denom)
+		store.Delete(keyVal)
+	}
 	k.AddUnbondingRequest(ctx, staker, amount)
 
 	pool.TotalStaked = pool.TotalStaked.Sub(math.LegacyNewDecFromInt(amount.Amount))
@@ -105,7 +111,7 @@ func (k Keeper) AddUnbondingRequest(ctx sdk.Context, staker sdk.AccAddress, amou
 	store := ctx.KVStore(k.storeKey)
 	key := k.GetUnbondingKey(staker, amount.Denom)
 
-	currentEpoch := k.epochKeeper.GetEpochInfo(ctx, "day")
+	currentEpoch := k.epochKeeper.GetEpochInfo(ctx, k.GetParams(ctx).UnbondingEpochIdentifier)
 	countDays := k.GetParams(ctx).UnbondingDuration.Milliseconds() / 1000 / 60 / 60 / 24 // milliseconds, minutes, hours, days
 	unbondingEpoch := currentEpoch.CurrentEpoch + countDays
 
@@ -154,7 +160,7 @@ func (k Keeper) GetUnbondingTotalInfo(ctx sdk.Context, staker sdk.AccAddress) []
 }
 
 func (k Keeper) GetUnbondingKey(staker sdk.AccAddress, denom string) []byte {
-	return []byte(fmt.Sprintf("%s:%s%s", types.UnbondingKey, staker.String(), denom))
+	return []byte(fmt.Sprintf("%s:%s:%s", types.UnbondingKey, staker.String(), denom))
 }
 
 func (k Keeper) GetPool(ctx sdk.Context, token string) (types.StakingPool, bool) {

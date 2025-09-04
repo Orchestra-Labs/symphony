@@ -110,7 +110,7 @@ func (k Keeper) SnapshotCurrentEpoch(ctx sdk.Context) {
 		// Iterate through all stakers and collect their stakes for this denom
 		k.IterateActiveStakers(ctx, func(addr sdk.AccAddress, stake types.UserStake) {
 			// Only include stakers for this specific denom
-			if stake.Epoch <= currentEpoch-1 { // Only include stakers from previous epochs
+			if stake.Epoch <= currentEpoch-1 && !stake.Shares.IsZero() { // Only include stakers from previous epochs
 				stakers = append(stakers, &stake)
 			}
 		})
@@ -155,7 +155,7 @@ func (k Keeper) CalculateStakedPools(ctx sdk.Context) (*SnapshotData, error) {
 	pools := k.GetPools(ctx)
 
 	// Calculate the total staked amount across all pools
-	var totalStakedAcrossPools math.LegacyDec
+	var totalStakedAcrossPools = math.LegacyNewDec(0)
 	poolSnapshots := make(map[string]types.EpochSnapshot)
 
 	for i := range pools {
@@ -183,7 +183,7 @@ func (k Keeper) CalculateStakedPools(ctx sdk.Context) (*SnapshotData, error) {
 func (k Keeper) DistributeRewardsToLastEpochStakers(ctx sdk.Context) error {
 	params := k.GetParams(ctx)
 	if len(params.SupportedTokens) == 0 {
-		return fmt.Errorf("Supported tokens not specified")
+		return fmt.Errorf("supported tokens not specified")
 	}
 
 	// Get total rewards available
