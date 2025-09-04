@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -271,16 +272,26 @@ func GetCmdQueryTotalStakersPerPool() *cobra.Command {
 Example:
 $ %s query stablestaking total-stakers-per-pool ukhd
 `, version.AppName),
-		Args: cobra.ExactArgs(1),
+		Args: cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
 
+			limit := 0
+			if len(args) == 2 {
+				limit, err = strconv.Atoi(args[1])
+				if err != nil {
+					fmt.Println("Conversion error:", err)
+					return err
+				}
+			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 			res, err := queryClient.TotalStakersPerPool(cmd.Context(), &types.QueryPoolRequest{
-				Denom: args[0],
+				Denom:  args[0],
+				XLimit: &types.QueryPoolRequest_Limit{Limit: int32(limit)},
 			})
 			if err != nil {
 				return err

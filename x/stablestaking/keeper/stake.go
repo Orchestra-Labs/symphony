@@ -6,7 +6,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"strconv"
+	"sort"
 	"strings"
 
 	"github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
@@ -83,7 +83,13 @@ func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk
 	}
 
 	stakedBalance.Shares = stakedBalance.Shares.Sub(sharesToRemove)
-	k.SetUserStake(ctx, stakedBalance, amount.Denom)
+	if !stakedBalance.Shares.IsZero() && stakedBalance.Shares.IsPositive() {
+		k.SetUserStake(ctx, stakedBalance, amount.Denom)
+	} else {
+		store := ctx.KVStore(k.storeKey)
+		keyVal := k.GetUserStakeKey(staker.String(), amount.Denom)
+		store.Delete(keyVal)
+	}
 	k.AddUnbondingRequest(ctx, staker, amount)
 
 	pool.TotalStaked = pool.TotalStaked.Sub(math.LegacyNewDecFromInt(amount.Amount))
@@ -105,7 +111,7 @@ func (k Keeper) AddUnbondingRequest(ctx sdk.Context, staker sdk.AccAddress, amou
 	store := ctx.KVStore(k.storeKey)
 	key := k.GetUnbondingKey(staker, amount.Denom)
 
-	currentEpoch := k.epochKeeper.GetEpochInfo(ctx, "day")
+	currentEpoch := k.epochKeeper.GetEpochInfo(ctx, k.GetParams(ctx).UnbondingEpochIdentifier)
 	countDays := k.GetParams(ctx).UnbondingDuration.Milliseconds() / 1000 / 60 / 60 / 24 // milliseconds, minutes, hours, days
 	unbondingEpoch := currentEpoch.CurrentEpoch + countDays
 
@@ -154,7 +160,7 @@ func (k Keeper) GetUnbondingTotalInfo(ctx sdk.Context, staker sdk.AccAddress) []
 }
 
 func (k Keeper) GetUnbondingKey(staker sdk.AccAddress, denom string) []byte {
-	return []byte(fmt.Sprintf("%s:%s%s", types.UnbondingKey, staker.String(), denom))
+	return []byte(fmt.Sprintf("%s:%s:%s", types.UnbondingKey, staker.String(), denom))
 }
 
 func (k Keeper) GetPool(ctx sdk.Context, token string) (types.StakingPool, bool) {
@@ -193,6 +199,9 @@ func (k Keeper) SetPool(ctx sdk.Context, pool types.StakingPool) {
 }
 
 func (k Keeper) GetUserStakeKey(staker string, denom string) []byte {
+	if staker == "" {
+		return []byte(fmt.Sprintf("%s:", types.UserStakeKey))
+	}
 	return []byte(fmt.Sprintf("%s:%s:%s", types.UserStakeKey, staker, denom))
 }
 
@@ -240,19 +249,20 @@ func (k Keeper) GetUserTotalStake(ctx sdk.Context, address sdk.AccAddress) sdk.D
 	return stakes
 }
 
-func (k Keeper) GetTotalStakersPerPool(ctx sdk.Context, token string) (int32, error) {
+func (k Keeper) GetTotalStakersPerPool(ctx sdk.Context, token string, limit ...int32) ([]*types.UserStake, error) {
 	store := ctx.KVStore(k.storeKey)
 
 	_, found := k.GetPool(ctx, token)
 	if !found {
-		return 0, fmt.Errorf("not found pool with denom %s", token)
+		return nil, fmt.Errorf("not found pool with denom %s", token)
 	}
 
 	keyPrefix := k.GetUserStakeKey("", "")
 	iterator := storetypes.KVStorePrefixIterator(store, keyPrefix)
 	defer iterator.Close()
 
-	var stakers int32
+	var totalStakers []*types.UserStake
+
 	for ; iterator.Valid(); iterator.Next() {
 		var stake types.UserStake
 		k.cdc.MustUnmarshal(iterator.Value(), &stake)
@@ -263,17 +273,29 @@ func (k Keeper) GetTotalStakersPerPool(ctx sdk.Context, token string) (int32, er
 		if len(parts) >= 3 {
 			denom := parts[2]
 			if denom == token {
-				stakers += 1
+				totalStakers = append(totalStakers, &stake)
 			}
 		}
 	}
 
-	return stakers, nil
+	sort.Slice(totalStakers, func(i, j int) bool {
+		return totalStakers[i].Shares.LT(totalStakers[j].Shares)
+	})
+
+	if limit[0] > 0 {
+		if len(totalStakers) > int(limit[0]) {
+			return totalStakers[:limit[0]], nil
+		} else {
+			return totalStakers, nil
+		}
+	} else {
+		return totalStakers, nil
+	}
 }
 
 func (k Keeper) GetTotalStakers(ctx sdk.Context) []*types.TotalStakers {
 	store := ctx.KVStore(k.storeKey)
-	counts := make(map[string]int)
+	counts := make(map[string]*types.TotalStakers)
 
 	keyPrefix := k.GetUserStakeKey("", "")
 	iterator := storetypes.KVStorePrefixIterator(store, keyPrefix)
@@ -288,13 +310,23 @@ func (k Keeper) GetTotalStakers(ctx sdk.Context) []*types.TotalStakers {
 
 		if len(parts) >= 3 {
 			denom := parts[2]
-			counts[denom] = counts[denom] + 1
+			if counts[denom] == nil {
+				counts[denom] = &types.TotalStakers{
+					Denom: denom,
+					Stakers: []*types.UserStake{
+						&stake,
+					},
+				}
+			} else {
+				counts[denom].Denom = denom
+				counts[denom].Stakers = append(counts[denom].Stakers, &stake)
+			}
 		}
 	}
 
 	kvList := make([]*types.TotalStakers, 0, len(counts))
 	for k, v := range counts {
-		kvList = append(kvList, &types.TotalStakers{Denom: k, Count: strconv.Itoa(v)})
+		kvList = append(kvList, &types.TotalStakers{Denom: k, Stakers: v.Stakers})
 	}
 
 	return kvList

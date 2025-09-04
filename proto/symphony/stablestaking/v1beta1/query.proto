@@ -82,7 +82,7 @@ message QueryUserTotalStakeResponse {
 
 message TotalStakers {
   string denom = 1;
-  string count = 2;
+  repeated UserStake stakers = 2;
 }
 
 message QueryTotalStakersPerPoolResponse {
@@ -93,7 +93,10 @@ message QueryTotalStakersResponse {
   repeated TotalStakers stakers = 1;
 }
 
-message QueryPoolRequest { string denom = 1; }
+message QueryPoolRequest {
+  string denom = 1;
+  optional int32 limit = 2;
+}
 
 message QueryPoolResponse { StakingPool pool = 1; }
 

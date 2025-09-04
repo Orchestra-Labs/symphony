@@ -966,7 +966,7 @@ func (appKeepers *AppKeepers) SetupHooks() {
 
 	appKeepers.IncentivesKeeper.SetHooks(
 		incentivestypes.NewMultiIncentiveHooks(
-		// insert incentive hooks receivers here
+			// insert incentive hooks receivers here
 		),
 	)
 
@@ -989,12 +989,13 @@ func (appKeepers *AppKeepers) SetupHooks() {
 			appKeepers.ProtoRevKeeper.EpochHooks(),
 			appKeepers.OracleKeeper.Hooks(),
 			appKeepers.TreasuryKeeper.Hooks(),
+			appKeepers.StableStakingKeeper.Hooks(),
 		),
 	)
 
 	appKeepers.GovKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-		// insert governance hooks receivers here
+			// insert governance hooks receivers here
 		),
 	)
 }

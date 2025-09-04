@@ -15275,6 +15275,11 @@ paths:
           in: query
           required: false
           type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
       tags:
         - Query
   /symphony/stablestaking/v1beta1/stable_pool:
@@ -15324,6 +15329,11 @@ paths:
           in: query
           required: false
           type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
       tags:
         - Query
   /symphony/stablestaking/v1beta1/stable_pools:
@@ -15388,8 +15398,19 @@ paths:
                   properties:
                     denom:
                       type: string
-                    count:
-                      type: string
+                    stakers:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          address:
+                            type: string
+                          shares:
+                            type: string
+                            format: byte
+                          epoch:
+                            type: string
+                            format: int64
         default:
           description: An unexpected error response.
           schema:
@@ -15428,8 +15449,19 @@ paths:
                 properties:
                   denom:
                     type: string
-                  count:
-                    type: string
+                  stakers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        address:
+                          type: string
+                        shares:
+                          type: string
+                          format: byte
+                        epoch:
+                          type: string
+                          format: int64
         default:
           description: An unexpected error response.
           schema:
@@ -15457,6 +15489,11 @@ paths:
           in: query
           required: false
           type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
       tags:
         - Query
   /symphony/stablestaking/v1beta1/user_stake:
@@ -50849,8 +50886,19 @@ definitions:
         properties:
           denom:
             type: string
-          count:
-            type: string
+          stakers:
+            type: array
+            items:
+              type: object
+              properties:
+                address:
+                  type: string
+                shares:
+                  type: string
+                  format: byte
+                epoch:
+                  type: string
+                  format: int64
   symphony.stablestaking.v1beta1.QueryTotalStakersResponse:
     type: object
     properties:
@@ -50861,8 +50909,19 @@ definitions:
           properties:
             denom:
               type: string
-            count:
-              type: string
+            stakers:
+              type: array
+              items:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  shares:
+                    type: string
+                    format: byte
+                  epoch:
+                    type: string
+                    format: int64
   symphony.stablestaking.v1beta1.QueryUserStakeResponse:
     type: object
     properties:
@@ -50944,8 +51003,19 @@ definitions:
     properties:
       denom:
         type: string
-      count:
-        type: string
+      stakers:
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+            shares:
+              type: string
+              format: byte
+            epoch:
+              type: string
+              format: int64
   symphony.stablestaking.v1beta1.UnbondingInfo:
     type: object
     properties:
