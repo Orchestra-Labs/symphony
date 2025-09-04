@@ -136,15 +136,14 @@ func (k Keeper) IterateNoteExchangeRates(ctx sdk.Context, handler func(denom str
 // Oracle delegation logic
 
 // GetFeederDelegation gets the account address that the validator operator delegated oracle vote rights to
-func (k Keeper) GetFeederDelegation(ctx sdk.Context, operator sdk.ValAddress) sdk.AccAddress {
+func (k Keeper) GetFeederDelegation(ctx sdk.Context, operator sdk.ValAddress) (sdk.AccAddress, error) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.GetFeederDelegationKey(operator))
 	if bz == nil {
-		// By default the right is delegated to the validator itself
-		return sdk.AccAddress(operator)
+		return nil, fmt.Errorf("could not found feeder by validator: %s", operator)
 	}
 
-	return sdk.AccAddress(bz)
+	return sdk.AccAddress(bz), nil
 }
 
 // SetFeederDelegation sets the account address that the validator operator delegated oracle vote rights to
@@ -359,7 +358,11 @@ func (k Keeper) ClearTobinTaxes(ctx sdk.Context) {
 // ValidateFeeder return the given feeder is allowed to feed the message or not
 func (k Keeper) ValidateFeeder(ctx sdk.Context, feederAddr sdk.AccAddress, validatorAddr sdk.ValAddress) error {
 	if !feederAddr.Equals(validatorAddr) {
-		delegate := k.GetFeederDelegation(ctx, validatorAddr)
+		delegate, err := k.GetFeederDelegation(ctx, validatorAddr)
+		if err != nil {
+			return err
+		}
+
 		if !delegate.Equals(feederAddr) {
 			return errorsmod.Wrap(types.ErrNoVotingPermission, feederAddr.String())
 		}

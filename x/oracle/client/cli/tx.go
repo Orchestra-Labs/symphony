@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/osmosis-labs/osmosis/v27/x/oracle/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -56,9 +54,7 @@ where "symphony1..." is the address you want to delegate your voting rights to.
 				return err
 			}
 
-			// Get from address
 			voter := clientCtx.GetFromAddress()
-
 			// The address the right is being delegated from
 			validator := sdk.ValAddress(voter)
 
@@ -68,7 +64,7 @@ where "symphony1..." is the address you want to delegate your voting rights to.
 				return err
 			}
 
-			msg := types.NewMsgDelegateFeedConsent(validator, feeder)
+			msg := types.NewMsgDelegateFeedConsent(voter, validator, feeder)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -99,7 +95,7 @@ $ symphonyd tx oracle aggregate-prevote 1234 8888.0ukrw,1.243uusd,0.99usdr
 where "ukrw,uusd,usdr" is the denominating currencies, and "8888.0,1.243,0.99" is the exchange rates of micro Melody in micro denoms from the voter's point of view.
 
 If voting from a voting delegate, set "validator" to the address of the validator to vote on behalf of:
-$ symphonyd tx oracle aggregate-prevote 1234 8888.0ukrw,1.243uusd,0.99usdr symphonyvaloper1...
+$ symphonyd tx oracle aggregate-prevote 1234 8888.0ukrw,1.243uusd,0.99usdr symphony1...
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -117,16 +113,16 @@ $ symphonyd tx oracle aggregate-prevote 1234 8888.0ukrw,1.243uusd,0.99usdr symph
 			// Get from address
 			voter := clientCtx.GetFromAddress()
 
-			// By default the voter is voting on behalf of itself
+			// By default, the voter is voting on behalf of itself
 			validator := sdk.ValAddress(voter)
 
 			// Override validator if validator is given
 			if len(args) == 3 {
-				parsedVal, err := sdk.ValAddressFromBech32(args[2])
+				parsedVal, err := sdk.AccAddressFromBech32(args[2])
 				if err != nil {
-					return errors.Wrap(err, "validator address is invalid")
+					return err
 				}
-				validator = parsedVal
+				validator = sdk.ValAddress(parsedVal)
 			}
 
 			hash := types.GetAggregateVoteHash(salt, exchangeRatesStr, validator)
@@ -160,7 +156,7 @@ where "ukrw,uusd,usdr" is the denominating currencies, and "8888.0,1.243,0.99" i
 "salt" should match the salt used to generate the SHA256 hex in the aggregated pre-vote. 
 
 If voting from a voting delegate, set "validator" to the address of the validator to vote on behalf of:
-$ symphonyd tx oracle aggregate-vote 1234 8888.0ukrw,1.243uusd,0.99usdr symphonyvaloper1....
+$ symphonyd tx oracle aggregate-vote 1234 8888.0ukrw,1.243uusd,0.99usdr symphony1....
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -178,16 +174,16 @@ $ symphonyd tx oracle aggregate-vote 1234 8888.0ukrw,1.243uusd,0.99usdr symphony
 			// Get from address
 			voter := clientCtx.GetFromAddress()
 
-			// By default the voter is voting on behalf of itself
+			// By default, the voter is voting on behalf of itself
 			validator := sdk.ValAddress(voter)
 
 			// Override validator if validator is given
 			if len(args) == 3 {
-				parsedVal, err := sdk.ValAddressFromBech32(args[2])
+				parsedVal, err := sdk.AccAddressFromBech32(args[2])
 				if err != nil {
-					return errors.Wrap(err, "validator address is invalid")
+					return err
 				}
-				validator = parsedVal
+				validator = sdk.ValAddress(parsedVal)
 			}
 
 			msg := types.NewMsgAggregateExchangeRateVote(salt, exchangeRatesStr, voter, validator)
