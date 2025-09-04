@@ -171,7 +171,7 @@ func (k Keeper) CalculateStakedPools(ctx sdk.Context) (*SnapshotData, error) {
 	}
 
 	if len(poolSnapshots) == 0 {
-		return nil, fmt.Errorf("pools not found")
+		return nil, fmt.Errorf("stake not found, rewards are calculated after staking in any pool")
 	}
 
 	return &SnapshotData{
