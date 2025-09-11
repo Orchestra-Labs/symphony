@@ -301,7 +301,7 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 		stakerStakes := s.App.StableStakingKeeper.GetUserTotalStake(s.Ctx, staker)
 		require.Equal(s.T(),
 			sdk.DecCoins{
-				sdk.NewDecCoin("ukhd", math.NewInt(100)),
+				sdk.NewDecCoin("uhkd", math.NewInt(100)),
 				sdk.NewDecCoin("uusd", math.NewInt(700)),
 			},
 			stakerStakes,
@@ -322,7 +322,7 @@ func (s *KeeperTestSuite) TestStakeTokens() {
 			s.T(),
 			[]types.StakingPool{
 				{
-					Denom:       "ukhd",
+					Denom:       "uhkd",
 					TotalStaked: math.LegacyNewDecFromInt(math.NewInt(100)),
 					TotalShares: math.LegacyNewDecFromInt(math.NewInt(100)),
 				},

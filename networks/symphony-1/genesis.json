@@ -1623,7 +1623,7 @@
             "tobin_tax": "0.000000000000000000"
           },
           {
-            "name": "ukhd",
+            "name": "uhkd",
             "tobin_tax": "0.000000000000000000"
           },
           {
@@ -1655,7 +1655,7 @@
           "tobin_tax": "0.000000000000000000"
         },
         {
-          "denom": "ukhd",
+          "denom": "uhkd",
           "tobin_tax": "0.000000000000000000"
         },
         {
@@ -1801,7 +1801,7 @@
       "params": {
         "reward_rate": "0.050000000000000000",
         "unbonding_duration": "1209600s",
-        "supported_tokens": ["uusd", "ukhd", "uvnd"],
+        "supported_tokens": ["uusd", "uhkd", "uvnd"],
         "reward_epoch_identifier": "week",
         "unbonding_epoch_identifier": "day",
         "max_staking_amount": "0"

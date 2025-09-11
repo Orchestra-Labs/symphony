@@ -23,7 +23,7 @@ const (
 
 const (
 	MicroUSDDenom = "uusd"
-	MicroHKDDenom = "ukhd"
+	MicroHKDDenom = "uhkd"
 	MicroVNDDenom = "uvnd"
 )
 

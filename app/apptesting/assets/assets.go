@@ -4,7 +4,7 @@ const (
 	MicroUSDDenom = "uusd"
 	MicroKRWDenom = "ukrw"
 	MicroSDRDenom = "usdr"
-	MicroHKDDenom = "ukhd"
+	MicroHKDDenom = "uhkd"
 	MicroCNYDenom = "ucny"
 	MicroGBPDenom = "ugbp"
 	MicroMNTDenom = "umnt"
