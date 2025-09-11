@@ -28,7 +28,7 @@ func CreateUpgradeHandler(
 		}
 
 		params := keepers.StableStakingKeeper.GetParams(ctx)
-		params.SupportedTokens = []string{"ucny", "uinr", "urub", "uusd", "uxau"}
+		params.SupportedTokens = []string{"ucny", "uinr", "urub", "uusd", "uxau", "uhkd", "uvnd"}
 		keepers.StableStakingKeeper.SetParams(ctx, params)
 
 		ctx.Logger().Warn("✅ Migration completed!")
