@@ -2,6 +2,8 @@ package types
 
 import (
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/x/params/types"
@@ -11,8 +13,8 @@ import (
 	appParams "github.com/osmosis-labs/osmosis/v27/app/params"
 )
 
-const MinUnbondingTime = time.Hour * 24 * 6
-const MaxUnbondingTime = time.Hour * 24 * 22
+const MinUnbondingTime = time.Hour * 24 * 3
+const MaxUnbondingTime = time.Hour * 24 * 30
 
 // Parameter keys
 var (
@@ -22,8 +24,6 @@ var (
 	KeyUnbondingTime = []byte("UnbondingTime")
 	// KeySupportedTokens the list of tokens which can be staked
 	KeySupportedTokens = []byte("SupportedTokens")
-	// KeyMaxStakingAmount the value of maximum staking
-	KeyMaxStakingAmount = []byte("MaxStakingAmount")
 	// KeyRewardEpochIdentifier the period required to distribute rewards
 	KeyRewardEpochIdentifier = []byte("RewardEpochIdentifier")
 	// KeyUnbondingEpochIdentifier the period required to unbond stake
@@ -32,7 +32,6 @@ var (
 
 // AllowedTokens the list of stable coins to be allowed to stake
 var AllowedTokens = []string{appParams.MicroUSDDenom, appParams.MicroHKDDenom, appParams.MicroVNDDenom}
-var AllowedEpochs = []string{"week", "day"}
 
 var _ paramstypes.ParamSet = &Params{}
 
@@ -41,8 +40,8 @@ func DefaultParams() Params {
 		RewardRate:               osmomath.NewDecWithPrec(5, 2).String(), // 0.05%
 		UnbondingDuration:        time.Hour * 24 * 14,
 		SupportedTokens:          AllowedTokens,
-		UnbondingEpochIdentifier: AllowedEpochs[1],
-		RewardEpochIdentifier:    AllowedEpochs[0],
+		UnbondingEpochIdentifier: "day",
+		RewardEpochIdentifier:    "week",
 	}
 }
 
@@ -65,18 +64,12 @@ func (p *Params) ParamSetPairs() types.ParamSetPairs {
 }
 
 func validateEpoch(i interface{}) error {
-	v, ok := i.(string)
+	_, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	for _, a := range AllowedEpochs {
-		if v == a {
-			return nil
-		}
-	}
-
-	return fmt.Errorf("invalid epoch identifier: %s", v)
+	return nil
 }
 
 func validateRate(i interface{}) error {
@@ -97,8 +90,8 @@ func validateRate(i interface{}) error {
 	return nil
 }
 
-func IsAllowedToken(token string) bool {
-	for _, t := range AllowedTokens {
+func IsAllowedToken(token string, allowedTokens []string) bool {
+	for _, t := range allowedTokens {
 		if t == token {
 			return true
 		}
@@ -107,18 +100,21 @@ func IsAllowedToken(token string) bool {
 }
 
 func validateSupportedTokens(i interface{}) error {
-	v, ok := i.([]string)
+	tokens, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if len(v) == 0 {
+	if len(tokens) == 0 {
 		return fmt.Errorf("supported tokens cannot be empty")
 	}
 
-	for _, token := range v {
-		if !IsAllowedToken(token) {
-			return fmt.Errorf("unsupported token: %s", token)
+	for _, t := range tokens {
+		if strings.TrimSpace(t) == "" {
+			return fmt.Errorf("supported token cannot be blank")
+		}
+		if err := sdk.ValidateDenom(t); err != nil {
+			return err
 		}
 	}
 

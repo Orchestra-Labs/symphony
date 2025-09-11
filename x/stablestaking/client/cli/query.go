@@ -270,7 +270,7 @@ func GetCmdQueryTotalStakersPerPool() *cobra.Command {
 		Long: fmt.Sprintf(`Query total stakers for provided pool.
 
 Example:
-$ %s query stablestaking total-stakers-per-pool ukhd
+$ %s query stablestaking total-stakers-per-pool uhkd
 `, version.AppName),
 		Args: cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {

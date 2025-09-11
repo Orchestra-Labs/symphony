@@ -13,7 +13,7 @@ import (
 )
 
 func (k Keeper) StakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.Coin) (*types.MsgStakeTokensResponse, error) {
-	if !types.IsAllowedToken(amount.Denom) {
+	if !types.IsAllowedToken(amount.Denom, k.GetParams(ctx).SupportedTokens) {
 		return nil, fmt.Errorf("unsupported token: %s", amount.Denom)
 	}
 
@@ -59,7 +59,7 @@ func (k Keeper) StakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.C
 }
 
 func (k Keeper) UnStakeTokens(ctx sdk.Context, staker sdk.AccAddress, amount sdk.Coin) (*types.MsgUnstakeTokensResponse, error) {
-	if !types.IsAllowedToken(amount.Denom) {
+	if !types.IsAllowedToken(amount.Denom, k.GetParams(ctx).SupportedTokens) {
 		return nil, fmt.Errorf("unsupported token: %s", amount.Denom)
 	}
 
