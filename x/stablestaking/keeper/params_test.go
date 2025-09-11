@@ -53,7 +53,6 @@ func (s *ParamsTestSuite) TestGetSetParams() {
 		RewardRate:               "0.4",
 		SupportedTokens:          []string{"uusd"},
 		UnbondingDuration:        time.Hour * 24 * 7,
-		MaxStakingAmount:         math.LegacyNewDecFromInt(math.NewInt(1000)),
 	}
 
 	// Set new params
@@ -63,7 +62,6 @@ func (s *ParamsTestSuite) TestGetSetParams() {
 	require.Equal(s.T(), "day", updatedParams.RewardEpochIdentifier)
 	require.Equal(s.T(), newParams.RewardRate, updatedParams.RewardRate)
 	require.Equal(s.T(), newParams.UnbondingDuration, updatedParams.UnbondingDuration)
-	require.Equal(s.T(), math.LegacyDec{}, updatedParams.MaxStakingAmount)
 }
 
 func (s *ParamsTestSuite) TestParamValidationInUnbonding() {
