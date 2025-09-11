@@ -521,18 +521,6 @@ func NewSymphonyApp(
 		}
 	}
 
-	upgradePlan := upgradetypes.Plan{
-		Name:   v108.UpgradeName,
-		Height: app.CommitMultiStore().LastCommitID().Version + 1,
-	}
-	ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{
-		Height: upgradePlan.Height,
-	})
-	err = app.UpgradeKeeper.ScheduleUpgrade(ctx, upgradePlan)
-	if err != nil {
-		panic(err)
-	}
-
 	return app
 }
 
