@@ -1,0 +1,5 @@
+{
+  "binaries": {
+    "linux/amd64": "https://github.com/Orchestra-Labs/symphony/releases/download/v1.0.8/symphonyd"
+  }
+}
