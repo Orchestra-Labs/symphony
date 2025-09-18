@@ -45,7 +45,6 @@ import (
 	custombankkeeper "github.com/osmosis-labs/osmosis/v27/custom/bank/keeper"
 	icacallbackstypes "github.com/osmosis-labs/osmosis/v27/x/icacallbacks/types"
 	icaoracletypes "github.com/osmosis-labs/osmosis/v27/x/icaoracle/types"
-	interchainquerytypes "github.com/osmosis-labs/osmosis/v27/x/interchainquery/types"
 	stakeibctypes "github.com/osmosis-labs/osmosis/v27/x/stakeibc/types"
 
 	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
@@ -921,7 +920,7 @@ func (appKeepers *AppKeepers) initParamsKeeper(appCodec codec.BinaryCodec, legac
 	paramsKeeper.Subspace(icaoracletypes.ModuleName)
 	paramsKeeper.Subspace(stakeibctypes.ModuleName)
 	paramsKeeper.Subspace(icacallbackstypes.ModuleName)
-	paramsKeeper.Subspace(interchainquerytypes.ModuleName)
+	//paramsKeeper.Subspace(interchainquerytypes.ModuleName)
 
 	return paramsKeeper
 }
@@ -973,7 +972,7 @@ func (appKeepers *AppKeepers) SetupHooks() {
 
 	appKeepers.IncentivesKeeper.SetHooks(
 		incentivestypes.NewMultiIncentiveHooks(
-		// insert incentive hooks receivers here
+			// insert incentive hooks receivers here
 		),
 	)
 
@@ -1001,7 +1000,7 @@ func (appKeepers *AppKeepers) SetupHooks() {
 
 	appKeepers.GovKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-		// insert governance hooks receivers here
+			// insert governance hooks receivers here
 		),
 	)
 }
