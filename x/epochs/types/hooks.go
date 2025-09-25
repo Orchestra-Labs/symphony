@@ -1,7 +1,7 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"

@@ -10,11 +10,26 @@ import (
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	icq "github.com/cosmos/ibc-apps/modules/async-icq/v8"
+	ratelimit "github.com/cosmos/ibc-apps/modules/rate-limiting/v8"
+	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	ccvconsumer "github.com/cosmos/interchain-security/v6/x/ccv/consumer"
+	ccvconsumertypes "github.com/cosmos/interchain-security/v6/x/ccv/consumer/types"
+	"github.com/osmosis-labs/osmosis/v27/x/autopilot"
+	autopilottypes "github.com/osmosis-labs/osmosis/v27/x/autopilot/types"
+	"github.com/osmosis-labs/osmosis/v27/x/icacallbacks"
+	icacallbackstypes "github.com/osmosis-labs/osmosis/v27/x/icacallbacks/types"
+	"github.com/osmosis-labs/osmosis/v27/x/icaoracle"
+	icaoracletypes "github.com/osmosis-labs/osmosis/v27/x/icaoracle/types"
+	"github.com/osmosis-labs/osmosis/v27/x/icqoracle"
+	"github.com/osmosis-labs/osmosis/v27/x/interchainquery"
 	"github.com/osmosis-labs/osmosis/v27/x/market"
 	markettypes "github.com/osmosis-labs/osmosis/v27/x/market/types"
 	"github.com/osmosis-labs/osmosis/v27/x/oracle"
 	oracletypes "github.com/osmosis-labs/osmosis/v27/x/oracle/types"
+	"github.com/osmosis-labs/osmosis/v27/x/records"
+	recordsmoduletypes "github.com/osmosis-labs/osmosis/v27/x/records/types"
+	"github.com/osmosis-labs/osmosis/v27/x/stakeibc"
 	"github.com/osmosis-labs/osmosis/v27/x/treasury"
 	treasurytypes "github.com/osmosis-labs/osmosis/v27/x/treasury/types"
 
@@ -82,6 +97,7 @@ import (
 	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
 	_ "github.com/osmosis-labs/osmosis/v27/client/docs/statik"
 	"github.com/osmosis-labs/osmosis/v27/simulation/simtypes"
+	claimtypes "github.com/osmosis-labs/osmosis/v27/x/claim/types"
 	concentratedliquidity "github.com/osmosis-labs/osmosis/v27/x/concentrated-liquidity/clmodule"
 	concentratedliquiditytypes "github.com/osmosis-labs/osmosis/v27/x/concentrated-liquidity/types"
 	cwpoolmodule "github.com/osmosis-labs/osmosis/v27/x/cosmwasmpool/module"
@@ -92,6 +108,7 @@ import (
 	gammtypes "github.com/osmosis-labs/osmosis/v27/x/gamm/types"
 	"github.com/osmosis-labs/osmosis/v27/x/ibc-rate-limit/ibcratelimitmodule"
 	ibcratelimittypes "github.com/osmosis-labs/osmosis/v27/x/ibc-rate-limit/types"
+	icqoracletypes "github.com/osmosis-labs/osmosis/v27/x/icqoracle/types"
 	"github.com/osmosis-labs/osmosis/v27/x/incentives"
 	incentivestypes "github.com/osmosis-labs/osmosis/v27/x/incentives/types"
 	"github.com/osmosis-labs/osmosis/v27/x/lockup"
@@ -108,6 +125,7 @@ import (
 	stablestakingincentivestypes "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives/types"
 	"github.com/osmosis-labs/osmosis/v27/x/stablestaking"
 	stablestakingtypes "github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
+	stakeibctypes "github.com/osmosis-labs/osmosis/v27/x/stakeibc/types"
 	superfluid "github.com/osmosis-labs/osmosis/v27/x/superfluid"
 	superfluidtypes "github.com/osmosis-labs/osmosis/v27/x/superfluid/types"
 	"github.com/osmosis-labs/osmosis/v27/x/tokenfactory"
@@ -127,6 +145,7 @@ var moduleAccountPermissions = map[string][]string{
 	distrtypes.ModuleName:                         nil,
 	ibchookstypes.ModuleName:                      nil,
 	icatypes.ModuleName:                           nil,
+	claimtypes.ModuleName:                         nil,
 	icqtypes.ModuleName:                           nil,
 	minttypes.ModuleName:                          {authtypes.Minter, authtypes.Burner},
 	minttypes.DeveloperVestingModuleAcctName:      nil,
@@ -155,6 +174,9 @@ var moduleAccountPermissions = map[string][]string{
 	cosmwasmpooltypes.ModuleName:                  nil,
 	auctiontypes.ModuleName:                       nil,
 	smartaccounttypes.ModuleName:                  nil,
+	stakeibctypes.ModuleName:                      {authtypes.Minter, authtypes.Burner, authtypes.Staking},
+	stakeibctypes.RewardCollectorName:             nil,
+	icqoracletypes.ModuleName:                     nil,
 }
 
 // appModules return modules to initialize module manager.
@@ -227,6 +249,15 @@ func appModules(
 		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		auction.NewAppModule(appCodec, *app.AuctionKeeper),
 		smartaccount.NewAppModule(appCodec, *app.SmartAccountKeeper),
+		ratelimit.NewAppModule(appCodec, *app.RatelimitKeeper),
+		icacallbacks.NewAppModule(appCodec, *app.IcacallbacksKeeper, app.AccountKeeper, app.BankKeeper),
+		ccvconsumer.NewAppModule(*app.ConsumerKeeper, app.GetSubspace(ccvconsumertypes.ModuleName)),
+		icqoracle.NewAppModule(appCodec, *app.ICQOracleKeeper),
+		interchainquery.NewAppModule(appCodec, *app.InterchainqueryKeeper),
+		records.NewAppModule(appCodec, *app.RecordsKeeper, app.AccountKeeper, app.BankKeeper),
+		icaoracle.NewAppModule(appCodec, *app.ICAOracleKeeper),
+		stakeibc.NewAppModule(appCodec, *app.StakeIbcKeeper, app.AccountKeeper, app.BankKeeper),
+		autopilot.NewAppModule(appCodec, *app.AutopilotKeeper),
 	}
 }
 
@@ -326,6 +357,16 @@ func OrderInitGenesis(allModuleNames []string) []string {
 		cosmwasmpooltypes.ModuleName,
 		auctiontypes.ModuleName,
 		stablestakingtypes.ModuleName,
+		// stride modules
+		icaoracletypes.ModuleName,
+		stakeibctypes.ModuleName,
+		icacallbackstypes.ModuleName,
+		ratelimittypes.ModuleName,
+		recordsmoduletypes.ModuleName,
+		icqoracletypes.ModuleName,
+		autopilottypes.ModuleName,
+		claimtypes.ModuleName,
+		ccvconsumertypes.ModuleName,
 	}
 }
 

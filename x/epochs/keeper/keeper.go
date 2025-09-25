@@ -1,9 +1,8 @@
 package keeper
 
 import (
-	"fmt"
-
 	"cosmossdk.io/log"
+	"fmt"
 
 	"github.com/osmosis-labs/osmosis/v27/x/epochs/types"
 

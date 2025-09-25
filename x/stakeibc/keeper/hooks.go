@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -15,7 +14,7 @@ import (
 
 const StrideEpochsPerDayEpoch = uint64(4)
 
-func (k Keeper) BeforeEpochStart(context context.Context, epochInfo epochstypes.EpochInfo) {
+func (k Keeper) BeforeEpochStart(context sdk.Context, epochInfo epochstypes.EpochInfo) {
 	ctx := sdk.UnwrapSDKContext(context)
 
 	// Update the stakeibc epoch tracker
@@ -36,7 +35,7 @@ func (k Keeper) BeforeEpochStart(context context.Context, epochInfo epochstypes.
 	}
 
 	// Stride Epoch - Process Deposits and Delegations
-	if epochInfo.Identifier == epochstypes.STRIDE_EPOCH {
+	if epochInfo.Identifier == epochstypes.STRIDE_EPOCH { // TODO: do we need this, if yes we need to add that epoch
 		// Get cadence intervals
 		redemptionRateInterval := k.GetParam(ctx, types.KeyRedemptionRateInterval)
 		depositInterval := k.GetParam(ctx, types.KeyDepositInterval)
@@ -93,12 +92,13 @@ func (k Keeper) BeforeEpochStart(context context.Context, epochInfo epochstypes.
 		// Do transfers for all reward and swapped tokens defined by the trade routes every stride epoch
 		k.TransferAllRewardTokens(ctx)
 	}
-	if epochInfo.Identifier == epochstypes.MINT_EPOCH {
-		k.AuctionOffRewardCollectorBalance(ctx)
-	}
+
+	//if epochInfo.Identifier == epochstypes.MINT_EPOCH { TODO: do we need this?
+	//	k.AuctionOffRewardCollectorBalance(ctx)
+	//}
 }
 
-func (k Keeper) AfterEpochEnd(context context.Context, epochInfo epochstypes.EpochInfo) {}
+func (k Keeper) AfterEpochEnd(context sdk.Context, epochInfo epochstypes.EpochInfo) {}
 
 // Hooks wrapper struct for incentives keeper
 type Hooks struct {
@@ -112,20 +112,30 @@ func (k Keeper) Hooks() Hooks {
 }
 
 // epochs hooks
-func (h Hooks) BeforeEpochStart(context context.Context, epochInfo epochstypes.EpochInfo) {
+func (h Hooks) BeforeEpochStart(context sdk.Context, epochIdentifier string, epochNumber int64) error {
 	ctx := sdk.UnwrapSDKContext(context)
 
+	epochInfo := h.k.epochKeeper.GetEpochInfo(ctx, epochIdentifier)
 	h.k.BeforeEpochStart(ctx, epochInfo)
+
+	return nil
 }
 
-func (h Hooks) AfterEpochEnd(context context.Context, epochInfo epochstypes.EpochInfo) {
+func (h Hooks) AfterEpochEnd(context sdk.Context, epochIdentifier string, epochNumber int64) error {
 	ctx := sdk.UnwrapSDKContext(context)
 
+	epochInfo := h.k.epochKeeper.GetEpochInfo(ctx, epochIdentifier)
 	h.k.AfterEpochEnd(ctx, epochInfo)
+
+	return nil
+}
+
+func (Hooks) GetModuleName() string {
+	return types.ModuleName
 }
 
 // Set the withdrawal account address for each host zone
-func (k Keeper) SetWithdrawalAddress(context context.Context) {
+func (k Keeper) SetWithdrawalAddress(context sdk.Context) {
 	ctx := sdk.UnwrapSDKContext(context)
 
 	k.Logger(ctx).Info("Setting Withdrawal Addresses...")
@@ -139,7 +149,7 @@ func (k Keeper) SetWithdrawalAddress(context context.Context) {
 }
 
 // Claim staking rewards for each host zone
-func (k Keeper) ClaimAccruedStakingRewards(context context.Context) {
+func (k Keeper) ClaimAccruedStakingRewards(context sdk.Context) {
 	ctx := sdk.UnwrapSDKContext(context)
 
 	k.Logger(ctx).Info("Claiming Accrued Staking Rewards...")
@@ -153,7 +163,7 @@ func (k Keeper) ClaimAccruedStakingRewards(context context.Context) {
 }
 
 // TODO [cleanup]: Remove after v17 upgrade
-func (k Keeper) DisableHubTokenization(context context.Context) {
+func (k Keeper) DisableHubTokenization(context sdk.Context) {
 	ctx := sdk.UnwrapSDKContext(context)
 
 	k.Logger(ctx).Info("Disabling the ability to tokenize Gaia delegations")

@@ -1,0 +1,122 @@
+package vesting
+
+import (
+	"encoding/json"
+
+	"cosmossdk.io/core/appmodule"
+	"github.com/gorilla/mux"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/x/auth/keeper"
+
+	"github.com/osmosis-labs/osmosis/v27/x/claim/vesting/types"
+)
+
+var (
+	_ module.AppModuleBasic   = AppModuleBasic{}
+	_ module.HasGenesisBasics = AppModuleBasic{}
+
+	_ appmodule.AppModule = AppModule{}
+
+	_ module.HasConsensusVersion = AppModule{}
+	_ module.HasGenesis          = AppModule{}
+	_ module.HasServices         = AppModule{}
+)
+
+// AppModuleBasic defines the basic application module used by the sub-vesting
+// module. The module itself contain no special logic or state other than message
+// handling.
+type AppModuleBasic struct{}
+
+// Name returns the module's name.
+func (AppModuleBasic) Name() string {
+	return types.ModuleName
+}
+
+// RegisterCodec registers the module's types with the given codec.
+func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	types.RegisterLegacyAminoCodec(cdc)
+}
+
+// RegisterInterfaces registers the module's interfaces and implementations with
+// the given interface registry.
+func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	types.RegisterInterfaces(registry)
+}
+
+// DefaultGenesis returns the module's default genesis state as raw bytes.
+func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
+	return []byte("{}")
+}
+
+// ValidateGenesis performs genesis state validation. Currently, this is a no-op.
+func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
+	return nil
+}
+
+// RegisterRESTRoutes registers module's REST handlers. Currently, this is a no-op.
+func (AppModuleBasic) RegisterRESTRoutes(_ client.Context, _ *mux.Router) {}
+
+// RegisterGRPCGatewayRoutes registers the module's gRPC Gateway routes. Currently, this
+// is a no-op.
+func (a AppModuleBasic) RegisterGRPCGatewayRoutes(_ client.Context, _ *runtime.ServeMux) {}
+
+// GetTxCmd returns the root tx command for the auth module.
+func (AppModuleBasic) GetTxCmd() *cobra.Command {
+	return nil
+}
+
+// GetQueryCmd returns the module's root query command. Currently, this is a no-op.
+func (AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return nil
+}
+
+// AppModule extends the AppModuleBasic implementation by implementing the
+// AppModule interface.
+type AppModule struct {
+	AppModuleBasic
+
+	accountKeeper keeper.AccountKeeper
+	bankKeeper    types.BankKeeper
+}
+
+func NewAppModule(ak keeper.AccountKeeper, bk types.BankKeeper) AppModule {
+	return AppModule{
+		AppModuleBasic: AppModuleBasic{},
+		accountKeeper:  ak,
+		bankKeeper:     bk,
+	}
+}
+
+// RegisterInvariants performs a no-op; there are no invariants to enforce.
+func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
+
+// QuerierRoute returns an empty string as the module contains no query
+// functionality.
+func (AppModule) QuerierRoute() string { return "" }
+
+// RegisterServices registers module services.
+func (am AppModule) RegisterServices(cfg module.Configurator) {}
+
+// InitGenesis performs a no-op.
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) {}
+
+// ExportGenesis is always empty, as InitGenesis does nothing either.
+func (am AppModule) ExportGenesis(_ sdk.Context, cdc codec.JSONCodec) json.RawMessage {
+	return am.DefaultGenesis(cdc)
+}
+
+// ConsensusVersion implements AppModule/ConsensusVersion.
+func (AppModule) ConsensusVersion() uint64 { return 1 }
+
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}

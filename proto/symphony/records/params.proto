@@ -1,0 +1,7 @@
+syntax = "proto3";
+package symphony.records;
+
+option go_package = "github.com/osmosis-labs/osmosis/v27/x/records/types";
+
+// Params defines the parameters for the module.
+message Params {}

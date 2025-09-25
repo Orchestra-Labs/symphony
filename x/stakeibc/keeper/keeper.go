@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	epochskeeper "github.com/osmosis-labs/osmosis/v27/x/epochs/keeper"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
@@ -44,6 +45,7 @@ type (
 		RatelimitKeeper       types.RatelimitKeeper
 		ICAOracleKeeper       types.ICAOracleKeeper
 		ConsumerKeeper        types.ConsumerKeeper
+		epochKeeper           epochskeeper.Keeper
 	}
 )
 

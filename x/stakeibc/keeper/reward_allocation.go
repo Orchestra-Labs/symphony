@@ -1,10 +1,8 @@
 package keeper
 
 import (
-	"fmt"
-	auctiontypes "github.com/skip-mev/block-sdk/v2/x/auction/types"
-
 	sdkmath "cosmossdk.io/math"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ccvtypes "github.com/cosmos/interchain-security/v6/x/ccv/consumer/types"
 
@@ -25,7 +23,7 @@ func (k Keeper) AuctionOffRewardCollectorBalance(ctx sdk.Context) {
 	consumerRedistributionFracStr := k.ConsumerKeeper.GetConsumerParams(ctx).ConsumerRedistributionFraction
 	strideKeepRate, err := sdkmath.LegacyNewDecFromStr(consumerRedistributionFracStr)
 	if err != nil {
-		k.Logger(ctx).Error(fmt.Sprintf("Invalid strideKeepRate, cannot send stTokens to ICS provider: %s", err))
+		k.Logger(ctx).Error(fmt.Sprintf("Invalid symphonyKeepRate, cannot send stTokens to ICS provider: %s", err))
 		return
 	}
 

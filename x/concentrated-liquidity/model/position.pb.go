@@ -11,12 +11,12 @@ package model
 import (
 	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
-	types "github.com/cosmos/cosmos-sdk/types"
+	types1 "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
+	_ "github.com/cosmos/gogoproto/types"
 	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
-	types1 "github.com/osmosis-labs/osmosis/v27/x/lockup/types"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
+	types2 "github.com/osmosis-labs/osmosis/v27/x/lockup/types"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -130,12 +130,12 @@ func (m *Position) GetJoinTime() time.Time {
 // - the amount of incentives that would be forfeited if the position was closed
 // now
 type FullPositionBreakdown struct {
-	Position               Position     `protobuf:"bytes,1,opt,name=position,proto3" json:"position"`
-	Asset0                 types.Coin   `protobuf:"bytes,2,opt,name=asset0,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coin" json:"asset0"`
-	Asset1                 types.Coin   `protobuf:"bytes,3,opt,name=asset1,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coin" json:"asset1"`
-	ClaimableSpreadRewards []types.Coin `protobuf:"bytes,4,rep,name=claimable_spread_rewards,json=claimableSpreadRewards,proto3" json:"claimable_spread_rewards" yaml:"claimable_spread_rewards"`
-	ClaimableIncentives    []types.Coin `protobuf:"bytes,5,rep,name=claimable_incentives,json=claimableIncentives,proto3" json:"claimable_incentives" yaml:"claimable_incentives"`
-	ForfeitedIncentives    []types.Coin `protobuf:"bytes,6,rep,name=forfeited_incentives,json=forfeitedIncentives,proto3" json:"forfeited_incentives" yaml:"forfeited_incentives"`
+	Position               Position      `protobuf:"bytes,1,opt,name=position,proto3" json:"position"`
+	Asset0                 types1.Coin   `protobuf:"bytes,2,opt,name=asset0,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coin" json:"asset0"`
+	Asset1                 types1.Coin   `protobuf:"bytes,3,opt,name=asset1,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coin" json:"asset1"`
+	ClaimableSpreadRewards []types1.Coin `protobuf:"bytes,4,rep,name=claimable_spread_rewards,json=claimableSpreadRewards,proto3" json:"claimable_spread_rewards" yaml:"claimable_spread_rewards"`
+	ClaimableIncentives    []types1.Coin `protobuf:"bytes,5,rep,name=claimable_incentives,json=claimableIncentives,proto3" json:"claimable_incentives" yaml:"claimable_incentives"`
+	ForfeitedIncentives    []types1.Coin `protobuf:"bytes,6,rep,name=forfeited_incentives,json=forfeitedIncentives,proto3" json:"forfeited_incentives" yaml:"forfeited_incentives"`
 }
 
 func (m *FullPositionBreakdown) Reset()         { *m = FullPositionBreakdown{} }
@@ -178,35 +178,35 @@ func (m *FullPositionBreakdown) GetPosition() Position {
 	return Position{}
 }
 
-func (m *FullPositionBreakdown) GetAsset0() types.Coin {
+func (m *FullPositionBreakdown) GetAsset0() types1.Coin {
 	if m != nil {
 		return m.Asset0
 	}
-	return types.Coin{}
+	return types1.Coin{}
 }
 
-func (m *FullPositionBreakdown) GetAsset1() types.Coin {
+func (m *FullPositionBreakdown) GetAsset1() types1.Coin {
 	if m != nil {
 		return m.Asset1
 	}
-	return types.Coin{}
+	return types1.Coin{}
 }
 
-func (m *FullPositionBreakdown) GetClaimableSpreadRewards() []types.Coin {
+func (m *FullPositionBreakdown) GetClaimableSpreadRewards() []types1.Coin {
 	if m != nil {
 		return m.ClaimableSpreadRewards
 	}
 	return nil
 }
 
-func (m *FullPositionBreakdown) GetClaimableIncentives() []types.Coin {
+func (m *FullPositionBreakdown) GetClaimableIncentives() []types1.Coin {
 	if m != nil {
 		return m.ClaimableIncentives
 	}
 	return nil
 }
 
-func (m *FullPositionBreakdown) GetForfeitedIncentives() []types.Coin {
+func (m *FullPositionBreakdown) GetForfeitedIncentives() []types1.Coin {
 	if m != nil {
 		return m.ForfeitedIncentives
 	}
@@ -215,7 +215,7 @@ func (m *FullPositionBreakdown) GetForfeitedIncentives() []types.Coin {
 
 type PositionWithPeriodLock struct {
 	Position Position          `protobuf:"bytes,1,opt,name=position,proto3" json:"position"`
-	Locks    types1.PeriodLock `protobuf:"bytes,2,opt,name=locks,proto3" json:"locks"`
+	Locks    types2.PeriodLock `protobuf:"bytes,2,opt,name=locks,proto3" json:"locks"`
 }
 
 func (m *PositionWithPeriodLock) Reset()         { *m = PositionWithPeriodLock{} }
@@ -258,11 +258,11 @@ func (m *PositionWithPeriodLock) GetPosition() Position {
 	return Position{}
 }
 
-func (m *PositionWithPeriodLock) GetLocks() types1.PeriodLock {
+func (m *PositionWithPeriodLock) GetLocks() types2.PeriodLock {
 	if m != nil {
 		return m.Locks
 	}
-	return types1.PeriodLock{}
+	return types2.PeriodLock{}
 }
 
 func init() {
@@ -1003,7 +1003,7 @@ func (m *FullPositionBreakdown) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ClaimableSpreadRewards = append(m.ClaimableSpreadRewards, types.Coin{})
+			m.ClaimableSpreadRewards = append(m.ClaimableSpreadRewards, types1.Coin{})
 			if err := m.ClaimableSpreadRewards[len(m.ClaimableSpreadRewards)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1037,7 +1037,7 @@ func (m *FullPositionBreakdown) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ClaimableIncentives = append(m.ClaimableIncentives, types.Coin{})
+			m.ClaimableIncentives = append(m.ClaimableIncentives, types1.Coin{})
 			if err := m.ClaimableIncentives[len(m.ClaimableIncentives)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1071,7 +1071,7 @@ func (m *FullPositionBreakdown) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ForfeitedIncentives = append(m.ForfeitedIncentives, types.Coin{})
+			m.ForfeitedIncentives = append(m.ForfeitedIncentives, types1.Coin{})
 			if err := m.ForfeitedIncentives[len(m.ForfeitedIncentives)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}

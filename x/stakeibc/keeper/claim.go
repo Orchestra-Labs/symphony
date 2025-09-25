@@ -73,7 +73,7 @@ func (k Keeper) GetClaimableRedemptionRecord(ctx sdk.Context, msg *types.MsgClai
 	}
 
 	// check that the record is claimable
-	hostZoneUnbonding, found := k.RecordsKeeper.GetHostZoneUnbondingByChainId(ctx, userRedemptionRecord, msg.HostZoneId)
+	hostZoneUnbonding, found := k.RecordsKeeper.GetHostZoneUnbondingByChainId(ctx, userRedemptionRecord.EpochNumber, msg.HostZoneId)
 	if !found {
 		return nil, errorsmod.Wrapf(types.ErrInvalidUserRedemptionRecord,
 			"host zone unbonding record %s not found on host zone %s", userRedemptionRecordKey, msg.HostZoneId)
