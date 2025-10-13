@@ -190,7 +190,7 @@ func (q Querier) RewardAmountPerPool(ctx context.Context, request *types.QueryPo
 	moduleRewardsAddr := q.AccountKeeper.GetModuleAddress(types.NativeRewardsCollectorName)
 	totalReward := q.BankKeeper.GetBalance(ctx, moduleRewardsAddr, appparams.BaseCoinUnit)
 	if totalReward.IsZero() {
-		return nil, status.Error(codes.NotFound, fmt.Sprintf("Rewards not found for pool %s", request.Denom))
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("Available rewards: %s", totalReward))
 	}
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
@@ -200,18 +200,18 @@ func (q Querier) RewardAmountPerPool(ctx context.Context, request *types.QueryPo
 	}
 
 	if snapshotData.TotalStakedAcrossPools.IsZero() {
-		return nil, status.Error(codes.NotFound, fmt.Sprintf("Rewards not found for pool %s", request.Denom))
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("No stake found for pool %s. Available rewards: %s", request.Denom, totalReward))
 	}
 
 	poolSnapshot, ok := snapshotData.PoolSnapshots[request.Denom]
 	if !ok {
-		return nil, fmt.Errorf("no snapshot found for denom: %s", request.Denom)
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("No stake found for pool %s or reward distribution has not started yet", request.Denom))
 	}
 	poolRewardShare := poolSnapshot.TotalStaked.Quo(snapshotData.TotalStakedAcrossPools)
 	poolReward := poolRewardShare.MulInt(totalReward.Amount).TruncateInt()
 
 	if poolReward.IsZero() {
-		return nil, status.Error(codes.NotFound, fmt.Sprintf("Rewards not found for pool %s", request.Denom))
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("Available rewards for pool %s: %s", request.Denom, poolReward))
 	}
 
 	return &types.QueryRewardPerPoolResponse{
