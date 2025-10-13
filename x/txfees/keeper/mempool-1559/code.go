@@ -45,7 +45,7 @@ import (
 var (
 	// We expect wallet multiplier * DefaultBaseFee < MinBaseFee * RecheckFeeConstant
 	// conservatively assume a wallet multiplier of at least 7%.
-	DefaultBaseFee = osmomath.MustNewDecFromStr("0.00060")
+	DefaultBaseFee = osmomath.MustNewDecFromStr("0.00250")
 	MinBaseFee     = osmomath.MustNewDecFromStr("0.00025")
 	MaxBaseFee     = osmomath.MustNewDecFromStr("5")
 	ResetInterval  = int64(6000)
