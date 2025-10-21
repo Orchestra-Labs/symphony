@@ -57,6 +57,7 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	ccvconsumer "github.com/cosmos/interchain-security/v6/x/ccv/consumer"
 	ccvconsumertypes "github.com/cosmos/interchain-security/v6/x/ccv/consumer/types"
 	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
 	custombankkeeper "github.com/osmosis-labs/osmosis/v27/custom/bank/keeper"
@@ -169,6 +170,7 @@ type AppKeepers struct {
 	ScopedTransferKeeper      capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
 	ScopedICQKeeper           capabilitykeeper.ScopedKeeper
+	ScopedCCVConsumerKeeper   capabilitykeeper.ScopedKeeper
 
 	// "Normal" keepers
 	AccountKeeper                 *authkeeper.AccountKeeper
@@ -222,6 +224,7 @@ type AppKeepers struct {
 	ConsumerKeeper     *ccvconsumerkeeper.Keeper
 	ICQOracleKeeper    *icqoraclekeeper.Keeper
 	AutopilotKeeper    *autopilotkeeper.Keeper
+
 	// IBC modules
 	// transfer module
 	RawIcs20TransferAppModule transfer.AppModule
@@ -334,7 +337,8 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appCodec,
 		legacyAmino,
 		runtime.NewKVStoreService(appKeepers.keys[slashingtypes.StoreKey]),
-		appKeepers.StakingKeeper,
+		appKeepers.StakingKeeper, //TODO: what happens if we replace it with consumer?
+		//appKeepers.ConsumerKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	appKeepers.SlashingKeeper = &slashingKeeper
@@ -352,7 +356,7 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appCodec,
 		appKeepers.keys[ibchost.StoreKey],
 		appKeepers.GetSubspace(ibchost.ModuleName),
-		//appKeepers.StakingKeeper, TODO: do we need to replace with consumer?
+		//appKeepers.StakingKeeper, //TODO: do we need to replace with consumer?
 		appKeepers.ConsumerKeeper,
 		appKeepers.UpgradeKeeper,
 		appKeepers.ScopedIBCKeeper,
@@ -439,6 +443,33 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	)
 	appKeepers.ICQKeeper = &icqKeeper
 
+	// Create CCV consumer and modules
+	consumerKeeper = ccvconsumerkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[ccvconsumertypes.StoreKey],
+		appKeepers.GetSubspace(ccvconsumertypes.ModuleName),
+		appKeepers.ScopedCCVConsumerKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.IBCKeeper.ConnectionKeeper,
+		appKeepers.IBCKeeper.ClientKeeper,
+		appKeepers.SlashingKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.AccountKeeper,
+		appKeepers.TransferKeeper,
+		appKeepers.IBCKeeper,
+		authtypes.FeeCollectorName,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
+		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
+	)
+	appKeepers.ConsumerKeeper = &consumerKeeper
+	appKeepers.ConsumerKeeper.SetStandaloneStakingKeeper(appKeepers.StakingKeeper)
+
+	// register slashing module StakingHooks to the consumer keeper
+	appKeepers.ConsumerKeeper = appKeepers.ConsumerKeeper.SetHooks(appKeepers.SlashingKeeper.Hooks())
+	consumerModule := ccvconsumer.NewAppModule(*appKeepers.ConsumerKeeper, appKeepers.GetSubspace(ccvconsumertypes.ModuleName))
+
 	// Create Async ICQ module
 	icqModule := icq.NewIBCModule(*appKeepers.ICQKeeper)
 
@@ -449,7 +480,8 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		// The transferIBC module is replaced by rateLimitingTransferModule
 		AddRoute(ibctransfertypes.ModuleName, appKeepers.TransferStack).
 		// Add icq modules to IBC router
-		AddRoute(icqtypes.ModuleName, icqModule)
+		AddRoute(icqtypes.ModuleName, icqModule).
+		AddRoute(ccvconsumertypes.ModuleName, consumerModule)
 	// Note: the sealing is done after creating wasmd and wiring that up
 
 	// create evidence keeper with router
@@ -983,6 +1015,8 @@ func (appKeepers *AppKeepers) InitSpecialKeepers(
 	appKeepers.ScopedTransferKeeper = appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	appKeepers.ScopedWasmKeeper = appKeepers.CapabilityKeeper.ScopeToModule(wasmtypes.ModuleName)
 	appKeepers.ScopedICQKeeper = appKeepers.CapabilityKeeper.ScopeToModule(icqtypes.ModuleName)
+	appKeepers.ScopedCCVConsumerKeeper = appKeepers.CapabilityKeeper.ScopeToModule(ccvconsumertypes.ModuleName)
+
 	appKeepers.CapabilityKeeper.Seal()
 
 	// TODO: Make a SetInvCheckPeriod fn on CrisisKeeper.

@@ -13,7 +13,6 @@ import (
 	ratelimit "github.com/cosmos/ibc-apps/modules/rate-limiting/v8"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-	ccvconsumer "github.com/cosmos/interchain-security/v6/x/ccv/consumer"
 	ccvconsumertypes "github.com/cosmos/interchain-security/v6/x/ccv/consumer/types"
 	"github.com/osmosis-labs/osmosis/v27/x/autopilot"
 	autopilottypes "github.com/osmosis-labs/osmosis/v27/x/autopilot/types"
@@ -251,7 +250,6 @@ func appModules(
 		smartaccount.NewAppModule(appCodec, *app.SmartAccountKeeper),
 		ratelimit.NewAppModule(appCodec, *app.RatelimitKeeper),
 		icacallbacks.NewAppModule(appCodec, *app.IcacallbacksKeeper, app.AccountKeeper, app.BankKeeper),
-		ccvconsumer.NewAppModule(*app.ConsumerKeeper, app.GetSubspace(ccvconsumertypes.ModuleName)),
 		icqoracle.NewAppModule(appCodec, *app.ICQOracleKeeper),
 		interchainquery.NewAppModule(appCodec, *app.InterchainqueryKeeper),
 		records.NewAppModule(appCodec, *app.RecordsKeeper, app.AccountKeeper, app.BankKeeper),
