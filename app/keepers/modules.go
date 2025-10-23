@@ -21,12 +21,12 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
+	"github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
 	icq "github.com/cosmos/ibc-apps/modules/async-icq/v8"
 	"github.com/cosmos/ibc-go/modules/capability"
 	ibcwasm "github.com/cosmos/ibc-go/modules/light-clients/08-wasm"
 	ica "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts"
-	transfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer"
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
 	tendermint "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	stablestakingincentives "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives"
@@ -41,6 +41,8 @@ import (
 	"github.com/skip-mev/block-sdk/v2/x/auction"
 
 	_ "github.com/osmosis-labs/osmosis/v27/client/docs/statik"
+	"github.com/osmosis-labs/osmosis/v27/x/autopilot"
+	"github.com/osmosis-labs/osmosis/v27/x/claim"
 	clclient "github.com/osmosis-labs/osmosis/v27/x/concentrated-liquidity/client"
 	concentratedliquidity "github.com/osmosis-labs/osmosis/v27/x/concentrated-liquidity/clmodule"
 	cwpoolclient "github.com/osmosis-labs/osmosis/v27/x/cosmwasmpool/client"
@@ -50,8 +52,12 @@ import (
 	"github.com/osmosis-labs/osmosis/v27/x/gamm"
 	gammclient "github.com/osmosis-labs/osmosis/v27/x/gamm/client"
 	"github.com/osmosis-labs/osmosis/v27/x/ibc-rate-limit/ibcratelimitmodule"
+	"github.com/osmosis-labs/osmosis/v27/x/icacallbacks"
+	"github.com/osmosis-labs/osmosis/v27/x/icaoracle"
+	"github.com/osmosis-labs/osmosis/v27/x/icqoracle"
 	"github.com/osmosis-labs/osmosis/v27/x/incentives"
 	incentivesclient "github.com/osmosis-labs/osmosis/v27/x/incentives/client"
+	"github.com/osmosis-labs/osmosis/v27/x/interchainquery"
 	"github.com/osmosis-labs/osmosis/v27/x/lockup"
 	"github.com/osmosis-labs/osmosis/v27/x/market"
 	"github.com/osmosis-labs/osmosis/v27/x/mint"
@@ -61,7 +67,9 @@ import (
 	poolmanagerclient "github.com/osmosis-labs/osmosis/v27/x/poolmanager/client"
 	poolmanager "github.com/osmosis-labs/osmosis/v27/x/poolmanager/module"
 	"github.com/osmosis-labs/osmosis/v27/x/protorev"
-	superfluid "github.com/osmosis-labs/osmosis/v27/x/superfluid"
+	"github.com/osmosis-labs/osmosis/v27/x/records"
+	"github.com/osmosis-labs/osmosis/v27/x/stakeibc"
+	"github.com/osmosis-labs/osmosis/v27/x/superfluid"
 	superfluidclient "github.com/osmosis-labs/osmosis/v27/x/superfluid/client"
 	"github.com/osmosis-labs/osmosis/v27/x/tokenfactory"
 	"github.com/osmosis-labs/osmosis/v27/x/treasury"
@@ -140,4 +148,12 @@ var AppModuleBasics = module.NewBasicManager(
 	auction.AppModuleBasic{},
 	smartaccount.AppModuleBasic{},
 	stablestaking.AppModuleBasic{},
+	stakeibc.AppModuleBasic{},
+	icacallbacks.AppModuleBasic{},
+	records.AppModuleBasic{},
+	icaoracle.AppModuleBasic{},
+	claim.AppModuleBasic{},
+	interchainquery.AppModuleBasic{},
+	icqoracle.AppModuleBasic{},
+	autopilot.AppModuleBasic{},
 )
