@@ -45,10 +45,10 @@ func (msg *MsgCreateTradeRoute) ValidateBasic() error {
 	}
 
 	if err := ValidateConnectionId(msg.StrideToRewardConnectionId); err != nil {
-		return errorsmod.Wrap(err, "invalid stride to reward connection ID")
+		return errorsmod.Wrap(err, "invalid symphony to reward connection ID")
 	}
 	if err := ValidateConnectionId(msg.StrideToTradeConnectionId); err != nil {
-		return errorsmod.Wrap(err, "invalid stride to trade connection ID")
+		return errorsmod.Wrap(err, "invalid symphony to trade connection ID")
 	}
 
 	if err := ValidateChannelId(msg.HostToRewardTransferChannelId); err != nil {

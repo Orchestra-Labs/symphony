@@ -15,7 +15,7 @@ message Params {
   uint64 delegate_interval = 6;
   uint64 deposit_interval = 2;
   uint64 redemption_rate_interval = 3;
-  uint64 stride_commission = 4;
+  uint64 symphony_commission = 4;
   uint64 reinvest_interval = 7;
   uint64 ica_timeout_nanos = 9;
   uint64 buffer_size = 10;

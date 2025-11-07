@@ -16,7 +16,7 @@ var (
 	DefaultRewardsInterval        uint64 = 1
 	DefaultRedemptionRateInterval uint64 = 1
 	// you apparently cannot safely encode floats, so we make commission / 100
-	DefaultStrideCommission             uint64 = 10
+	DefaultSymphonyCommission           uint64 = 10
 	DefaultICATimeoutNanos              uint64 = 600000000000
 	DefaultBufferSize                   uint64 = 5             // 1/5=20% of the epoch
 	DefaultIbcTimeoutBlocks             uint64 = 300           // 300 blocks ~= 30 minutes
@@ -34,7 +34,7 @@ var (
 	KeyReinvestInterval                  = []byte("ReinvestInterval")
 	KeyRewardsInterval                   = []byte("RewardsInterval")
 	KeyRedemptionRateInterval            = []byte("RedemptionRateInterval")
-	KeyStrideCommission                  = []byte("StrideCommission")
+	KeySymphonyCommission                = []byte("SymphonyCommission")
 	KeyICATimeoutNanos                   = []byte("ICATimeoutNanos")
 	KeyFeeTransferTimeoutNanos           = []byte("FeeTransferTimeoutNanos")
 	KeyBufferSize                        = []byte("BufferSize")
@@ -62,7 +62,7 @@ func NewParams(
 	delegateInterval uint64,
 	rewardsInterval uint64,
 	redemptionRateInterval uint64,
-	strideCommission uint64,
+	symphonyCommission uint64,
 	reinvestInterval uint64,
 	icaTimeoutNanos uint64,
 	bufferSize uint64,
@@ -80,7 +80,7 @@ func NewParams(
 		DelegateInterval:                  delegateInterval,
 		RewardsInterval:                   rewardsInterval,
 		RedemptionRateInterval:            redemptionRateInterval,
-		StrideCommission:                  strideCommission,
+		SymphonyCommission:                symphonyCommission,
 		ReinvestInterval:                  reinvestInterval,
 		IcaTimeoutNanos:                   icaTimeoutNanos,
 		BufferSize:                        bufferSize,
@@ -102,7 +102,7 @@ func DefaultParams() Params {
 		DefaultDelegateInterval,
 		DefaultRewardsInterval,
 		DefaultRedemptionRateInterval,
-		DefaultStrideCommission,
+		DefaultSymphonyCommission,
 		DefaultReinvestInterval,
 		DefaultICATimeoutNanos,
 		DefaultBufferSize,
@@ -124,7 +124,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyDelegateInterval, &p.DelegateInterval, isPositive),
 		paramtypes.NewParamSetPair(KeyRewardsInterval, &p.RewardsInterval, isPositive),
 		paramtypes.NewParamSetPair(KeyRedemptionRateInterval, &p.RedemptionRateInterval, isPositive),
-		paramtypes.NewParamSetPair(KeyStrideCommission, &p.StrideCommission, isCommission),
+		paramtypes.NewParamSetPair(KeySymphonyCommission, &p.SymphonyCommission, isCommission),
 		paramtypes.NewParamSetPair(KeyReinvestInterval, &p.ReinvestInterval, isPositive),
 		paramtypes.NewParamSetPair(KeyICATimeoutNanos, &p.IcaTimeoutNanos, isPositive),
 		paramtypes.NewParamSetPair(KeyBufferSize, &p.BufferSize, isPositive),
@@ -247,7 +247,7 @@ func (p Params) Validate() error {
 	if err := isPositive(p.RedemptionRateInterval); err != nil {
 		return err
 	}
-	if err := isCommission(p.StrideCommission); err != nil {
+	if err := isCommission(p.SymphonyCommission); err != nil {
 		return err
 	}
 	if err := isPositive(p.ReinvestInterval); err != nil {

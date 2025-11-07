@@ -81,7 +81,7 @@ func (k Keeper) CalculateRewardsSplit(
 	rewardsAmount sdkmath.Int,
 ) (rewardSplit RewardsSplit, err error) {
 	// Get the fee rate and total fees from params (e.g. 0.1 for 10% fee)
-	strideFeeParam := sdkmath.NewIntFromUint64(k.GetParams(ctx).StrideCommission)
+	strideFeeParam := sdkmath.NewIntFromUint64(k.GetParams(ctx).SymphonyCommission)
 	totalFeeRate := sdkmath.LegacyNewDecFromInt(strideFeeParam).Quo(sdkmath.LegacyNewDec(100))
 
 	// Get the total fee amount from the fee percentage
