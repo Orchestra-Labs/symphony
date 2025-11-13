@@ -12,6 +12,9 @@ const (
 
 	// QuerierRoute is the querier route for treasury
 	QuerierRoute = ModuleName
+
+	// NativeBurnCollectorName is the route for burn note
+	NativeBurnCollectorName = "native_burn_collector"
 )
 
 // Keys for treasury store

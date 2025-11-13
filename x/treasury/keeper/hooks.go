@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
 	"time"
 
 	epochstypes "github.com/osmosis-labs/osmosis/v27/x/epochs/types"
@@ -17,6 +18,24 @@ func (k Keeper) BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochN
 
 // AfterEpochEnd is the epoch end hook.
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) error {
+	// Try to run burn if amount enough once per day
+	if epochIdentifier == "day" { // change to day for production
+		moduleBurnAddr := k.accountKeeper.GetModuleAddress(types.NativeBurnCollectorName)
+		totalAmount := k.BankKeeper.GetBalance(ctx, moduleBurnAddr, appparams.BaseCoinUnit)
+
+		if !totalAmount.IsZero() {
+			err := k.BankKeeper.SendCoinsFromModuleToModule(ctx, types.NativeBurnCollectorName, types.ModuleName, sdk.NewCoins(totalAmount))
+			if err != nil {
+				ctx.Logger().Error("SendCoinsFromModuleToModule", "module", types.NativeBurnCollectorName, "denom", totalAmount.Denom, "amount", totalAmount.Amount, "height", ctx.BlockHeight())
+			} else {
+				err = k.BankKeeper.BurnCoinsEnable(ctx, types.ModuleName, sdk.Coins{totalAmount})
+				if err != nil {
+					ctx.Logger().Error("BurnCoinsEnable", "module", types.ModuleName, "denom", totalAmount.Denom, "amount", totalAmount.Amount, "height", ctx.BlockHeight())
+				}
+			}
+		}
+	}
+
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
 	params := k.GetParams(ctx)
 

@@ -151,6 +151,7 @@ var moduleAccountPermissions = map[string][]string{
 	stablestakingtypes.NativeRewardsCollectorName: {authtypes.Burner},
 	markettypes.ModuleName:                        {authtypes.Minter, authtypes.Burner},
 	treasurytypes.ModuleName:                      {authtypes.Minter, authtypes.Burner},
+	treasurytypes.NativeBurnCollectorName:         {authtypes.Burner},
 	oracletypes.ModuleName:                        nil,
 	cosmwasmpooltypes.ModuleName:                  nil,
 	auctiontypes.ModuleName:                       nil,
@@ -326,6 +327,7 @@ func OrderInitGenesis(allModuleNames []string) []string {
 		cosmwasmpooltypes.ModuleName,
 		auctiontypes.ModuleName,
 		stablestakingtypes.ModuleName,
+		treasurytypes.NativeBurnCollectorName,
 	}
 }
 

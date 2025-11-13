@@ -131,9 +131,10 @@ var (
 
 	// module accounts that are allowed to receive tokens.
 	allowedReceivingModAcc = map[string]bool{
-		protorevtypes.ModuleName: true,
-		markettypes.ModuleName:   true,
-		treasurytypes.ModuleName: true,
+		protorevtypes.ModuleName:              true,
+		markettypes.ModuleName:                true,
+		treasurytypes.ModuleName:              true,
+		treasurytypes.NativeBurnCollectorName: true,
 	}
 
 	// TODO: Refactor wasm items into a wasm.go file
