@@ -19,7 +19,7 @@ func (k Keeper) BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochN
 // AfterEpochEnd is the epoch end hook.
 func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumber int64) error {
 	// Try to run burn if amount enough once per day
-	if epochIdentifier == "day" { // change to day for production
+	if epochIdentifier == "day" {
 		moduleBurnAddr := k.accountKeeper.GetModuleAddress(types.NativeBurnCollectorName)
 		totalAmount := k.BankKeeper.GetBalance(ctx, moduleBurnAddr, appparams.BaseCoinUnit)
 
