@@ -12,6 +12,7 @@ import (
 	"github.com/osmosis-labs/osmosis/osmomath"
 
 	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
+	custombankkeeper "github.com/osmosis-labs/osmosis/v27/custom/bank/keeper"
 	markettypes "github.com/osmosis-labs/osmosis/v27/x/market/types"
 	"github.com/osmosis-labs/osmosis/v27/x/treasury/types"
 )
@@ -23,7 +24,7 @@ type Keeper struct {
 	paramSpace paramstypes.Subspace
 
 	accountKeeper types.AccountKeeper
-	BankKeeper    types.BankKeeper
+	BankKeeper    *custombankkeeper.CustomKeeper
 	marketKeeper  types.MarketKeeper
 	oracleKeeper  types.OracleKeeper
 }
@@ -34,7 +35,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	paramSpace paramstypes.Subspace,
 	accountKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
+	bankKeeper *custombankkeeper.CustomKeeper,
 	marketKeeper types.MarketKeeper,
 	oracleKeeper types.OracleKeeper,
 ) Keeper {

@@ -8,6 +8,7 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/osmosis-labs/osmosis/osmomath"
 	v108 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v108"
+	v109 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v109"
 	clclient "github.com/osmosis-labs/osmosis/v27/x/concentrated-liquidity/client"
 	cwpoolclient "github.com/osmosis-labs/osmosis/v27/x/cosmwasmpool/client"
 	gammclient "github.com/osmosis-labs/osmosis/v27/x/gamm/client"
@@ -131,9 +132,10 @@ var (
 
 	// module accounts that are allowed to receive tokens.
 	allowedReceivingModAcc = map[string]bool{
-		protorevtypes.ModuleName: true,
-		markettypes.ModuleName:   true,
-		treasurytypes.ModuleName: true,
+		protorevtypes.ModuleName:              true,
+		markettypes.ModuleName:                true,
+		treasurytypes.ModuleName:              true,
+		treasurytypes.NativeBurnCollectorName: true,
 	}
 
 	// TODO: Refactor wasm items into a wasm.go file
@@ -154,7 +156,7 @@ var (
 
 	_ runtime.AppI = (*SymphonyApp)(nil)
 
-	Upgrades = []upgrades.Upgrade{v27.Upgrade, v28.Upgrade, v29.Upgrade, v107.Upgrade, v108.Upgrade}
+	Upgrades = []upgrades.Upgrade{v27.Upgrade, v28.Upgrade, v29.Upgrade, v107.Upgrade, v108.Upgrade, v109.Upgrade}
 	Forks    = []upgrades.Fork{}
 
 	// rpcAddressConfigName is the name of the config key that holds the RPC address.

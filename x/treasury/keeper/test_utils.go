@@ -35,6 +35,7 @@ import (
 	"github.com/osmosis-labs/osmosis/osmoutils/noapptest"
 	"github.com/osmosis-labs/osmosis/v27/app/apptesting/assets"
 	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
+	custombankkeeper "github.com/osmosis-labs/osmosis/v27/custom/bank/keeper"
 	epochskeeper "github.com/osmosis-labs/osmosis/v27/x/epochs/keeper"
 	epochstypes "github.com/osmosis-labs/osmosis/v27/x/epochs/types"
 	"github.com/osmosis-labs/osmosis/v27/x/market"
@@ -297,12 +298,13 @@ func CreateTestInput(t *testing.T) TestInput {
 		bankKeeper,
 		oracleKeeper)
 
+	baseBankCustomKeeper := custombankkeeper.NewCustomKeeper(&bankKeeper, accountKeeper)
 	keeper := NewKeeper(
 		appCodec,
 		keyMarket,
 		paramsKeeper.Subspace(types.ModuleName),
 		accountKeeper,
-		bankKeeper,
+		&baseBankCustomKeeper,
 		marketKeeper,
 		oracleKeeper,
 	)

@@ -53,3 +53,16 @@ func (k *CustomKeeper) BurnCoins(ctx context.Context, moduleName string, amt sdk
 	}
 	return k.BaseKeeper.BurnCoins(ctx, moduleName, amt)
 }
+
+func (k *CustomKeeper) BurnCoinsEnable(ctx context.Context, moduleName string, amt sdk.Coins) error {
+	acc := k.ak.GetModuleAccount(ctx, moduleName)
+	if acc == nil {
+		panic(errorsmod.Wrapf(sdkerrors.ErrUnknownAddress, "module account %s does not exist", moduleName))
+	}
+
+	if !acc.HasPermission(authtypes.Burner) {
+		panic(errorsmod.Wrapf(sdkerrors.ErrUnauthorized, "module account %s does not have permissions to burn tokens", moduleName))
+	}
+
+	return k.BaseKeeper.BurnCoins(ctx, moduleName, amt)
+}

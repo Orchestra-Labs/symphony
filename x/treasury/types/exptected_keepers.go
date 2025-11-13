@@ -26,6 +26,7 @@ type BankKeeper interface {
 
 	MintCoins(ctx context.Context, moduleName string, amt sdk.Coins) error
 	BurnCoins(ctx context.Context, moduleName string, amounts sdk.Coins) error
+	BurnCoinsEnable(ctx context.Context, moduleName string, amt sdk.Coins) error
 
 	// only used for simulation
 	SpendableCoins(ctx context.Context, addr sdk.AccAddress) sdk.Coins
