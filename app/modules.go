@@ -327,7 +327,6 @@ func OrderInitGenesis(allModuleNames []string) []string {
 		cosmwasmpooltypes.ModuleName,
 		auctiontypes.ModuleName,
 		stablestakingtypes.ModuleName,
-		treasurytypes.NativeBurnCollectorName,
 	}
 }
 
