@@ -1,0 +1,10 @@
+syntax = "proto3";
+package symphony.records;
+
+import "symphony/records/records.proto";
+
+option go_package = "github.com/osmosis-labs/osmosis/v27/x/records/types";
+
+message TransferCallback { uint64 deposit_record_id = 1; }
+
+message TransferLSMTokenCallback { LSMTokenDeposit deposit = 1; }

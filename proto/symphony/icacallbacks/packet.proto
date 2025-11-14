@@ -1,0 +1,10 @@
+syntax = "proto3";
+package symphony.icacallbacks;
+
+option go_package = "github.com/osmosis-labs/osmosis/v27/x/icacallbacks/types";
+
+message IcacallbacksPacketData {
+  oneof packet { NoData no_data = 1; }
+}
+
+message NoData {}

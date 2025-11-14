@@ -14,13 +14,13 @@ import (
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
+	_ "github.com/cosmos/gogoproto/types"
 	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
-	types "github.com/osmosis-labs/osmosis/v27/x/twap/types"
+	types1 "github.com/osmosis-labs/osmosis/v27/x/twap/types"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -512,7 +512,7 @@ func (m *ParamsRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_ParamsRequest proto.InternalMessageInfo
 
 type ParamsResponse struct {
-	Params types.Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+	Params types1.Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
 
 func (m *ParamsResponse) Reset()         { *m = ParamsResponse{} }
@@ -548,11 +548,11 @@ func (m *ParamsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ParamsResponse proto.InternalMessageInfo
 
-func (m *ParamsResponse) GetParams() types.Params {
+func (m *ParamsResponse) GetParams() types1.Params {
 	if m != nil {
 		return m.Params
 	}
-	return types.Params{}
+	return types1.Params{}
 }
 
 func init() {

@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"bufio"
+	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	"embed"
 	"encoding/json"
 	"fmt"
+	interchainquerytypes "github.com/osmosis-labs/osmosis/v27/x/interchainquery/types"
 	"io"
 	"net/http"
 	"os"
@@ -1230,7 +1232,7 @@ func autoCliOpts(initClientCtx client.Context, tempApp *symphony.SymphonyApp) au
 		}
 	}
 
-	return autocli.AppOptions{
+	appOptions := autocli.AppOptions{
 		Modules:               modules,
 		ModuleOptions:         runtimeservices.ExtractAutoCLIOptions(tempApp.ModuleManager().Modules),
 		AddressCodec:          authcodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
@@ -1238,4 +1240,21 @@ func autoCliOpts(initClientCtx client.Context, tempApp *symphony.SymphonyApp) au
 		ConsensusAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
 		ClientCtx:             initClientCtx,
 	}
+
+	// Disable the autocli command for ICQ SubmitQueryResponse which has a conflict
+	// with the chain-id flag and also doesn't need a CLI function
+	moduleOptions, exists := appOptions.ModuleOptions[interchainquerytypes.ModuleName]
+	if !exists {
+		moduleOptions = &autocliv1.ModuleOptions{}
+		appOptions.ModuleOptions[interchainquerytypes.ModuleName] = moduleOptions
+	}
+	if moduleOptions.Tx == nil {
+		moduleOptions.Tx = &autocliv1.ServiceCommandDescriptor{}
+	}
+	moduleOptions.Tx.RpcCommandOptions = append(moduleOptions.Tx.RpcCommandOptions, &autocliv1.RpcCommandOptions{
+		RpcMethod: "SubmitQueryResponse",
+		Skip:      true,
+	})
+
+	return appOptions
 }

@@ -1,0 +1,16 @@
+syntax = "proto3";
+package symphony.autopilot;
+
+import "gogoproto/gogo.proto";
+import "symphony/autopilot/params.proto";
+
+option go_package = "github.com/osmosis-labs/osmosis/v27/x/autopilot/types";
+
+// GenesisState defines the claim module's genesis state.
+message GenesisState {
+  // params defines all the parameters of the module.
+  Params params = 1 [
+    (gogoproto.moretags) = "yaml:\"params\"",
+    (gogoproto.nullable) = false
+  ];
+}

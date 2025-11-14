@@ -36,43 +36,17 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	icq "github.com/cosmos/ibc-apps/modules/async-icq/v8"
+	icqkeeper "github.com/cosmos/ibc-apps/modules/async-icq/v8/keeper"
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v8/types"
+	ratelimitkeeper "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/keeper"
+	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	ibcwasmkeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
+	ibcwasmtypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	icacontroller "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
-	custombankkeeper "github.com/osmosis-labs/osmosis/v27/custom/bank/keeper"
-
-	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
-	customwasmkeeper "github.com/osmosis-labs/osmosis/v27/custom/wasm/keeper"
-	"github.com/osmosis-labs/osmosis/v27/x/cosmwasmpool"
-	cosmwasmpooltypes "github.com/osmosis-labs/osmosis/v27/x/cosmwasmpool/types"
-	downtimedetector "github.com/osmosis-labs/osmosis/v27/x/downtime-detector"
-	downtimetypes "github.com/osmosis-labs/osmosis/v27/x/downtime-detector/types"
-	"github.com/osmosis-labs/osmosis/v27/x/gamm"
-	ibcratelimit "github.com/osmosis-labs/osmosis/v27/x/ibc-rate-limit"
-	ibcratelimittypes "github.com/osmosis-labs/osmosis/v27/x/ibc-rate-limit/types"
-	marketkeeper "github.com/osmosis-labs/osmosis/v27/x/market/keeper"
-	markettypes "github.com/osmosis-labs/osmosis/v27/x/market/types"
-	oraclekeeper "github.com/osmosis-labs/osmosis/v27/x/oracle/keeper"
-	oracletypes "github.com/osmosis-labs/osmosis/v27/x/oracle/types"
-	"github.com/osmosis-labs/osmosis/v27/x/poolmanager"
-	poolmanagertypes "github.com/osmosis-labs/osmosis/v27/x/poolmanager/types"
-	"github.com/osmosis-labs/osmosis/v27/x/protorev"
-	stablestakingincentviceskeeper "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives/keeper"
-	stablestakingincentvicestypes "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives/types"
-	stablestakingkeeper "github.com/osmosis-labs/osmosis/v27/x/stablestaking/keeper"
-	stablestakingtypes "github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
-	treasurykeeper "github.com/osmosis-labs/osmosis/v27/x/treasury/keeper"
-	treasurytypes "github.com/osmosis-labs/osmosis/v27/x/treasury/types"
-	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
-	ibchookskeeper "github.com/osmosis-labs/osmosis/x/ibc-hooks/keeper"
-	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
-
-	icqkeeper "github.com/cosmos/ibc-apps/modules/async-icq/v8/keeper"
-	ibcwasmkeeper "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/keeper"
-	ibcwasmtypes "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types"
 	icahost "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
@@ -83,6 +57,47 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v8/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+	ccvconsumer "github.com/cosmos/interchain-security/v6/x/ccv/consumer"
+	ccvconsumertypes "github.com/cosmos/interchain-security/v6/x/ccv/consumer/types"
+	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
+	custombankkeeper "github.com/osmosis-labs/osmosis/v27/custom/bank/keeper"
+	customwasmkeeper "github.com/osmosis-labs/osmosis/v27/custom/wasm/keeper"
+	autopilottypes "github.com/osmosis-labs/osmosis/v27/x/autopilot/types"
+	claimkeeper "github.com/osmosis-labs/osmosis/v27/x/claim/keeper"
+	claimtypes "github.com/osmosis-labs/osmosis/v27/x/claim/types"
+	"github.com/osmosis-labs/osmosis/v27/x/cosmwasmpool"
+	cosmwasmpooltypes "github.com/osmosis-labs/osmosis/v27/x/cosmwasmpool/types"
+	downtimedetector "github.com/osmosis-labs/osmosis/v27/x/downtime-detector"
+	downtimetypes "github.com/osmosis-labs/osmosis/v27/x/downtime-detector/types"
+	"github.com/osmosis-labs/osmosis/v27/x/gamm"
+	ibcratelimit "github.com/osmosis-labs/osmosis/v27/x/ibc-rate-limit"
+	ibcratelimittypes "github.com/osmosis-labs/osmosis/v27/x/ibc-rate-limit/types"
+	icacallbacksmodulekeeper "github.com/osmosis-labs/osmosis/v27/x/icacallbacks/keeper"
+	icacallbackstypes "github.com/osmosis-labs/osmosis/v27/x/icacallbacks/types"
+	icaoraclekeeper "github.com/osmosis-labs/osmosis/v27/x/icaoracle/keeper"
+	icaoracletypes "github.com/osmosis-labs/osmosis/v27/x/icaoracle/types"
+	interchainquerykeeper "github.com/osmosis-labs/osmosis/v27/x/interchainquery/keeper"
+	interchainquerytypes "github.com/osmosis-labs/osmosis/v27/x/interchainquery/types"
+	marketkeeper "github.com/osmosis-labs/osmosis/v27/x/market/keeper"
+	markettypes "github.com/osmosis-labs/osmosis/v27/x/market/types"
+	oraclekeeper "github.com/osmosis-labs/osmosis/v27/x/oracle/keeper"
+	oracletypes "github.com/osmosis-labs/osmosis/v27/x/oracle/types"
+	"github.com/osmosis-labs/osmosis/v27/x/poolmanager"
+	poolmanagertypes "github.com/osmosis-labs/osmosis/v27/x/poolmanager/types"
+	"github.com/osmosis-labs/osmosis/v27/x/protorev"
+	recordsmodulekeeper "github.com/osmosis-labs/osmosis/v27/x/records/keeper"
+	recordsmoduletypes "github.com/osmosis-labs/osmosis/v27/x/records/types"
+	stablestakingincentviceskeeper "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives/keeper"
+	stablestakingincentvicestypes "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives/types"
+	stablestakingkeeper "github.com/osmosis-labs/osmosis/v27/x/stablestaking/keeper"
+	stablestakingtypes "github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
+	stakeibckeeper "github.com/osmosis-labs/osmosis/v27/x/stakeibc/keeper"
+	stakeibctypes "github.com/osmosis-labs/osmosis/v27/x/stakeibc/types"
+	treasurykeeper "github.com/osmosis-labs/osmosis/v27/x/treasury/keeper"
+	treasurytypes "github.com/osmosis-labs/osmosis/v27/x/treasury/types"
+	ibchooks "github.com/osmosis-labs/osmosis/x/ibc-hooks"
+	ibchookskeeper "github.com/osmosis-labs/osmosis/x/ibc-hooks/keeper"
+	ibchookstypes "github.com/osmosis-labs/osmosis/x/ibc-hooks/types"
 
 	packetforward "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward"
 	packetforwardkeeper "github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8/packetforward/keeper"
@@ -95,14 +110,19 @@ import (
 	smartaccountkeeper "github.com/osmosis-labs/osmosis/v27/x/smart-account/keeper"
 	smartaccounttypes "github.com/osmosis-labs/osmosis/v27/x/smart-account/types"
 
+	storetypes "cosmossdk.io/store/types"
+	ccvconsumerkeeper "github.com/cosmos/interchain-security/v6/x/ccv/consumer/keeper"
 	_ "github.com/osmosis-labs/osmosis/v27/client/docs/statik"
 	owasm "github.com/osmosis-labs/osmosis/v27/wasmbinding"
+	autopilotkeeper "github.com/osmosis-labs/osmosis/v27/x/autopilot/keeper"
 	concentratedliquidity "github.com/osmosis-labs/osmosis/v27/x/concentrated-liquidity"
 	concentratedliquiditytypes "github.com/osmosis-labs/osmosis/v27/x/concentrated-liquidity/types"
 	epochskeeper "github.com/osmosis-labs/osmosis/v27/x/epochs/keeper"
 	epochstypes "github.com/osmosis-labs/osmosis/v27/x/epochs/types"
 	gammkeeper "github.com/osmosis-labs/osmosis/v27/x/gamm/keeper"
 	gammtypes "github.com/osmosis-labs/osmosis/v27/x/gamm/types"
+	icqoraclekeeper "github.com/osmosis-labs/osmosis/v27/x/icqoracle/keeper"
+	icqoracletypes "github.com/osmosis-labs/osmosis/v27/x/icqoracle/types"
 	incentiveskeeper "github.com/osmosis-labs/osmosis/v27/x/incentives/keeper"
 	incentivestypes "github.com/osmosis-labs/osmosis/v27/x/incentives/types"
 	lockupkeeper "github.com/osmosis-labs/osmosis/v27/x/lockup/keeper"
@@ -125,11 +145,8 @@ import (
 	txfeestypes "github.com/osmosis-labs/osmosis/v27/x/txfees/types"
 	valsetpref "github.com/osmosis-labs/osmosis/v27/x/valset-pref"
 	valsetpreftypes "github.com/osmosis-labs/osmosis/v27/x/valset-pref/types"
-
 	auctionkeeper "github.com/skip-mev/block-sdk/v2/x/auction/keeper"
 	auctiontypes "github.com/skip-mev/block-sdk/v2/x/auction/types"
-
-	storetypes "cosmossdk.io/store/types"
 )
 
 const (
@@ -153,6 +170,7 @@ type AppKeepers struct {
 	ScopedTransferKeeper      capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
 	ScopedICQKeeper           capabilitykeeper.ScopedKeeper
+	ScopedCCVConsumerKeeper   capabilitykeeper.ScopedKeeper
 
 	// "Normal" keepers
 	AccountKeeper                 *authkeeper.AccountKeeper
@@ -165,6 +183,7 @@ type AppKeepers struct {
 	IBCHooksKeeper                *ibchookskeeper.Keeper
 	ICAHostKeeper                 *icahostkeeper.Keeper
 	ICAControllerKeeper           *icacontrollerkeeper.Keeper
+	InterchainqueryKeeper         *interchainquerykeeper.Keeper
 	ICQKeeper                     *icqkeeper.Keeper
 	TransferKeeper                *ibctransferkeeper.Keeper
 	IBCWasmClientKeeper           *ibcwasmkeeper.Keeper
@@ -194,6 +213,17 @@ type AppKeepers struct {
 	CosmwasmPoolKeeper            *cosmwasmpool.Keeper
 	SmartAccountKeeper            *smartaccountkeeper.Keeper
 	AuthenticatorManager          *authenticator.AuthenticatorManager
+
+	// Stride keepers
+	StakeIbcKeeper     *stakeibckeeper.Keeper
+	IcacallbacksKeeper *icacallbacksmodulekeeper.Keeper
+	RecordsKeeper      *recordsmodulekeeper.Keeper
+	ICAOracleKeeper    *icaoraclekeeper.Keeper
+	ClaimKeeper        *claimkeeper.Keeper
+	RatelimitKeeper    *ratelimitkeeper.Keeper
+	ConsumerKeeper     *ccvconsumerkeeper.Keeper
+	ICQOracleKeeper    *icqoraclekeeper.Keeper
+	AutopilotKeeper    *autopilotkeeper.Keeper
 
 	// IBC modules
 	// transfer module
@@ -307,17 +337,27 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appCodec,
 		legacyAmino,
 		runtime.NewKVStoreService(appKeepers.keys[slashingtypes.StoreKey]),
-		appKeepers.StakingKeeper,
+		appKeepers.StakingKeeper, //TODO: what happens if we replace it with consumer?
+		//appKeepers.ConsumerKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	appKeepers.SlashingKeeper = &slashingKeeper
+
+	// Add ICS Consumer Keeper
+	consumerKeeper := ccvconsumerkeeper.NewNonZeroKeeper(
+		appCodec,
+		appKeepers.keys[ccvconsumertypes.StoreKey],
+		appKeepers.GetSubspace(ccvconsumertypes.ModuleName),
+	)
+	appKeepers.ConsumerKeeper = &consumerKeeper
 
 	// Create IBC Keeper
 	appKeepers.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[ibchost.StoreKey],
 		appKeepers.GetSubspace(ibchost.ModuleName),
-		appKeepers.StakingKeeper,
+		//appKeepers.StakingKeeper, //TODO: do we need to replace with consumer?
+		appKeepers.ConsumerKeeper,
 		appKeepers.UpgradeKeeper,
 		appKeepers.ScopedIBCKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -331,6 +371,16 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		nil,
 	)
 	appKeepers.IBCHooksKeeper = hooksKeeper
+
+	appKeepers.RatelimitKeeper = ratelimitkeeper.NewKeeper( // TODO: do wee need it?
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[ratelimittypes.StoreKey]),
+		appKeepers.GetSubspace(ratelimittypes.ModuleName),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		*appKeepers.BankKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper, // ICS4Wrapper
+	)
 
 	// We are using a separate VM here
 	ibcWasmClientKeeper := ibcwasmkeeper.NewKeeperWithConfig(
@@ -393,6 +443,33 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	)
 	appKeepers.ICQKeeper = &icqKeeper
 
+	// Create CCV consumer and modules
+	consumerKeeper = ccvconsumerkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[ccvconsumertypes.StoreKey],
+		appKeepers.GetSubspace(ccvconsumertypes.ModuleName),
+		appKeepers.ScopedCCVConsumerKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.IBCKeeper.ConnectionKeeper,
+		appKeepers.IBCKeeper.ClientKeeper,
+		appKeepers.SlashingKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.AccountKeeper,
+		appKeepers.TransferKeeper,
+		appKeepers.IBCKeeper,
+		authtypes.FeeCollectorName,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
+		addresscodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
+	)
+	appKeepers.ConsumerKeeper = &consumerKeeper
+	appKeepers.ConsumerKeeper.SetStandaloneStakingKeeper(appKeepers.StakingKeeper)
+
+	// register slashing module StakingHooks to the consumer keeper
+	appKeepers.ConsumerKeeper = appKeepers.ConsumerKeeper.SetHooks(appKeepers.SlashingKeeper.Hooks())
+	consumerModule := ccvconsumer.NewAppModule(*appKeepers.ConsumerKeeper, appKeepers.GetSubspace(ccvconsumertypes.ModuleName))
+
 	// Create Async ICQ module
 	icqModule := icq.NewIBCModule(*appKeepers.ICQKeeper)
 
@@ -403,7 +480,8 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		// The transferIBC module is replaced by rateLimitingTransferModule
 		AddRoute(ibctransfertypes.ModuleName, appKeepers.TransferStack).
 		// Add icq modules to IBC router
-		AddRoute(icqtypes.ModuleName, icqModule)
+		AddRoute(icqtypes.ModuleName, icqModule).
+		AddRoute(ccvconsumertypes.ModuleName, consumerModule)
 	// Note: the sealing is done after creating wasmd and wiring that up
 
 	// create evidence keeper with router
@@ -607,6 +685,92 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		appKeepers.OracleKeeper)
 	appKeepers.StableStakingKeeper = &stableStakingKeeper
 
+	appKeepers.IcacallbacksKeeper = icacallbacksmodulekeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[icacallbackstypes.StoreKey],
+		appKeepers.keys[icacallbackstypes.MemStoreKey],
+		appKeepers.GetSubspace(icacallbackstypes.ModuleName),
+		*appKeepers.IBCKeeper,
+	)
+
+	newInterchainQueryKeeper := interchainquerykeeper.NewKeeper(appCodec, appKeepers.keys[interchainquerytypes.StoreKey], appKeepers.IBCKeeper)
+	appKeepers.InterchainqueryKeeper = &newInterchainQueryKeeper
+
+	appKeepers.RecordsKeeper = recordsmodulekeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[recordsmoduletypes.StoreKey],
+		appKeepers.keys[recordsmoduletypes.MemStoreKey],
+		appKeepers.GetSubspace(recordsmoduletypes.ModuleName),
+		*appKeepers.AccountKeeper,
+		*appKeepers.TransferKeeper,
+		*appKeepers.IBCKeeper,
+		*appKeepers.IcacallbacksKeeper,
+	)
+
+	// Note: Must be above stakeibc keeper
+	appKeepers.ICAOracleKeeper = icaoraclekeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[icaoracletypes.StoreKey],
+		appKeepers.GetSubspace(icaoracletypes.ModuleName),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		appKeepers.IBCKeeper.ChannelKeeper, // ICS4Wrapper - Note: this technically should be ICAController but it doesn't implement ICS4
+		appKeepers.IBCKeeper.ClientKeeper,
+		appKeepers.IBCKeeper.ConnectionKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
+		*appKeepers.ICAControllerKeeper,
+		*appKeepers.IcacallbacksKeeper,
+	)
+
+	appKeepers.ICQOracleKeeper = icqoraclekeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[icqoracletypes.StoreKey],
+		appKeepers.InterchainqueryKeeper,
+		appKeepers.TransferKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	appKeepers.ClaimKeeper = claimkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[claimtypes.StoreKey],
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.StakingKeeper,
+		appKeepers.DistrKeeper,
+		appKeepers.EpochsKeeper,
+	)
+
+	stakeIbcKeeper := stakeibckeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[stakeibctypes.StoreKey],
+		appKeepers.keys[stakeibctypes.MemStoreKey],
+		appKeepers.GetSubspace(stakeibctypes.ModuleName),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		*appKeepers.ICAControllerKeeper,
+		*appKeepers.IBCKeeper,
+		*appKeepers.InterchainqueryKeeper,
+		*appKeepers.RecordsKeeper,
+		*appKeepers.StakingKeeper,
+		*appKeepers.IcacallbacksKeeper,
+		*appKeepers.RatelimitKeeper,
+		*appKeepers.ICAOracleKeeper,
+		*appKeepers.ConsumerKeeper,
+	)
+	appKeepers.StakeIbcKeeper = stakeIbcKeeper.SetHooks(
+		stakeibctypes.NewMultiStakeIBCHooks(appKeepers.ClaimKeeper.Hooks()),
+	)
+
+	appKeepers.AutopilotKeeper = autopilotkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[autopilottypes.StoreKey],
+		appKeepers.GetSubspace(autopilottypes.ModuleName),
+		*appKeepers.BankKeeper,
+		*appKeepers.StakeIbcKeeper,
+		*appKeepers.ClaimKeeper,
+		*appKeepers.TransferKeeper,
+	)
+
 	treasuryKeeper := treasurykeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[treasurytypes.StoreKey],
@@ -802,18 +966,17 @@ func (appKeepers *AppKeepers) WireICS20PreWasmKeeper(
 		appKeepers.keys[packetforwardtypes.StoreKey],
 		appKeepers.TransferKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
-		appKeepers.DistrKeeper,
 		appKeepers.BankKeeper,
 		// The ICS4Wrapper is replaced by the HooksICS4Wrapper instead of the channel so that sending can be overridden by the middleware
 		appKeepers.HooksICS4Wrapper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+
 	packetForwardMiddleware := packetforward.NewIBCMiddleware(
 		transfer.NewIBCModule(*appKeepers.TransferKeeper),
 		appKeepers.PacketForwardKeeper,
 		0,
 		packetforwardkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
-		packetforwardkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
 	)
 
 	// RateLimiting IBC Middleware
@@ -852,6 +1015,8 @@ func (appKeepers *AppKeepers) InitSpecialKeepers(
 	appKeepers.ScopedTransferKeeper = appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	appKeepers.ScopedWasmKeeper = appKeepers.CapabilityKeeper.ScopeToModule(wasmtypes.ModuleName)
 	appKeepers.ScopedICQKeeper = appKeepers.CapabilityKeeper.ScopeToModule(icqtypes.ModuleName)
+	appKeepers.ScopedCCVConsumerKeeper = appKeepers.CapabilityKeeper.ScopeToModule(ccvconsumertypes.ModuleName)
+
 	appKeepers.CapabilityKeeper.Seal()
 
 	// TODO: Make a SetInvCheckPeriod fn on CrisisKeeper.
@@ -908,13 +1073,24 @@ func (appKeepers *AppKeepers) initParamsKeeper(appCodec codec.BinaryCodec, legac
 	paramsKeeper.Subspace(ibcratelimittypes.ModuleName)
 	paramsKeeper.Subspace(concentratedliquiditytypes.ModuleName)
 	paramsKeeper.Subspace(icqtypes.ModuleName)
-	paramsKeeper.Subspace(packetforwardtypes.ModuleName).WithKeyTable(packetforwardtypes.ParamKeyTable())
+	paramsKeeper.Subspace(packetforwardtypes.ModuleName)
 	paramsKeeper.Subspace(cosmwasmpooltypes.ModuleName)
 	paramsKeeper.Subspace(ibchookstypes.ModuleName)
 	paramsKeeper.Subspace(smartaccounttypes.ModuleName).WithKeyTable(smartaccounttypes.ParamKeyTable())
 	paramsKeeper.Subspace(txfeestypes.ModuleName)
 	paramsKeeper.Subspace(auctiontypes.ModuleName)
 	paramsKeeper.Subspace(stablestakingtypes.ModuleName)
+
+	// stride modules
+	paramsKeeper.Subspace(icaoracletypes.ModuleName)
+	paramsKeeper.Subspace(stakeibctypes.ModuleName)
+	paramsKeeper.Subspace(icacallbackstypes.ModuleName)
+	paramsKeeper.Subspace(ratelimittypes.ModuleName)
+	paramsKeeper.Subspace(recordsmoduletypes.ModuleName)
+	paramsKeeper.Subspace(icqoracletypes.ModuleName)
+	paramsKeeper.Subspace(autopilottypes.ModuleName)
+	paramsKeeper.Subspace(claimtypes.ModuleName)
+	paramsKeeper.Subspace(ccvconsumertypes.ModuleName)
 
 	return paramsKeeper
 }
@@ -1047,5 +1223,16 @@ func KVStoreKeys() []string {
 		cosmwasmpooltypes.StoreKey,
 		auctiontypes.StoreKey,
 		smartaccounttypes.StoreKey,
+
+		// stride stores
+		ratelimittypes.StoreKey,
+		icacallbackstypes.StoreKey,
+		icaoracletypes.StoreKey,
+		stakeibctypes.StoreKey,
+		recordsmoduletypes.StoreKey,
+		icqoracletypes.StoreKey,
+		autopilottypes.StoreKey,
+		ccvconsumertypes.StoreKey,
+		claimtypes.StoreKey,
 	}
 }

@@ -158,9 +158,9 @@ sed -i -E 's|allow_duplicate_ip = false|allow_duplicate_ip = true|g' $VALIDATOR1
 sed -i -E 's|prometheus = false|prometheus = true|g' $VALIDATOR1_CONFIG
 
 # validator2
-sed -i -E 's|tcp://127.0.0.1:26658|tcp://127.0.0.1:26655|g' $VALIDATOR2_CONFIG
-sed -i -E 's|tcp://127.0.0.1:26657|tcp://127.0.0.1:26654|g' $VALIDATOR2_CONFIG
-sed -i -E 's|tcp://0.0.0.0:26656|tcp://0.0.0.0:26653|g' $VALIDATOR2_CONFIG
+sed -i -E 's|tcp://127.0.0.1:26668|tcp://127.0.0.1:26655|g' $VALIDATOR2_CONFIG
+sed -i -E 's|tcp://127.0.0.1:26667|tcp://127.0.0.1:26654|g' $VALIDATOR2_CONFIG
+sed -i -E 's|tcp://0.0.0.0:26666|tcp://0.0.0.0:26653|g' $VALIDATOR2_CONFIG
 sed -i -E 's|allow_duplicate_ip = false|allow_duplicate_ip = true|g' $VALIDATOR2_CONFIG
 sed -i -E 's|prometheus = false|prometheus = true|g' $VALIDATOR2_CONFIG
 sed -i -E 's|prometheus_listen_addr = ":26660"|prometheus_listen_addr = ":26630"|g' $VALIDATOR2_CONFIG
@@ -183,7 +183,7 @@ sed -i -E 's|prometheus_listen_addr = ":26660"|prometheus_listen_addr = ":26610"
 
 
 # copy tendermint node id of validator1 to persistent peers of validator2-4
-sed -i -E "s|persistent_peers = \"\"|persistent_peers = \"$(symphonyd tendermint show-node-id --home=$HOME/.symphonyd/validator1)@localhost:26656\"|g" $HOME/.symphonyd/validator2/config/config.toml
+sed -i -E "s|persistent_peers = \"\"|persistent_peers = \"$(symphonyd tendermint show-node-id --home=$HOME/.symphonyd/validator1)@localhost:26667\"|g" $HOME/.symphonyd/validator2/config/config.toml
 sed -i -E "s|persistent_peers = \"\"|persistent_peers = \"$(symphonyd tendermint show-node-id --home=$HOME/.symphonyd/validator1)@localhost:26656\"|g" $HOME/.symphonyd/validator3/config/config.toml
 sed -i -E "s|persistent_peers = \"\"|persistent_peers = \"$(symphonyd tendermint show-node-id --home=$HOME/.symphonyd/validator1)@localhost:26656\"|g" $HOME/.symphonyd/validator4/config/config.toml
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	storetypes "cosmossdk.io/store/types"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/std"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/osmosis-labs/osmosis/osmomath"
@@ -233,6 +234,10 @@ func NewSymphonyApp(
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 	txConfig := encodingConfig.TxConfig
 
+	legacyAmino := codec.NewLegacyAmino()
+	std.RegisterLegacyAminoCodec(legacyAmino)
+	std.RegisterInterfaces(interfaceRegistry)
+
 	bApp := baseapp.NewBaseApp(appName, logger, db, txConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
@@ -315,25 +320,6 @@ func NewSymphonyApp(
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 
-	// Upgrades from v0.50.x onwards happen in pre block
-	app.mm.SetOrderPreBlockers(upgradetypes.ModuleName)
-
-	// Tell the app's module manager how to set the order of BeginBlockers, which are run at the beginning of every block.
-	app.mm.SetOrderBeginBlockers(orderBeginBlockers(app.mm.ModuleNames())...)
-
-	// Tell the app's module manager how to set the order of EndBlockers, which are run at the end of every block.
-	app.mm.SetOrderEndBlockers(OrderEndBlockers(app.mm.ModuleNames())...)
-
-	app.mm.SetOrderInitGenesis(OrderInitGenesis(app.mm.ModuleNames())...)
-
-	app.mm.RegisterInvariants(app.CrisisKeeper)
-
-	app.configurator = module.NewConfigurator(app.AppCodec(), app.MsgServiceRouter(), app.GRPCQueryRouter())
-	err = app.mm.RegisterServices(app.configurator)
-	if err != nil {
-		panic(err)
-	}
-
 	// Override the gov ModuleBasic with all the custom proposal handers, otherwise we lose them in the CLI.
 	app.ModuleBasics = module.NewBasicManagerFromManager(
 		app.mm,
@@ -361,6 +347,22 @@ func NewSymphonyApp(
 		},
 	)
 
+	app.ModuleBasics.RegisterLegacyAminoCodec(legacyAmino)
+	app.ModuleBasics.RegisterInterfaces(interfaceRegistry)
+
+	// Upgrades from v0.50.x onwards happen in pre block
+	app.mm.SetOrderPreBlockers(upgradetypes.ModuleName)
+	// Tell the app's module manager how to set the order of BeginBlockers, which are run at the beginning of every block.
+	app.mm.SetOrderBeginBlockers(orderBeginBlockers(app.mm.ModuleNames())...)
+	// Tell the app's module manager how to set the order of EndBlockers, which are run at the end of every block.
+	app.mm.SetOrderEndBlockers(OrderEndBlockers(app.mm.ModuleNames())...)
+	app.mm.SetOrderInitGenesis(OrderInitGenesis(app.mm.ModuleNames())...)
+	app.mm.RegisterInvariants(app.CrisisKeeper)
+	app.configurator = module.NewConfigurator(app.AppCodec(), app.MsgServiceRouter(), app.GRPCQueryRouter())
+	err = app.mm.RegisterServices(app.configurator)
+	if err != nil {
+		panic(err)
+	}
 	app.setupUpgradeHandlers()
 
 	app.sm = module.NewSimulationManager(

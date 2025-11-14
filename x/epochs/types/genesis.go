@@ -12,6 +12,14 @@ func NewGenesisState(epochs []EpochInfo) *GenesisState {
 	return &GenesisState{Epochs: epochs}
 }
 
+var (
+	HOUR_EPOCH   = "hour"
+	DAY_EPOCH    = "day"
+	WEEK_EPOCH   = "week"
+	STRIDE_EPOCH = "stride_epoch"
+	MINT_EPOCH   = "mint"
+)
+
 // DefaultGenesis returns the default Capability genesis state.
 func DefaultGenesis() *GenesisState {
 	epochs := []EpochInfo{

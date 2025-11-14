@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	epochstypes "github.com/osmosis-labs/osmosis/v27/x/epochs/types"
-	txfeestypes "github.com/osmosis-labs/osmosis/v27/x/txfees/types"
+	stablestakingtypes "github.com/osmosis-labs/osmosis/v27/x/stablestaking/types"
 )
 
 type Hooks struct {
@@ -20,7 +20,7 @@ func (k Keeper) Hooks() Hooks { return Hooks{k} }
 
 // GetModuleName implements types.EpochHooks.
 func (Hooks) GetModuleName() string {
-	return txfeestypes.ModuleName
+	return stablestakingtypes.ModuleName
 }
 
 func (h Hooks) BeforeEpochStart(ctx sdk.Context, epochIdentifier string, epochNumber int64) error {

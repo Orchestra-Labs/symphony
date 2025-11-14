@@ -5,7 +5,7 @@ package ibc.lightclients.wasm.v1;
 import "gogoproto/gogo.proto";
 import "ibc/core/client/v1/client.proto";
 
-option go_package = "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/types";
+option go_package = "github.com/cosmos/ibc-go/modules/light-clients/08-wasm/v10/types";
 
 // Wasm light client's Client state
 message ClientState {
@@ -30,14 +30,4 @@ message ClientMessage {
   option (gogoproto.goproto_getters) = false;
 
   bytes data = 1;
-}
-
-// Checksums defines a list of all checksums that are stored
-//
-// Deprecated: This message is deprecated in favor of storing the checksums
-// using a Collections.KeySet.
-message Checksums {
-  option deprecated = true;
-
-  repeated bytes checksums = 1;
 }

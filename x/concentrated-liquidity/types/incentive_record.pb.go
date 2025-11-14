@@ -6,12 +6,11 @@ package types
 import (
 	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
-	types "github.com/cosmos/cosmos-sdk/types"
+	types1 "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
+	_ "github.com/cosmos/gogoproto/types"
 	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
-	_ "google.golang.org/protobuf/types/known/durationpb"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -111,7 +110,7 @@ func (m *IncentiveRecord) GetMinUptime() time.Duration {
 // record.
 type IncentiveRecordBody struct {
 	// remaining_coin is the total amount of incentives to be distributed
-	RemainingCoin types.DecCoin `protobuf:"bytes,1,opt,name=remaining_coin,json=remainingCoin,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoin" json:"remaining_coin" yaml:"remaining_coins"`
+	RemainingCoin types1.DecCoin `protobuf:"bytes,1,opt,name=remaining_coin,json=remainingCoin,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoin" json:"remaining_coin" yaml:"remaining_coins"`
 	// emission_rate is the incentive emission rate per second
 	EmissionRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=emission_rate,json=emissionRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"emission_rate" yaml:"emission_rate"`
 	// start_time is the time when the incentive starts distributing
@@ -151,11 +150,11 @@ func (m *IncentiveRecordBody) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_IncentiveRecordBody proto.InternalMessageInfo
 
-func (m *IncentiveRecordBody) GetRemainingCoin() types.DecCoin {
+func (m *IncentiveRecordBody) GetRemainingCoin() types1.DecCoin {
 	if m != nil {
 		return m.RemainingCoin
 	}
-	return types.DecCoin{}
+	return types1.DecCoin{}
 }
 
 func (m *IncentiveRecordBody) GetStartTime() time.Time {
