@@ -1,0 +1,41 @@
+syntax = "proto3";
+package symphony.collateral.v1beta1;
+
+option go_package = "github.com/osmosis-labs/osmosis/v27/x/collateral/types";
+
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+message Params {
+  // List of all allowed assets (BTC, ETH, SOL, etc.)
+  repeated AllowedAsset allowed_assets = 1;
+
+  // Denom of the system stablecoin (e.g., mld)
+  string stable_denom = 2;
+
+  // Whether withdrawals are globally enabled
+  bool withdrawals_enabled = 3;
+
+  // Whether price-based adjustment logic is active
+  bool price_adjustment_enabled = 4;
+
+  // Minimum collateral ratio required to allow withdrawals
+  string min_collateral_ratio = 5;
+
+  // Maximum different asset types allowed per user
+  string max_user_assets = 6;
+
+  // Prefix for all tracking-token denoms (like "t")
+  string track_token_prefix = 7;
+
+  optional string oracle_addr  = 8;
+}
+
+message AllowedAsset {
+  string denom = 1;
+  optional string oracle_id = 3;
+  optional uint64 ltv = 4;
+  optional uint64 withdraw_fee_bp = 5;
+}

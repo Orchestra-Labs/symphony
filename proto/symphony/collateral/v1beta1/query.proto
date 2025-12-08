@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package symphony.collateral.v1beta1;
+
+option go_package = "github.com/osmosis-labs/osmosis/v27/x/collateral/types";
+
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/tx/v1beta1/tx.proto";
+import "google/protobuf/any.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/msg/v1/msg.proto";
+import "symphony/collateral/v1beta1/collateral.proto";
+
+message QueryCollateralParamsRequest {}
+
+message QueryCollateralParamsResponse {
+  Params params = 1;
+}
+
+message QueryUserCollateralRequest {
+  string user = 1;
+}
+
+message UserAssetPosition {
+  cosmos.base.v1beta1.Coin asset = 1;
+  string usd_value = 2;
+}
+
+message QueryUserCollateralResponse {
+  repeated UserAssetPosition positions = 1;
+  string total_usd_value   = 2;
+  string withdrawable_usd  = 3;
+}
+
+message QueryAllowedAssetsRequest {}
+
+message QueryAllowedAssetsResponse {
+  repeated AllowedAsset allowed_assets = 1;
+}
+
+message QueryModuleBalanceRequest {}
+
+message QueryModuleBalanceResponse {
+  repeated cosmos.base.v1beta1.Coin balance = 1;
+}
+
+service Query {
+  rpc CollateralParams(QueryCollateralParamsRequest)
+      returns (QueryCollateralParamsResponse) {
+    option (google.api.http).get = "/symphony/collateral/v1beta1/params";
+  }
+
+  // Get all user collateral positions
+  rpc UserCollateral(QueryUserCollateralRequest)
+      returns (QueryUserCollateralResponse) {
+    option (google.api.http).get = "/symphony/collateral/v1beta1/users/{user}";
+  }
+
+  // List allowed assets
+  rpc AllowedAssets(QueryAllowedAssetsRequest)
+      returns (QueryAllowedAssetsResponse) {
+    option (google.api.http).get = "/symphony/collateral/v1beta1/assets";
+  }
+
+  // Current balance of module account
+  rpc ModuleBalance(QueryModuleBalanceRequest)
+      returns (QueryModuleBalanceResponse) {
+    option (google.api.http).get = "/symphony/collateral/v1beta1/balance";
+  }
+}
+
