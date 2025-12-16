@@ -51,7 +51,7 @@ func (q querier) Swap(c context.Context, req *types.QuerySwapRequest) (*types.Qu
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QuerySwapResponse{ReturnCoin: retCoin}, nil
+	return &types.QuerySwapResponse{EstimatedAmountOut: retCoin}, nil
 }
 
 // ExchangeRequirements returns the exchange requirements for the market module.

@@ -62,7 +62,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 
 		// Clear all exchange rates
 		k.IterateNoteExchangeRates(ctx, func(denom string, _ osmomath.Dec) (stop bool) {
-			k.DeleteMelodyExchangeRate(ctx, denom)
+			// k.DeleteMelodyExchangeRate(ctx, denom)
 			return false
 		})
 
