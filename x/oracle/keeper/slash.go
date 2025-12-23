@@ -26,7 +26,7 @@ func (k Keeper) SlashAndResetMissCounters(ctx sdk.Context) {
 			osmomath.NewInt(int64(votePeriodsPerWindow - missCounter))).
 			QuoInt64(int64(votePeriodsPerWindow))
 
-		// Penalize the validator whose the valid vote rate is smaller than min threshold
+		// Penalize the validator who's the valid vote rate is smaller than min threshold
 		if validVoteRate.LT(minValidPerWindow) {
 			validator, err := k.StakingKeeper.GetValidator(ctx, operator)
 			if err != nil {
@@ -38,11 +38,17 @@ func (k Keeper) SlashAndResetMissCounters(ctx sdk.Context) {
 					panic(err)
 				}
 
-				k.StakingKeeper.Slash(
+				_, err = k.StakingKeeper.Slash(
 					ctx, consAddr,
 					distributionHeight, validator.GetConsensusPower(powerReduction), slashFraction,
 				)
-				k.StakingKeeper.Jail(ctx, consAddr)
+				if err != nil {
+					return false
+				}
+				err = k.StakingKeeper.Jail(ctx, consAddr)
+				if err != nil {
+					return false
+				}
 			}
 		}
 

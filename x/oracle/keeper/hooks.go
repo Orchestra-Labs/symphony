@@ -62,7 +62,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 
 		// Clear all exchange rates
 		k.IterateNoteExchangeRates(ctx, func(denom string, _ osmomath.Dec) (stop bool) {
-			// k.DeleteMelodyExchangeRate(ctx, denom)
+			k.DeleteMelodyExchangeRate(ctx, denom)
 			return false
 		})
 
@@ -131,7 +131,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	// reset miss counters of all validators at the last block of slash window
 	if params.SlashWindowEpochIdentifier == epochIdentifier {
 		// TODO: yurii: enable slashing
-		//k.SlashAndResetMissCounters(ctx)
+		k.SlashAndResetMissCounters(ctx)
 	}
 
 	return nil
