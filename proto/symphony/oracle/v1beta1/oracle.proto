@@ -39,6 +39,9 @@ message Params {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  string max_last_good_exchange_rate_age = 9 [
+    (gogoproto.moretags) = "yaml:\"max_last_good_exchange_rate_age\""
+  ];
 }
 
 // Denom - the object to hold configurations of each denom

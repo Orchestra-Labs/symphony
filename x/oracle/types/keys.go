@@ -33,14 +33,17 @@ const (
 // - 0x05<valAddress_Bytes>: AggregateExchangeRateVote
 //
 // - 0x06<denom_Bytes>: osmomath.Dec
+//
+// - 0x07<denom_Bytes>: osmomath.Dec (last known good rate)
 var (
-	// Keys for store prefixes
 	ExchangeRateKey                 = []byte{0x01} // prefix for each key to a rate
 	FeederDelegationKey             = []byte{0x02} // prefix for each key to a feeder delegation
 	MissCounterKey                  = []byte{0x03} // prefix for each key to a miss counter
 	AggregateExchangeRatePrevoteKey = []byte{0x04} // prefix for each key to a aggregate prevote
 	AggregateExchangeRateVoteKey    = []byte{0x05} // prefix for each key to a aggregate vote
 	TobinTaxKey                     = []byte{0x06} // prefix for each key to a tobin tax
+	LastGoodExchangeRateKey         = []byte{0x07} // prefix for each key to the last known good rate
+	LastGoodExchangeRateTimeKey     = []byte{0x08} // prefix for each key to the last known good time rate
 )
 
 // GetExchangeRateKey - stored by *denom*
@@ -77,4 +80,14 @@ func GetTobinTaxKey(d string) []byte {
 func ExtractDenomFromTobinTaxKey(key []byte) (denom string) {
 	denom = string(key[1:])
 	return
+}
+
+// GetLastGoodExchangeRateKey - stored by *denom*
+func GetLastGoodExchangeRateKey(denom string) []byte {
+	return append(LastGoodExchangeRateKey, []byte(denom)...)
+}
+
+// GetLastGoodExchangeRateTimeKey - stored by *denom*
+func GetLastGoodExchangeRateTimeKey(denom string) []byte {
+	return append(LastGoodExchangeRateTimeKey, []byte(denom)...)
 }

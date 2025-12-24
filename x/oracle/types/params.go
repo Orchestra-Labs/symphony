@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/osmosis-labs/osmosis/osmomath"
 	epochtypes "github.com/osmosis-labs/osmosis/v27/x/epochs/types"
+	"time"
 
 	"gopkg.in/yaml.v2"
 
@@ -20,6 +21,7 @@ var (
 	KeySlashFraction              = []byte("SlashFraction")
 	KeySlashWindowEpochIdentifier = []byte("SlashWindowEpochIdentifier")
 	KeyMinValidPerWindow          = []byte("MinValidPerWindow")
+	KeyMaxLastGoodExchangeRateAge = []byte("MaxLastGoodExchangeRateAge")
 )
 
 // Default parameter values
@@ -32,6 +34,7 @@ var (
 	DefaultMinValidPerWindow          = osmomath.NewDecWithPrec(5, 2) // 5%
 	DefaultVotePeriodEpochIdentifier  = "minute"
 	DefaultSlashWindowEpochIdentifier = "week"
+	DefaultMaxLastGoodExchangeRateAge = time.Minute * 30
 )
 
 var _ paramstypes.ParamSet = &Params{}
@@ -47,6 +50,7 @@ func DefaultParams() Params {
 		SlashFraction:              DefaultSlashFraction,
 		SlashWindowEpochIdentifier: DefaultSlashWindowEpochIdentifier,
 		MinValidPerWindow:          DefaultMinValidPerWindow,
+		MaxLastGoodExchangeRateAge: DefaultMaxLastGoodExchangeRateAge.String(),
 	}
 }
 
@@ -67,7 +71,29 @@ func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 		paramstypes.NewParamSetPair(KeySlashFraction, &p.SlashFraction, validateSlashFraction),
 		paramstypes.NewParamSetPair(KeySlashWindowEpochIdentifier, &p.SlashWindowEpochIdentifier, epochtypes.ValidateEpochIdentifierInterface),
 		paramstypes.NewParamSetPair(KeyMinValidPerWindow, &p.MinValidPerWindow, validateMinValidPerWindow),
+		paramstypes.NewParamSetPair(KeyMaxLastGoodExchangeRateAge, &p.MaxLastGoodExchangeRateAge, validateMaxLastGoodExchangeRateAge),
 	}
+}
+
+func validateMaxLastGoodExchangeRateAge(i interface{}) error {
+	v, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	if v == "" {
+		return fmt.Errorf("duration cannot be empty")
+	}
+
+	d, err := time.ParseDuration(v)
+	if err != nil {
+		return fmt.Errorf("invalid duration format: %w", err)
+	}
+
+	if d < 0 {
+		return fmt.Errorf("duration must be non-negative")
+	}
+
+	return nil
 }
 
 // String implements fmt.Stringer interface

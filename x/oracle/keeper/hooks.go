@@ -60,7 +60,7 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 			return false
 		})
 
-		// Clear all exchange rates
+		// Clear current rates but preserve last-known-good rates (stored separately)
 		k.IterateNoteExchangeRates(ctx, func(denom string, _ osmomath.Dec) (stop bool) {
 			k.DeleteMelodyExchangeRate(ctx, denom)
 			return false
