@@ -41,7 +41,7 @@ message QuerySwapRequest {
 // QuerySwapResponse is the response type for the Query/Swap RPC method.
 message QuerySwapResponse {
   // return_coin defines the coin returned as a result of the swap simulation.
-  cosmos.base.v1beta1.Coin return_coin = 1 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin estimated_amount_out = 1 [ (gogoproto.nullable) = false ];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.

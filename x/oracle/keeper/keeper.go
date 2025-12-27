@@ -1,9 +1,11 @@
 package keeper
 
 import (
+	"fmt"
+	"time"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
-	"fmt"
 
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -84,7 +86,27 @@ func (k Keeper) GetMelodyExchangeRate(ctx sdk.Context, denom string) (osmomath.D
 	store := ctx.KVStore(k.storeKey)
 	b := store.Get(types.GetExchangeRateKey(denom))
 	if b == nil {
-		return osmomath.ZeroDec(), errorsmod.Wrap(types.ErrUnknownDenom, denom)
+		timeBz := store.Get(types.GetLastGoodExchangeRateTimeKey(denom))
+		if timeBz == nil {
+			return osmomath.Dec{}, fmt.Errorf("could not found valid exchange rate")
+		}
+
+		timestamp, err := sdk.ParseTimeBytes(timeBz)
+		if err != nil {
+			return osmomath.Dec{}, fmt.Errorf("could not found valid exchange rate")
+		}
+
+		params := k.GetParams(ctx)
+
+		maxDuration, _ := time.ParseDuration(params.MaxLastGoodExchangeRateAge)
+		if ctx.BlockTime().Sub(timestamp) > maxDuration {
+			return osmomath.Dec{}, fmt.Errorf("could not found valid exchange rate")
+		}
+
+		if price, found := k.getLastGoodExchangeRate(ctx, denom); found {
+			return price, nil
+		}
+		// TODO: Attempt TWAP/spot fallback when oracle feed is unavailable
 	}
 
 	dp := sdk.DecProto{}
@@ -97,6 +119,10 @@ func (k Keeper) SetMelodyExchangeRate(ctx sdk.Context, denom string, exchangeRat
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&sdk.DecProto{Dec: exchangeRate})
 	store.Set(types.GetExchangeRateKey(denom), bz)
+
+	store.Set(types.GetLastGoodExchangeRateKey(denom), bz)
+	ts := sdk.FormatTimeBytes(ctx.BlockTime())
+	store.Set(types.GetLastGoodExchangeRateTimeKey(denom), ts)
 }
 
 // SetMelodyExchangeRateWithEvent sets the consensus exchange rate of Note
@@ -130,6 +156,17 @@ func (k Keeper) IterateNoteExchangeRates(ctx sdk.Context, handler func(denom str
 			break
 		}
 	}
+}
+
+func (k Keeper) getLastGoodExchangeRate(ctx sdk.Context, denom string) (osmomath.Dec, bool) {
+	store := ctx.KVStore(k.storeKey)
+	b := store.Get(types.GetLastGoodExchangeRateKey(denom))
+	if b == nil {
+		return osmomath.Dec{}, false
+	}
+	dp := sdk.DecProto{}
+	k.cdc.MustUnmarshal(b, &dp)
+	return dp.Dec, true
 }
 
 //-----------------------------------
