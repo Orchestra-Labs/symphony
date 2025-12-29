@@ -100,7 +100,7 @@
       "url": "./tmp-swagger-gen/symphony/stakeibc/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "StakeCustomIbcParams"
+          "Params": "StakeIbcParams"
         }
       }
     },
@@ -108,7 +108,7 @@
       "url": "./tmp-swagger-gen/symphony/stakeibc/tx.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "StakeCustomIbcTxParams"
+          "Params": "StakeIbcTxParams"
         }
       }
     },

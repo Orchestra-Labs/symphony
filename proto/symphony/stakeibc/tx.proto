@@ -7,6 +7,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "gogoproto/gogo.proto";
 import "symphony/stakeibc/validator.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/osmosis-labs/osmosis/v27/x/stakeibc/types";
 
@@ -14,13 +15,36 @@ option go_package = "github.com/osmosis-labs/osmosis/v27/x/stakeibc/types";
 service Msg {
   option (cosmos.msg.v1.service) = true;
 
-  rpc LiquidStake(MsgLiquidStake) returns (MsgLiquidStakeResponse);
-  rpc LSMLiquidStake(MsgLSMLiquidStake) returns (MsgLSMLiquidStakeResponse);
-  rpc RedeemStake(MsgRedeemStake) returns (MsgRedeemStakeResponse);
-  rpc RegisterHostZone(MsgRegisterHostZone)
-      returns (MsgRegisterHostZoneResponse);
-  rpc ClaimUndelegatedTokens(MsgClaimUndelegatedTokens)
-      returns (MsgClaimUndelegatedTokensResponse);
+  rpc LiquidStake(MsgLiquidStake) returns (MsgLiquidStakeResponse) {
+    option (google.api.http) = {
+      post: "/symphony/stakeibc/liquid_stake"
+      body: "*"
+    };
+  };
+  rpc LSMLiquidStake(MsgLSMLiquidStake) returns (MsgLSMLiquidStakeResponse){
+    option (google.api.http) = {
+      post: "/symphony/stakeibc/lsm_liquid_stake"
+      body: "*"
+    };
+  };
+  rpc RedeemStake(MsgRedeemStake) returns (MsgRedeemStakeResponse){
+    option (google.api.http) = {
+      post: "/symphony/stakeibc/redeem_stake"
+      body: "*"
+    };
+  };
+  rpc RegisterHostZone(MsgRegisterHostZone) returns (MsgRegisterHostZoneResponse){
+    option (google.api.http) = {
+      post: "/symphony/stakeibc/register_host_zone"
+      body: "*"
+    };
+  };
+  rpc ClaimUndelegatedTokens(MsgClaimUndelegatedTokens) returns (MsgClaimUndelegatedTokensResponse){
+    option (google.api.http) = {
+      post: "/symphony/stakeibc/claim_undelegated_tokens"
+      body: "*"
+    };
+  };
   rpc RebalanceValidators(MsgRebalanceValidators)
       returns (MsgRebalanceValidatorsResponse);
   rpc AddValidators(MsgAddValidators) returns (MsgAddValidatorsResponse);

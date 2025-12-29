@@ -17,30 +17,24 @@ option go_package = "github.com/osmosis-labs/osmosis/v27/x/stakeibc/types";
 service Query {
   // Parameters queries the parameters of the module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/symphony/stakeibc/v1beta1/params";
-  }
-  // Queries a Validator by host zone.
-  rpc Validators(QueryGetValidatorsRequest)
-      returns (QueryGetValidatorsResponse) {
-    option (google.api.http).get =
-        "/symphony/stakeibc/v1beta1/validators/{chain_id}";
+    option (google.api.http).get = "/symphony/stakeibc/params";
   }
   // Queries a HostZone by id.
   rpc HostZone(QueryGetHostZoneRequest) returns (QueryGetHostZoneResponse) {
     option (google.api.http).get =
-        "/symphony/stakeibc/v1beta1/host_zone/{chain_id}";
+        "/symphony/stakeibc/host_zone/{chain_id}";
   }
 
   // Queries a list of HostZone items.
   rpc HostZoneAll(QueryAllHostZoneRequest) returns (QueryAllHostZoneResponse) {
-    option (google.api.http).get = "/symphony/stakeibc/v1beta1/host_zone";
+    option (google.api.http).get = "/symphony/stakeibc/host_zone";
   }
 
   // Queries a list of ModuleAddress items.
   rpc ModuleAddress(QueryModuleAddressRequest)
       returns (QueryModuleAddressResponse) {
     option (google.api.http).get =
-        "/symphony/stakeibc/v1beta1/module_address/{name}";
+        "/symphony/stakeibc/module_address/{name}";
   }
   // QueryInterchainAccountFromAddress returns the interchain account for given
   // owner address on a given connection pair
@@ -51,20 +45,20 @@ service Query {
   rpc EpochTracker(QueryGetEpochTrackerRequest)
       returns (QueryGetEpochTrackerResponse) {
     option (google.api.http).get =
-        "/symphony/stakeibc/v1beta1/epoch_tracker/{epoch_identifier}";
+        "/symphony/stakeibc/epoch_tracker/{epoch_identifier}";
   }
 
   // Queries a list of EpochTracker items.
   rpc EpochTrackerAll(QueryAllEpochTrackerRequest)
       returns (QueryAllEpochTrackerResponse) {
-    option (google.api.http).get = "/symphony/stakeibc/v1beta1/epoch_tracker";
+    option (google.api.http).get = "/symphony/stakeibc/epoch_tracker";
   }
 
   // Queries the next packet sequence for one for a given channel
   rpc NextPacketSequence(QueryGetNextPacketSequenceRequest)
       returns (QueryGetNextPacketSequenceResponse) {
     option (google.api.http).get =
-        "/symphony/stakeibc/v1beta1/next_packet_sequence/{channel_id}/"
+        "/symphony/stakeibc/next_packet_sequence/{channel_id}/"
         "{port_id}";
   }
 
@@ -72,13 +66,13 @@ service Query {
   rpc AddressUnbondings(QueryAddressUnbondings)
       returns (QueryAddressUnbondingsResponse) {
     option (google.api.http).get =
-        "/symphony/stakeibc/v1beta1/unbondings/{address}";
+        "/symphony/stakeibc/unbondings/{address}";
   }
 
   // Queries all trade routes
   rpc AllTradeRoutes(QueryAllTradeRoutes)
       returns (QueryAllTradeRoutesResponse) {
-    option (google.api.http).get = "/symphony/stakeibc/v1beta1/trade_routes";
+    option (google.api.http).get = "/symphony/stakeibc/trade_routes";
   }
 }
 

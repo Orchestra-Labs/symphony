@@ -16189,6 +16189,1420 @@ paths:
                   signatures required by gogoproto.
       tags:
         - Msg
+  /symphony/stakeibc/epoch_tracker:
+    get:
+      summary: Queries a list of EpochTracker items.
+      operationId: EpochTrackerAll
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              epoch_tracker:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    epoch_identifier:
+                      type: string
+                    epoch_number:
+                      type: string
+                      format: uint64
+                    next_epoch_start_time:
+                      type: string
+                      format: uint64
+                    duration:
+                      type: string
+                      format: uint64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /symphony/stakeibc/epoch_tracker/{epoch_identifier}:
+    get:
+      summary: Queries a EpochTracker by index.
+      operationId: EpochTracker
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              epoch_tracker:
+                type: object
+                properties:
+                  epoch_identifier:
+                    type: string
+                  epoch_number:
+                    type: string
+                    format: uint64
+                  next_epoch_start_time:
+                    type: string
+                    format: uint64
+                  duration:
+                    type: string
+                    format: uint64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: epoch_identifier
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /symphony/stakeibc/host_zone:
+    get:
+      summary: Queries a list of HostZone items.
+      operationId: HostZoneAll
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              host_zone:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    chain_id:
+                      type: string
+                      title: Chain ID of the host zone
+                    bech32prefix:
+                      type: string
+                      title: Bech32 prefix of host zone's address
+                    connection_id:
+                      type: string
+                      title: >-
+                        ConnectionID from Stride to the host zone (ID is on the
+                        stride side)
+                    transfer_channel_id:
+                      type: string
+                      title: >-
+                        Transfer Channel ID from Stride to the host zone (ID is
+                        on the stride side)
+                    ibc_denom:
+                      type: string
+                      title: ibc denom of the host zone's native token on stride
+                    host_denom:
+                      type: string
+                      title: native denom on host zone
+                    unbonding_period:
+                      type: string
+                      format: uint64
+                      title: The unbonding period in days (e.g. 21)
+                    validators:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          address:
+                            type: string
+                          weight:
+                            type: string
+                            format: uint64
+                          delegation:
+                            type: string
+                          slash_query_progress_tracker:
+                            type: string
+                          slash_query_checkpoint:
+                            type: string
+                          shares_to_tokens_rate:
+                            type: string
+                          delegation_changes_in_progress:
+                            type: string
+                            format: int64
+                          slash_query_in_progress:
+                            type: boolean
+                      title: List of validators that are delegated to
+                    deposit_address:
+                      type: string
+                      title: >-
+                        Address that custodies native tokens during a liquid
+                        stake
+                    withdrawal_ica_address:
+                      type: string
+                      title: >-
+                        ICA Address on the host zone responsible for collecting
+                        rewards
+                    fee_ica_address:
+                      type: string
+                      title: ICA Address on the host zone responsible for commission
+                    delegation_ica_address:
+                      type: string
+                      title: >-
+                        ICA Address on the host zone responsible for staking and
+                        unstaking
+                    redemption_ica_address:
+                      type: string
+                      title: >-
+                        ICA Address that receives unstaked tokens after they've
+                        finished unbonding
+                    community_pool_deposit_ica_address:
+                      type: string
+                      title: >-
+                        ICA Address that receives tokens from a community pool
+                        to liquid stake or
+
+                        redeem In the case of a liquid stake, the community pool
+                        deposits native
+
+                        tokens In the case of a redemption, the community pool
+                        deposits stTokens
+                    community_pool_return_ica_address:
+                      type: string
+                      title: >-
+                        ICA Address that distributes tokens back to the
+                        community pool during a
+
+                        community pool liquid stake or redeem In the case of a
+                        liquid stake, the
+
+                        return address sends back stTokens In the case of a
+                        redemption, the return
+
+                        address sends back native tokens
+                    community_pool_stake_holding_address:
+                      type: string
+                      title: >-
+                        Module account on Stride that receives native tokens
+                        from the deposit ICA
+
+                        and liquid stakes them
+                    community_pool_redeem_holding_address:
+                      type: string
+                      title: >-
+                        Module account on Stride that receives stTokens from the
+                        deposit ICA and
+
+                        redeems them
+                    community_pool_treasury_address:
+                      type: string
+                      title: >-
+                        Optional community pool address to send tokens to after
+                        a community pool
+
+                        liquid stake or redemption If this address is empty, the
+                        tokens are sent to
+
+                        the main community pool
+                    total_delegations:
+                      type: string
+                      title: The total delegated balance on the host zone
+                    last_redemption_rate:
+                      type: string
+                      title: The redemption rate from the previous epoch
+                    redemption_rate:
+                      type: string
+                      title: The current redemption rate
+                    min_redemption_rate:
+                      type: string
+                      title: >-
+                        The min outer redemption rate bound - controlled only be
+                        governance
+
+                        The min inner bound cannot exceed this bound
+                    max_redemption_rate:
+                      type: string
+                      title: >-
+                        The max outer redemption rate bound - controlled only be
+                        governance
+
+                        The max inner bound cannot exceed this bound
+                    min_inner_redemption_rate:
+                      type: string
+                      title: >-
+                        The min minner redemption rate bound - controlled by the
+                        admin
+
+                        If the redemption rate exceeds this bound, the host zone
+                        is halted
+                    max_inner_redemption_rate:
+                      type: string
+                      title: >-
+                        The max minner redemption rate bound - controlled by the
+                        admin
+
+                        If the redemption rate exceeds this bound, the host zone
+                        is halted
+                    max_messages_per_ica_tx:
+                      type: string
+                      format: uint64
+                      title: >-
+                        The max number of messages that can be sent in a
+                        delegation
+
+                        or undelegation ICA tx
+                    redemptions_enabled:
+                      type: boolean
+                      title: >-
+                        Indicates whether redemptions are allowed through this
+                        module
+                    community_pool_rebate:
+                      title: >-
+                        An optional fee rebate
+
+                        If there is no rebate for the host zone, this will be
+                        nil
+                      type: object
+                      properties:
+                        rebate_rate:
+                          type: string
+                          title: Rebate percentage as a decimal (e.g. 0.2 for 20%)
+                        liquid_staked_st_token_amount:
+                          type: string
+                          title: >-
+                            Number of stTokens received from the community pool
+                            liquid stake
+                    lsm_liquid_stake_enabled:
+                      type: boolean
+                      title: A boolean indicating whether the chain has LSM enabled
+                    halted:
+                      type: boolean
+                      title: >-
+                        A boolean indicating whether the chain is currently
+                        halted
+                  title: Core data structure to track liquid staking zones
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    description: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently. It will be empty if
+                      there are no more results.
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the
+
+                  corresponding request message has used PageRequest.
+
+                   message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+        - name: pagination.reverse
+          description: >-
+            reverse is set to true if results are to be returned in the
+            descending order.
+
+
+            Since: cosmos-sdk 0.43
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /symphony/stakeibc/host_zone/{chain_id}:
+    get:
+      summary: Queries a HostZone by id.
+      operationId: HostZone
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              host_zone:
+                type: object
+                properties:
+                  chain_id:
+                    type: string
+                    title: Chain ID of the host zone
+                  bech32prefix:
+                    type: string
+                    title: Bech32 prefix of host zone's address
+                  connection_id:
+                    type: string
+                    title: >-
+                      ConnectionID from Stride to the host zone (ID is on the
+                      stride side)
+                  transfer_channel_id:
+                    type: string
+                    title: >-
+                      Transfer Channel ID from Stride to the host zone (ID is on
+                      the stride side)
+                  ibc_denom:
+                    type: string
+                    title: ibc denom of the host zone's native token on stride
+                  host_denom:
+                    type: string
+                    title: native denom on host zone
+                  unbonding_period:
+                    type: string
+                    format: uint64
+                    title: The unbonding period in days (e.g. 21)
+                  validators:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        address:
+                          type: string
+                        weight:
+                          type: string
+                          format: uint64
+                        delegation:
+                          type: string
+                        slash_query_progress_tracker:
+                          type: string
+                        slash_query_checkpoint:
+                          type: string
+                        shares_to_tokens_rate:
+                          type: string
+                        delegation_changes_in_progress:
+                          type: string
+                          format: int64
+                        slash_query_in_progress:
+                          type: boolean
+                    title: List of validators that are delegated to
+                  deposit_address:
+                    type: string
+                    title: Address that custodies native tokens during a liquid stake
+                  withdrawal_ica_address:
+                    type: string
+                    title: >-
+                      ICA Address on the host zone responsible for collecting
+                      rewards
+                  fee_ica_address:
+                    type: string
+                    title: ICA Address on the host zone responsible for commission
+                  delegation_ica_address:
+                    type: string
+                    title: >-
+                      ICA Address on the host zone responsible for staking and
+                      unstaking
+                  redemption_ica_address:
+                    type: string
+                    title: >-
+                      ICA Address that receives unstaked tokens after they've
+                      finished unbonding
+                  community_pool_deposit_ica_address:
+                    type: string
+                    title: >-
+                      ICA Address that receives tokens from a community pool to
+                      liquid stake or
+
+                      redeem In the case of a liquid stake, the community pool
+                      deposits native
+
+                      tokens In the case of a redemption, the community pool
+                      deposits stTokens
+                  community_pool_return_ica_address:
+                    type: string
+                    title: >-
+                      ICA Address that distributes tokens back to the community
+                      pool during a
+
+                      community pool liquid stake or redeem In the case of a
+                      liquid stake, the
+
+                      return address sends back stTokens In the case of a
+                      redemption, the return
+
+                      address sends back native tokens
+                  community_pool_stake_holding_address:
+                    type: string
+                    title: >-
+                      Module account on Stride that receives native tokens from
+                      the deposit ICA
+
+                      and liquid stakes them
+                  community_pool_redeem_holding_address:
+                    type: string
+                    title: >-
+                      Module account on Stride that receives stTokens from the
+                      deposit ICA and
+
+                      redeems them
+                  community_pool_treasury_address:
+                    type: string
+                    title: >-
+                      Optional community pool address to send tokens to after a
+                      community pool
+
+                      liquid stake or redemption If this address is empty, the
+                      tokens are sent to
+
+                      the main community pool
+                  total_delegations:
+                    type: string
+                    title: The total delegated balance on the host zone
+                  last_redemption_rate:
+                    type: string
+                    title: The redemption rate from the previous epoch
+                  redemption_rate:
+                    type: string
+                    title: The current redemption rate
+                  min_redemption_rate:
+                    type: string
+                    title: >-
+                      The min outer redemption rate bound - controlled only be
+                      governance
+
+                      The min inner bound cannot exceed this bound
+                  max_redemption_rate:
+                    type: string
+                    title: >-
+                      The max outer redemption rate bound - controlled only be
+                      governance
+
+                      The max inner bound cannot exceed this bound
+                  min_inner_redemption_rate:
+                    type: string
+                    title: >-
+                      The min minner redemption rate bound - controlled by the
+                      admin
+
+                      If the redemption rate exceeds this bound, the host zone
+                      is halted
+                  max_inner_redemption_rate:
+                    type: string
+                    title: >-
+                      The max minner redemption rate bound - controlled by the
+                      admin
+
+                      If the redemption rate exceeds this bound, the host zone
+                      is halted
+                  max_messages_per_ica_tx:
+                    type: string
+                    format: uint64
+                    title: >-
+                      The max number of messages that can be sent in a
+                      delegation
+
+                      or undelegation ICA tx
+                  redemptions_enabled:
+                    type: boolean
+                    title: >-
+                      Indicates whether redemptions are allowed through this
+                      module
+                  community_pool_rebate:
+                    title: |-
+                      An optional fee rebate
+                      If there is no rebate for the host zone, this will be nil
+                    type: object
+                    properties:
+                      rebate_rate:
+                        type: string
+                        title: Rebate percentage as a decimal (e.g. 0.2 for 20%)
+                      liquid_staked_st_token_amount:
+                        type: string
+                        title: >-
+                          Number of stTokens received from the community pool
+                          liquid stake
+                  lsm_liquid_stake_enabled:
+                    type: boolean
+                    title: A boolean indicating whether the chain has LSM enabled
+                  halted:
+                    type: boolean
+                    title: A boolean indicating whether the chain is currently halted
+                title: Core data structure to track liquid staking zones
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: chain_id
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /symphony/stakeibc/module_address/{name}:
+    get:
+      summary: Queries a list of ModuleAddress items.
+      operationId: ModuleAddress
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              addr:
+                type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: name
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /symphony/stakeibc/next_packet_sequence/{channel_id}/{port_id}:
+    get:
+      summary: Queries the next packet sequence for one for a given channel
+      operationId: NextPacketSequence
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              sequence:
+                type: string
+                format: uint64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: channel_id
+          in: path
+          required: true
+          type: string
+        - name: port_id
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /symphony/stakeibc/params:
+    get:
+      summary: Parameters queries the parameters of the module.
+      operationId: StakeIbcParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params holds all the parameters of this module.
+                type: object
+                properties:
+                  rewards_interval:
+                    type: string
+                    format: uint64
+                    title: define epoch lengths, in stride_epochs
+                  delegate_interval:
+                    type: string
+                    format: uint64
+                  deposit_interval:
+                    type: string
+                    format: uint64
+                  redemption_rate_interval:
+                    type: string
+                    format: uint64
+                  symphony_commission:
+                    type: string
+                    format: uint64
+                  reinvest_interval:
+                    type: string
+                    format: uint64
+                  ica_timeout_nanos:
+                    type: string
+                    format: uint64
+                  buffer_size:
+                    type: string
+                    format: uint64
+                  ibc_timeout_blocks:
+                    type: string
+                    format: uint64
+                  fee_transfer_timeout_nanos:
+                    type: string
+                    format: uint64
+                  max_stake_ica_calls_per_epoch:
+                    type: string
+                    format: uint64
+                  default_min_redemption_rate_threshold:
+                    type: string
+                    format: uint64
+                  default_max_redemption_rate_threshold:
+                    type: string
+                    format: uint64
+                  ibc_transfer_timeout_nanos:
+                    type: string
+                    format: uint64
+                  validator_slash_query_threshold:
+                    type: string
+                    format: uint64
+                  validator_weight_cap:
+                    type: string
+                    format: uint64
+                title: |-
+                  Params defines the parameters for the module.
+                  next id: 20
+            description: >-
+              QueryParamsResponse is response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /symphony/stakeibc/trade_routes:
+    get:
+      summary: Queries all trade routes
+      operationId: AllTradeRoutes
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              trade_routes:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    reward_denom_on_host_zone:
+                      type: string
+                      title: ibc denom for the reward on the host zone
+                    reward_denom_on_reward_zone:
+                      type: string
+                      title: should be the native denom for the reward chain
+                    reward_denom_on_trade_zone:
+                      type: string
+                      title: >-
+                        ibc denom of the reward on the trade chain, input to the
+                        swap
+                    host_denom_on_trade_zone:
+                      type: string
+                      title: >-
+                        ibc of the host denom on the trade chain, output from
+                        the swap
+                    host_denom_on_host_zone:
+                      type: string
+                      title: >-
+                        should be the same as the native host denom on the host
+                        chain
+                    host_account:
+                      title: |-
+                        ICAAccount on the host zone with the reward tokens
+                        This is the same as the host zone withdrawal ICA account
+                      type: object
+                      properties:
+                        chain_id:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                            - DELEGATION
+                            - FEE
+                            - WITHDRAWAL
+                            - REDEMPTION
+                            - COMMUNITY_POOL_DEPOSIT
+                            - COMMUNITY_POOL_RETURN
+                            - CONVERTER_UNWIND
+                            - CONVERTER_TRADE
+                          default: DELEGATION
+                        connection_id:
+                          type: string
+                        address:
+                          type: string
+                    reward_account:
+                      title: >-
+                        ICAAccount on the reward zone that is acts as the
+                        intermediate
+
+                        receiver of the transfer from host zone to trade zone
+                      type: object
+                      properties:
+                        chain_id:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                            - DELEGATION
+                            - FEE
+                            - WITHDRAWAL
+                            - REDEMPTION
+                            - COMMUNITY_POOL_DEPOSIT
+                            - COMMUNITY_POOL_RETURN
+                            - CONVERTER_UNWIND
+                            - CONVERTER_TRADE
+                          default: DELEGATION
+                        connection_id:
+                          type: string
+                        address:
+                          type: string
+                    trade_account:
+                      title: |-
+                        ICAAccount responsible for executing the swap of reward
+                        tokens for host tokens
+                      type: object
+                      properties:
+                        chain_id:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                            - DELEGATION
+                            - FEE
+                            - WITHDRAWAL
+                            - REDEMPTION
+                            - COMMUNITY_POOL_DEPOSIT
+                            - COMMUNITY_POOL_RETURN
+                            - CONVERTER_UNWIND
+                            - CONVERTER_TRADE
+                          default: DELEGATION
+                        connection_id:
+                          type: string
+                        address:
+                          type: string
+                    host_to_reward_channel_id:
+                      type: string
+                      title: >-
+                        Channel responsible for the transfer of reward tokens
+                        from the host
+
+                        zone to the reward zone. This is the channel ID on the
+                        host zone side
+                    reward_to_trade_channel_id:
+                      type: string
+                      title: >-
+                        Channel responsible for the transfer of reward tokens
+                        from the reward
+
+                        zone to the trade zone. This is the channel ID on the
+                        reward zone side
+                    trade_to_host_channel_id:
+                      type: string
+                      title: >-
+                        Channel responsible for the transfer of host tokens from
+                        the trade
+
+                        zone, back to the host zone. This is the channel ID on
+                        the trade zone side
+                    min_transfer_amount:
+                      type: string
+                      title: >-
+                        Minimum amount of reward token that must be accumulated
+                        before
+
+                        the tokens are transferred to the trade ICA
+                    trade_config:
+                      description: |-
+                        specifies the configuration needed to execute the swap
+                        such as pool_id, slippage, min trade amount, etc.
+                      title: >-
+                        Deprecated, the trades are now executed off-chain via
+                        authz
+
+                        so the trade configuration is no longer needed
+                      type: object
+                      properties:
+                        pool_id:
+                          type: string
+                          format: uint64
+                          title: >-
+                            Currently Osmosis is the only trade chain so this is
+                            an osmosis pool id
+                        swap_price:
+                          type: string
+                          title: >-
+                            Spot price in the pool to convert the reward denom
+                            to the host denom
+
+                            output_tokens = swap_price * input tokens
+
+                            This value may be slightly stale as it is updated by
+                            an ICQ
+                        price_update_timestamp:
+                          type: string
+                          format: uint64
+                          title: unix time in seconds that the price was last updated
+                        max_allowed_swap_loss_rate:
+                          type: string
+                          title: >-
+                            Threshold defining the percentage of tokens that
+                            could be lost in the trade
+
+                            This captures both the loss from slippage and from a
+                            stale price on stride
+
+                            0.05 means the output from the trade can be no less
+                            than a 5% deviation
+
+                            from the current value
+                        min_swap_amount:
+                          type: string
+                          title: >-
+                            min and max set boundaries of reward denom on trade
+                            chain we will swap
+
+                            min also decides when reward token transfers are
+                            worth it (transfer fees)
+                        max_swap_amount:
+                          type: string
+                  title: >-
+                    TradeRoute represents a round trip including info on
+                    transfer and how to do
+
+                    the swap. It makes the assumption that the reward token is
+                    always foreign to
+
+                    the host so therefore the first two hops are to unwind the
+                    ibc denom enroute
+
+                    to the trade chain and the last hop is the return so funds
+                    start/end in the
+
+                    withdrawl ICA on hostZone
+
+                    The structure is key'd on reward denom and host denom in
+                    their native forms
+
+                    (i.e. reward_denom_on_reward_zone and
+                    host_denom_on_host_zone)
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  /symphony/stakeibc/unbondings/{address}:
+    get:
+      summary: Queries an address's unbondings
+      operationId: AddressUnbondings
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              address_unbondings:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                    receiver:
+                      type: string
+                    unbonding_estimated_time:
+                      type: string
+                    amount:
+                      type: string
+                    denom:
+                      type: string
+                    claim_is_pending:
+                      type: boolean
+                    epoch_number:
+                      type: string
+                      format: uint64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /symphony/stakeibc/claim_undelegated_tokens:
+    post:
+      operationId: ClaimUndelegatedTokens
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              creator:
+                type: string
+              host_zone_id:
+                type: string
+                title: >-
+                  UserUnbondingRecords are keyed on
+                  {chain_id}.{epoch}.{receiver}
+              epoch:
+                type: string
+                format: uint64
+              receiver:
+                type: string
+      tags:
+        - Msg
+  /symphony/stakeibc/liquid_stake:
+    post:
+      operationId: LiquidStake
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              st_token:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              creator:
+                type: string
+              amount:
+                type: string
+              host_denom:
+                type: string
+      tags:
+        - Msg
+  /symphony/stakeibc/lsm_liquid_stake:
+    post:
+      operationId: LSMLiquidStake
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              transaction_complete:
+                type: boolean
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              creator:
+                type: string
+              amount:
+                type: string
+              lsm_token_ibc_denom:
+                type: string
+      tags:
+        - Msg
+  /symphony/stakeibc/redeem_stake:
+    post:
+      operationId: RedeemStake
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              creator:
+                type: string
+              amount:
+                type: string
+              host_zone:
+                type: string
+              receiver:
+                type: string
+      tags:
+        - Msg
+  /symphony/stakeibc/register_host_zone:
+    post:
+      operationId: RegisterHostZone
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              connection_id:
+                type: string
+              bech32prefix:
+                type: string
+              host_denom:
+                type: string
+              ibc_denom:
+                type: string
+              creator:
+                type: string
+              transfer_channel_id:
+                type: string
+              unbonding_period:
+                type: string
+                format: uint64
+              min_redemption_rate:
+                type: string
+              max_redemption_rate:
+                type: string
+              lsm_liquid_stake_enabled:
+                type: boolean
+              community_pool_treasury_address:
+                type: string
+              max_messages_per_ica_tx:
+                type: string
+                format: uint64
+            title: 'next: 15'
+      tags:
+        - Msg
   /symphony/market/v1beta1/exchange_requirements:
     get:
       operationId: ExchangeRequirements
@@ -51050,6 +52464,1450 @@ definitions:
       total_shares:
         type: string
         format: byte
+  symphony.stakeibc.AddressUnbonding:
+    type: object
+    properties:
+      address:
+        type: string
+      receiver:
+        type: string
+      unbonding_estimated_time:
+        type: string
+      amount:
+        type: string
+      denom:
+        type: string
+      claim_is_pending:
+        type: boolean
+      epoch_number:
+        type: string
+        format: uint64
+  symphony.stakeibc.CommunityPoolRebate:
+    type: object
+    properties:
+      rebate_rate:
+        type: string
+        title: Rebate percentage as a decimal (e.g. 0.2 for 20%)
+      liquid_staked_st_token_amount:
+        type: string
+        title: Number of stTokens received from the community pool liquid stake
+    title: |-
+      CommunityPoolRebate stores the size of the community pool liquid stake
+      (denominated in stTokens) and the rebate rate as a decimal
+  symphony.stakeibc.EpochTracker:
+    type: object
+    properties:
+      epoch_identifier:
+        type: string
+      epoch_number:
+        type: string
+        format: uint64
+      next_epoch_start_time:
+        type: string
+        format: uint64
+      duration:
+        type: string
+        format: uint64
+  symphony.stakeibc.HostZone:
+    type: object
+    properties:
+      chain_id:
+        type: string
+        title: Chain ID of the host zone
+      bech32prefix:
+        type: string
+        title: Bech32 prefix of host zone's address
+      connection_id:
+        type: string
+        title: ConnectionID from Stride to the host zone (ID is on the stride side)
+      transfer_channel_id:
+        type: string
+        title: >-
+          Transfer Channel ID from Stride to the host zone (ID is on the stride
+          side)
+      ibc_denom:
+        type: string
+        title: ibc denom of the host zone's native token on stride
+      host_denom:
+        type: string
+        title: native denom on host zone
+      unbonding_period:
+        type: string
+        format: uint64
+        title: The unbonding period in days (e.g. 21)
+      validators:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            address:
+              type: string
+            weight:
+              type: string
+              format: uint64
+            delegation:
+              type: string
+            slash_query_progress_tracker:
+              type: string
+            slash_query_checkpoint:
+              type: string
+            shares_to_tokens_rate:
+              type: string
+            delegation_changes_in_progress:
+              type: string
+              format: int64
+            slash_query_in_progress:
+              type: boolean
+        title: List of validators that are delegated to
+      deposit_address:
+        type: string
+        title: Address that custodies native tokens during a liquid stake
+      withdrawal_ica_address:
+        type: string
+        title: ICA Address on the host zone responsible for collecting rewards
+      fee_ica_address:
+        type: string
+        title: ICA Address on the host zone responsible for commission
+      delegation_ica_address:
+        type: string
+        title: ICA Address on the host zone responsible for staking and unstaking
+      redemption_ica_address:
+        type: string
+        title: >-
+          ICA Address that receives unstaked tokens after they've finished
+          unbonding
+      community_pool_deposit_ica_address:
+        type: string
+        title: >-
+          ICA Address that receives tokens from a community pool to liquid stake
+          or
+
+          redeem In the case of a liquid stake, the community pool deposits
+          native
+
+          tokens In the case of a redemption, the community pool deposits
+          stTokens
+      community_pool_return_ica_address:
+        type: string
+        title: >-
+          ICA Address that distributes tokens back to the community pool during
+          a
+
+          community pool liquid stake or redeem In the case of a liquid stake,
+          the
+
+          return address sends back stTokens In the case of a redemption, the
+          return
+
+          address sends back native tokens
+      community_pool_stake_holding_address:
+        type: string
+        title: >-
+          Module account on Stride that receives native tokens from the deposit
+          ICA
+
+          and liquid stakes them
+      community_pool_redeem_holding_address:
+        type: string
+        title: >-
+          Module account on Stride that receives stTokens from the deposit ICA
+          and
+
+          redeems them
+      community_pool_treasury_address:
+        type: string
+        title: >-
+          Optional community pool address to send tokens to after a community
+          pool
+
+          liquid stake or redemption If this address is empty, the tokens are
+          sent to
+
+          the main community pool
+      total_delegations:
+        type: string
+        title: The total delegated balance on the host zone
+      last_redemption_rate:
+        type: string
+        title: The redemption rate from the previous epoch
+      redemption_rate:
+        type: string
+        title: The current redemption rate
+      min_redemption_rate:
+        type: string
+        title: |-
+          The min outer redemption rate bound - controlled only be governance
+          The min inner bound cannot exceed this bound
+      max_redemption_rate:
+        type: string
+        title: |-
+          The max outer redemption rate bound - controlled only be governance
+          The max inner bound cannot exceed this bound
+      min_inner_redemption_rate:
+        type: string
+        title: |-
+          The min minner redemption rate bound - controlled by the admin
+          If the redemption rate exceeds this bound, the host zone is halted
+      max_inner_redemption_rate:
+        type: string
+        title: |-
+          The max minner redemption rate bound - controlled by the admin
+          If the redemption rate exceeds this bound, the host zone is halted
+      max_messages_per_ica_tx:
+        type: string
+        format: uint64
+        title: |-
+          The max number of messages that can be sent in a delegation
+          or undelegation ICA tx
+      redemptions_enabled:
+        type: boolean
+        title: Indicates whether redemptions are allowed through this module
+      community_pool_rebate:
+        title: |-
+          An optional fee rebate
+          If there is no rebate for the host zone, this will be nil
+        type: object
+        properties:
+          rebate_rate:
+            type: string
+            title: Rebate percentage as a decimal (e.g. 0.2 for 20%)
+          liquid_staked_st_token_amount:
+            type: string
+            title: Number of stTokens received from the community pool liquid stake
+      lsm_liquid_stake_enabled:
+        type: boolean
+        title: A boolean indicating whether the chain has LSM enabled
+      halted:
+        type: boolean
+        title: A boolean indicating whether the chain is currently halted
+    title: Core data structure to track liquid staking zones
+  symphony.stakeibc.ICAAccount:
+    type: object
+    properties:
+      chain_id:
+        type: string
+      type:
+        type: string
+        enum:
+          - DELEGATION
+          - FEE
+          - WITHDRAWAL
+          - REDEMPTION
+          - COMMUNITY_POOL_DEPOSIT
+          - COMMUNITY_POOL_RETURN
+          - CONVERTER_UNWIND
+          - CONVERTER_TRADE
+        default: DELEGATION
+      connection_id:
+        type: string
+      address:
+        type: string
+  symphony.stakeibc.ICAAccountType:
+    type: string
+    enum:
+      - DELEGATION
+      - FEE
+      - WITHDRAWAL
+      - REDEMPTION
+      - COMMUNITY_POOL_DEPOSIT
+      - COMMUNITY_POOL_RETURN
+      - CONVERTER_UNWIND
+      - CONVERTER_TRADE
+    default: DELEGATION
+  symphony.stakeibc.Params:
+    type: object
+    properties:
+      rewards_interval:
+        type: string
+        format: uint64
+        title: define epoch lengths, in stride_epochs
+      delegate_interval:
+        type: string
+        format: uint64
+      deposit_interval:
+        type: string
+        format: uint64
+      redemption_rate_interval:
+        type: string
+        format: uint64
+      symphony_commission:
+        type: string
+        format: uint64
+      reinvest_interval:
+        type: string
+        format: uint64
+      ica_timeout_nanos:
+        type: string
+        format: uint64
+      buffer_size:
+        type: string
+        format: uint64
+      ibc_timeout_blocks:
+        type: string
+        format: uint64
+      fee_transfer_timeout_nanos:
+        type: string
+        format: uint64
+      max_stake_ica_calls_per_epoch:
+        type: string
+        format: uint64
+      default_min_redemption_rate_threshold:
+        type: string
+        format: uint64
+      default_max_redemption_rate_threshold:
+        type: string
+        format: uint64
+      ibc_transfer_timeout_nanos:
+        type: string
+        format: uint64
+      validator_slash_query_threshold:
+        type: string
+        format: uint64
+      validator_weight_cap:
+        type: string
+        format: uint64
+    title: |-
+      Params defines the parameters for the module.
+      next id: 20
+  symphony.stakeibc.QueryAddressUnbondingsResponse:
+    type: object
+    properties:
+      address_unbondings:
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+            receiver:
+              type: string
+            unbonding_estimated_time:
+              type: string
+            amount:
+              type: string
+            denom:
+              type: string
+            claim_is_pending:
+              type: boolean
+            epoch_number:
+              type: string
+              format: uint64
+  symphony.stakeibc.QueryAllEpochTrackerResponse:
+    type: object
+    properties:
+      epoch_tracker:
+        type: array
+        items:
+          type: object
+          properties:
+            epoch_identifier:
+              type: string
+            epoch_number:
+              type: string
+              format: uint64
+            next_epoch_start_time:
+              type: string
+              format: uint64
+            duration:
+              type: string
+              format: uint64
+  symphony.stakeibc.QueryAllHostZoneResponse:
+    type: object
+    properties:
+      host_zone:
+        type: array
+        items:
+          type: object
+          properties:
+            chain_id:
+              type: string
+              title: Chain ID of the host zone
+            bech32prefix:
+              type: string
+              title: Bech32 prefix of host zone's address
+            connection_id:
+              type: string
+              title: >-
+                ConnectionID from Stride to the host zone (ID is on the stride
+                side)
+            transfer_channel_id:
+              type: string
+              title: >-
+                Transfer Channel ID from Stride to the host zone (ID is on the
+                stride side)
+            ibc_denom:
+              type: string
+              title: ibc denom of the host zone's native token on stride
+            host_denom:
+              type: string
+              title: native denom on host zone
+            unbonding_period:
+              type: string
+              format: uint64
+              title: The unbonding period in days (e.g. 21)
+            validators:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  address:
+                    type: string
+                  weight:
+                    type: string
+                    format: uint64
+                  delegation:
+                    type: string
+                  slash_query_progress_tracker:
+                    type: string
+                  slash_query_checkpoint:
+                    type: string
+                  shares_to_tokens_rate:
+                    type: string
+                  delegation_changes_in_progress:
+                    type: string
+                    format: int64
+                  slash_query_in_progress:
+                    type: boolean
+              title: List of validators that are delegated to
+            deposit_address:
+              type: string
+              title: Address that custodies native tokens during a liquid stake
+            withdrawal_ica_address:
+              type: string
+              title: ICA Address on the host zone responsible for collecting rewards
+            fee_ica_address:
+              type: string
+              title: ICA Address on the host zone responsible for commission
+            delegation_ica_address:
+              type: string
+              title: >-
+                ICA Address on the host zone responsible for staking and
+                unstaking
+            redemption_ica_address:
+              type: string
+              title: >-
+                ICA Address that receives unstaked tokens after they've finished
+                unbonding
+            community_pool_deposit_ica_address:
+              type: string
+              title: >-
+                ICA Address that receives tokens from a community pool to liquid
+                stake or
+
+                redeem In the case of a liquid stake, the community pool
+                deposits native
+
+                tokens In the case of a redemption, the community pool deposits
+                stTokens
+            community_pool_return_ica_address:
+              type: string
+              title: >-
+                ICA Address that distributes tokens back to the community pool
+                during a
+
+                community pool liquid stake or redeem In the case of a liquid
+                stake, the
+
+                return address sends back stTokens In the case of a redemption,
+                the return
+
+                address sends back native tokens
+            community_pool_stake_holding_address:
+              type: string
+              title: >-
+                Module account on Stride that receives native tokens from the
+                deposit ICA
+
+                and liquid stakes them
+            community_pool_redeem_holding_address:
+              type: string
+              title: >-
+                Module account on Stride that receives stTokens from the deposit
+                ICA and
+
+                redeems them
+            community_pool_treasury_address:
+              type: string
+              title: >-
+                Optional community pool address to send tokens to after a
+                community pool
+
+                liquid stake or redemption If this address is empty, the tokens
+                are sent to
+
+                the main community pool
+            total_delegations:
+              type: string
+              title: The total delegated balance on the host zone
+            last_redemption_rate:
+              type: string
+              title: The redemption rate from the previous epoch
+            redemption_rate:
+              type: string
+              title: The current redemption rate
+            min_redemption_rate:
+              type: string
+              title: >-
+                The min outer redemption rate bound - controlled only be
+                governance
+
+                The min inner bound cannot exceed this bound
+            max_redemption_rate:
+              type: string
+              title: >-
+                The max outer redemption rate bound - controlled only be
+                governance
+
+                The max inner bound cannot exceed this bound
+            min_inner_redemption_rate:
+              type: string
+              title: >-
+                The min minner redemption rate bound - controlled by the admin
+
+                If the redemption rate exceeds this bound, the host zone is
+                halted
+            max_inner_redemption_rate:
+              type: string
+              title: >-
+                The max minner redemption rate bound - controlled by the admin
+
+                If the redemption rate exceeds this bound, the host zone is
+                halted
+            max_messages_per_ica_tx:
+              type: string
+              format: uint64
+              title: |-
+                The max number of messages that can be sent in a delegation
+                or undelegation ICA tx
+            redemptions_enabled:
+              type: boolean
+              title: Indicates whether redemptions are allowed through this module
+            community_pool_rebate:
+              title: |-
+                An optional fee rebate
+                If there is no rebate for the host zone, this will be nil
+              type: object
+              properties:
+                rebate_rate:
+                  type: string
+                  title: Rebate percentage as a decimal (e.g. 0.2 for 20%)
+                liquid_staked_st_token_amount:
+                  type: string
+                  title: >-
+                    Number of stTokens received from the community pool liquid
+                    stake
+            lsm_liquid_stake_enabled:
+              type: boolean
+              title: A boolean indicating whether the chain has LSM enabled
+            halted:
+              type: boolean
+              title: A boolean indicating whether the chain is currently halted
+          title: Core data structure to track liquid staking zones
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            description: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently. It will be empty if
+              there are no more results.
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding request message has used PageRequest.
+
+           message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+  symphony.stakeibc.QueryAllTradeRoutesResponse:
+    type: object
+    properties:
+      trade_routes:
+        type: array
+        items:
+          type: object
+          properties:
+            reward_denom_on_host_zone:
+              type: string
+              title: ibc denom for the reward on the host zone
+            reward_denom_on_reward_zone:
+              type: string
+              title: should be the native denom for the reward chain
+            reward_denom_on_trade_zone:
+              type: string
+              title: ibc denom of the reward on the trade chain, input to the swap
+            host_denom_on_trade_zone:
+              type: string
+              title: ibc of the host denom on the trade chain, output from the swap
+            host_denom_on_host_zone:
+              type: string
+              title: should be the same as the native host denom on the host chain
+            host_account:
+              title: |-
+                ICAAccount on the host zone with the reward tokens
+                This is the same as the host zone withdrawal ICA account
+              type: object
+              properties:
+                chain_id:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - DELEGATION
+                    - FEE
+                    - WITHDRAWAL
+                    - REDEMPTION
+                    - COMMUNITY_POOL_DEPOSIT
+                    - COMMUNITY_POOL_RETURN
+                    - CONVERTER_UNWIND
+                    - CONVERTER_TRADE
+                  default: DELEGATION
+                connection_id:
+                  type: string
+                address:
+                  type: string
+            reward_account:
+              title: |-
+                ICAAccount on the reward zone that is acts as the intermediate
+                receiver of the transfer from host zone to trade zone
+              type: object
+              properties:
+                chain_id:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - DELEGATION
+                    - FEE
+                    - WITHDRAWAL
+                    - REDEMPTION
+                    - COMMUNITY_POOL_DEPOSIT
+                    - COMMUNITY_POOL_RETURN
+                    - CONVERTER_UNWIND
+                    - CONVERTER_TRADE
+                  default: DELEGATION
+                connection_id:
+                  type: string
+                address:
+                  type: string
+            trade_account:
+              title: |-
+                ICAAccount responsible for executing the swap of reward
+                tokens for host tokens
+              type: object
+              properties:
+                chain_id:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - DELEGATION
+                    - FEE
+                    - WITHDRAWAL
+                    - REDEMPTION
+                    - COMMUNITY_POOL_DEPOSIT
+                    - COMMUNITY_POOL_RETURN
+                    - CONVERTER_UNWIND
+                    - CONVERTER_TRADE
+                  default: DELEGATION
+                connection_id:
+                  type: string
+                address:
+                  type: string
+            host_to_reward_channel_id:
+              type: string
+              title: >-
+                Channel responsible for the transfer of reward tokens from the
+                host
+
+                zone to the reward zone. This is the channel ID on the host zone
+                side
+            reward_to_trade_channel_id:
+              type: string
+              title: >-
+                Channel responsible for the transfer of reward tokens from the
+                reward
+
+                zone to the trade zone. This is the channel ID on the reward
+                zone side
+            trade_to_host_channel_id:
+              type: string
+              title: >-
+                Channel responsible for the transfer of host tokens from the
+                trade
+
+                zone, back to the host zone. This is the channel ID on the trade
+                zone side
+            min_transfer_amount:
+              type: string
+              title: |-
+                Minimum amount of reward token that must be accumulated before
+                the tokens are transferred to the trade ICA
+            trade_config:
+              description: |-
+                specifies the configuration needed to execute the swap
+                such as pool_id, slippage, min trade amount, etc.
+              title: |-
+                Deprecated, the trades are now executed off-chain via authz
+                so the trade configuration is no longer needed
+              type: object
+              properties:
+                pool_id:
+                  type: string
+                  format: uint64
+                  title: >-
+                    Currently Osmosis is the only trade chain so this is an
+                    osmosis pool id
+                swap_price:
+                  type: string
+                  title: >-
+                    Spot price in the pool to convert the reward denom to the
+                    host denom
+
+                    output_tokens = swap_price * input tokens
+
+                    This value may be slightly stale as it is updated by an ICQ
+                price_update_timestamp:
+                  type: string
+                  format: uint64
+                  title: unix time in seconds that the price was last updated
+                max_allowed_swap_loss_rate:
+                  type: string
+                  title: >-
+                    Threshold defining the percentage of tokens that could be
+                    lost in the trade
+
+                    This captures both the loss from slippage and from a stale
+                    price on stride
+
+                    0.05 means the output from the trade can be no less than a
+                    5% deviation
+
+                    from the current value
+                min_swap_amount:
+                  type: string
+                  title: >-
+                    min and max set boundaries of reward denom on trade chain we
+                    will swap
+
+                    min also decides when reward token transfers are worth it
+                    (transfer fees)
+                max_swap_amount:
+                  type: string
+          title: >-
+            TradeRoute represents a round trip including info on transfer and
+            how to do
+
+            the swap. It makes the assumption that the reward token is always
+            foreign to
+
+            the host so therefore the first two hops are to unwind the ibc denom
+            enroute
+
+            to the trade chain and the last hop is the return so funds start/end
+            in the
+
+            withdrawl ICA on hostZone
+
+            The structure is key'd on reward denom and host denom in their
+            native forms
+
+            (i.e. reward_denom_on_reward_zone and host_denom_on_host_zone)
+  symphony.stakeibc.QueryGetEpochTrackerResponse:
+    type: object
+    properties:
+      epoch_tracker:
+        type: object
+        properties:
+          epoch_identifier:
+            type: string
+          epoch_number:
+            type: string
+            format: uint64
+          next_epoch_start_time:
+            type: string
+            format: uint64
+          duration:
+            type: string
+            format: uint64
+  symphony.stakeibc.QueryGetHostZoneResponse:
+    type: object
+    properties:
+      host_zone:
+        type: object
+        properties:
+          chain_id:
+            type: string
+            title: Chain ID of the host zone
+          bech32prefix:
+            type: string
+            title: Bech32 prefix of host zone's address
+          connection_id:
+            type: string
+            title: >-
+              ConnectionID from Stride to the host zone (ID is on the stride
+              side)
+          transfer_channel_id:
+            type: string
+            title: >-
+              Transfer Channel ID from Stride to the host zone (ID is on the
+              stride side)
+          ibc_denom:
+            type: string
+            title: ibc denom of the host zone's native token on stride
+          host_denom:
+            type: string
+            title: native denom on host zone
+          unbonding_period:
+            type: string
+            format: uint64
+            title: The unbonding period in days (e.g. 21)
+          validators:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                address:
+                  type: string
+                weight:
+                  type: string
+                  format: uint64
+                delegation:
+                  type: string
+                slash_query_progress_tracker:
+                  type: string
+                slash_query_checkpoint:
+                  type: string
+                shares_to_tokens_rate:
+                  type: string
+                delegation_changes_in_progress:
+                  type: string
+                  format: int64
+                slash_query_in_progress:
+                  type: boolean
+            title: List of validators that are delegated to
+          deposit_address:
+            type: string
+            title: Address that custodies native tokens during a liquid stake
+          withdrawal_ica_address:
+            type: string
+            title: ICA Address on the host zone responsible for collecting rewards
+          fee_ica_address:
+            type: string
+            title: ICA Address on the host zone responsible for commission
+          delegation_ica_address:
+            type: string
+            title: ICA Address on the host zone responsible for staking and unstaking
+          redemption_ica_address:
+            type: string
+            title: >-
+              ICA Address that receives unstaked tokens after they've finished
+              unbonding
+          community_pool_deposit_ica_address:
+            type: string
+            title: >-
+              ICA Address that receives tokens from a community pool to liquid
+              stake or
+
+              redeem In the case of a liquid stake, the community pool deposits
+              native
+
+              tokens In the case of a redemption, the community pool deposits
+              stTokens
+          community_pool_return_ica_address:
+            type: string
+            title: >-
+              ICA Address that distributes tokens back to the community pool
+              during a
+
+              community pool liquid stake or redeem In the case of a liquid
+              stake, the
+
+              return address sends back stTokens In the case of a redemption,
+              the return
+
+              address sends back native tokens
+          community_pool_stake_holding_address:
+            type: string
+            title: >-
+              Module account on Stride that receives native tokens from the
+              deposit ICA
+
+              and liquid stakes them
+          community_pool_redeem_holding_address:
+            type: string
+            title: >-
+              Module account on Stride that receives stTokens from the deposit
+              ICA and
+
+              redeems them
+          community_pool_treasury_address:
+            type: string
+            title: >-
+              Optional community pool address to send tokens to after a
+              community pool
+
+              liquid stake or redemption If this address is empty, the tokens
+              are sent to
+
+              the main community pool
+          total_delegations:
+            type: string
+            title: The total delegated balance on the host zone
+          last_redemption_rate:
+            type: string
+            title: The redemption rate from the previous epoch
+          redemption_rate:
+            type: string
+            title: The current redemption rate
+          min_redemption_rate:
+            type: string
+            title: >-
+              The min outer redemption rate bound - controlled only be
+              governance
+
+              The min inner bound cannot exceed this bound
+          max_redemption_rate:
+            type: string
+            title: >-
+              The max outer redemption rate bound - controlled only be
+              governance
+
+              The max inner bound cannot exceed this bound
+          min_inner_redemption_rate:
+            type: string
+            title: |-
+              The min minner redemption rate bound - controlled by the admin
+              If the redemption rate exceeds this bound, the host zone is halted
+          max_inner_redemption_rate:
+            type: string
+            title: |-
+              The max minner redemption rate bound - controlled by the admin
+              If the redemption rate exceeds this bound, the host zone is halted
+          max_messages_per_ica_tx:
+            type: string
+            format: uint64
+            title: |-
+              The max number of messages that can be sent in a delegation
+              or undelegation ICA tx
+          redemptions_enabled:
+            type: boolean
+            title: Indicates whether redemptions are allowed through this module
+          community_pool_rebate:
+            title: |-
+              An optional fee rebate
+              If there is no rebate for the host zone, this will be nil
+            type: object
+            properties:
+              rebate_rate:
+                type: string
+                title: Rebate percentage as a decimal (e.g. 0.2 for 20%)
+              liquid_staked_st_token_amount:
+                type: string
+                title: >-
+                  Number of stTokens received from the community pool liquid
+                  stake
+          lsm_liquid_stake_enabled:
+            type: boolean
+            title: A boolean indicating whether the chain has LSM enabled
+          halted:
+            type: boolean
+            title: A boolean indicating whether the chain is currently halted
+        title: Core data structure to track liquid staking zones
+  symphony.stakeibc.QueryGetNextPacketSequenceResponse:
+    type: object
+    properties:
+      sequence:
+        type: string
+        format: uint64
+  symphony.stakeibc.QueryInterchainAccountFromAddressResponse:
+    type: object
+    properties:
+      interchain_account_address:
+        type: string
+    title: |-
+      QueryInterchainAccountFromAddressResponse the response type for the
+      Query/InterchainAccountAddress RPC
+  symphony.stakeibc.QueryModuleAddressResponse:
+    type: object
+    properties:
+      addr:
+        type: string
+  symphony.stakeibc.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params holds all the parameters of this module.
+        type: object
+        properties:
+          rewards_interval:
+            type: string
+            format: uint64
+            title: define epoch lengths, in stride_epochs
+          delegate_interval:
+            type: string
+            format: uint64
+          deposit_interval:
+            type: string
+            format: uint64
+          redemption_rate_interval:
+            type: string
+            format: uint64
+          symphony_commission:
+            type: string
+            format: uint64
+          reinvest_interval:
+            type: string
+            format: uint64
+          ica_timeout_nanos:
+            type: string
+            format: uint64
+          buffer_size:
+            type: string
+            format: uint64
+          ibc_timeout_blocks:
+            type: string
+            format: uint64
+          fee_transfer_timeout_nanos:
+            type: string
+            format: uint64
+          max_stake_ica_calls_per_epoch:
+            type: string
+            format: uint64
+          default_min_redemption_rate_threshold:
+            type: string
+            format: uint64
+          default_max_redemption_rate_threshold:
+            type: string
+            format: uint64
+          ibc_transfer_timeout_nanos:
+            type: string
+            format: uint64
+          validator_slash_query_threshold:
+            type: string
+            format: uint64
+          validator_weight_cap:
+            type: string
+            format: uint64
+        title: |-
+          Params defines the parameters for the module.
+          next id: 20
+    description: QueryParamsResponse is response type for the Query/Params RPC method.
+  symphony.stakeibc.TradeConfig:
+    type: object
+    properties:
+      pool_id:
+        type: string
+        format: uint64
+        title: >-
+          Currently Osmosis is the only trade chain so this is an osmosis pool
+          id
+      swap_price:
+        type: string
+        title: |-
+          Spot price in the pool to convert the reward denom to the host denom
+          output_tokens = swap_price * input tokens
+          This value may be slightly stale as it is updated by an ICQ
+      price_update_timestamp:
+        type: string
+        format: uint64
+        title: unix time in seconds that the price was last updated
+      max_allowed_swap_loss_rate:
+        type: string
+        title: >-
+          Threshold defining the percentage of tokens that could be lost in the
+          trade
+
+          This captures both the loss from slippage and from a stale price on
+          stride
+
+          0.05 means the output from the trade can be no less than a 5%
+          deviation
+
+          from the current value
+      min_swap_amount:
+        type: string
+        title: >-
+          min and max set boundaries of reward denom on trade chain we will swap
+
+          min also decides when reward token transfers are worth it (transfer
+          fees)
+      max_swap_amount:
+        type: string
+    description: Stores pool information needed to execute the swap along a trade route
+    title: |-
+      Deprecated, this configuration is no longer needed since swaps
+      are executed off-chain via authz
+  symphony.stakeibc.TradeRoute:
+    type: object
+    properties:
+      reward_denom_on_host_zone:
+        type: string
+        title: ibc denom for the reward on the host zone
+      reward_denom_on_reward_zone:
+        type: string
+        title: should be the native denom for the reward chain
+      reward_denom_on_trade_zone:
+        type: string
+        title: ibc denom of the reward on the trade chain, input to the swap
+      host_denom_on_trade_zone:
+        type: string
+        title: ibc of the host denom on the trade chain, output from the swap
+      host_denom_on_host_zone:
+        type: string
+        title: should be the same as the native host denom on the host chain
+      host_account:
+        title: |-
+          ICAAccount on the host zone with the reward tokens
+          This is the same as the host zone withdrawal ICA account
+        type: object
+        properties:
+          chain_id:
+            type: string
+          type:
+            type: string
+            enum:
+              - DELEGATION
+              - FEE
+              - WITHDRAWAL
+              - REDEMPTION
+              - COMMUNITY_POOL_DEPOSIT
+              - COMMUNITY_POOL_RETURN
+              - CONVERTER_UNWIND
+              - CONVERTER_TRADE
+            default: DELEGATION
+          connection_id:
+            type: string
+          address:
+            type: string
+      reward_account:
+        title: |-
+          ICAAccount on the reward zone that is acts as the intermediate
+          receiver of the transfer from host zone to trade zone
+        type: object
+        properties:
+          chain_id:
+            type: string
+          type:
+            type: string
+            enum:
+              - DELEGATION
+              - FEE
+              - WITHDRAWAL
+              - REDEMPTION
+              - COMMUNITY_POOL_DEPOSIT
+              - COMMUNITY_POOL_RETURN
+              - CONVERTER_UNWIND
+              - CONVERTER_TRADE
+            default: DELEGATION
+          connection_id:
+            type: string
+          address:
+            type: string
+      trade_account:
+        title: |-
+          ICAAccount responsible for executing the swap of reward
+          tokens for host tokens
+        type: object
+        properties:
+          chain_id:
+            type: string
+          type:
+            type: string
+            enum:
+              - DELEGATION
+              - FEE
+              - WITHDRAWAL
+              - REDEMPTION
+              - COMMUNITY_POOL_DEPOSIT
+              - COMMUNITY_POOL_RETURN
+              - CONVERTER_UNWIND
+              - CONVERTER_TRADE
+            default: DELEGATION
+          connection_id:
+            type: string
+          address:
+            type: string
+      host_to_reward_channel_id:
+        type: string
+        title: |-
+          Channel responsible for the transfer of reward tokens from the host
+          zone to the reward zone. This is the channel ID on the host zone side
+      reward_to_trade_channel_id:
+        type: string
+        title: |-
+          Channel responsible for the transfer of reward tokens from the reward
+          zone to the trade zone. This is the channel ID on the reward zone side
+      trade_to_host_channel_id:
+        type: string
+        title: >-
+          Channel responsible for the transfer of host tokens from the trade
+
+          zone, back to the host zone. This is the channel ID on the trade zone
+          side
+      min_transfer_amount:
+        type: string
+        title: |-
+          Minimum amount of reward token that must be accumulated before
+          the tokens are transferred to the trade ICA
+      trade_config:
+        description: |-
+          specifies the configuration needed to execute the swap
+          such as pool_id, slippage, min trade amount, etc.
+        title: |-
+          Deprecated, the trades are now executed off-chain via authz
+          so the trade configuration is no longer needed
+        type: object
+        properties:
+          pool_id:
+            type: string
+            format: uint64
+            title: >-
+              Currently Osmosis is the only trade chain so this is an osmosis
+              pool id
+          swap_price:
+            type: string
+            title: >-
+              Spot price in the pool to convert the reward denom to the host
+              denom
+
+              output_tokens = swap_price * input tokens
+
+              This value may be slightly stale as it is updated by an ICQ
+          price_update_timestamp:
+            type: string
+            format: uint64
+            title: unix time in seconds that the price was last updated
+          max_allowed_swap_loss_rate:
+            type: string
+            title: >-
+              Threshold defining the percentage of tokens that could be lost in
+              the trade
+
+              This captures both the loss from slippage and from a stale price
+              on stride
+
+              0.05 means the output from the trade can be no less than a 5%
+              deviation
+
+              from the current value
+          min_swap_amount:
+            type: string
+            title: >-
+              min and max set boundaries of reward denom on trade chain we will
+              swap
+
+              min also decides when reward token transfers are worth it
+              (transfer fees)
+          max_swap_amount:
+            type: string
+    title: >-
+      TradeRoute represents a round trip including info on transfer and how to
+      do
+
+      the swap. It makes the assumption that the reward token is always foreign
+      to
+
+      the host so therefore the first two hops are to unwind the ibc denom
+      enroute
+
+      to the trade chain and the last hop is the return so funds start/end in
+      the
+
+      withdrawl ICA on hostZone
+
+      The structure is key'd on reward denom and host denom in their native
+      forms
+
+      (i.e. reward_denom_on_reward_zone and host_denom_on_host_zone)
+  symphony.stakeibc.Validator:
+    type: object
+    properties:
+      name:
+        type: string
+      address:
+        type: string
+      weight:
+        type: string
+        format: uint64
+      delegation:
+        type: string
+      slash_query_progress_tracker:
+        type: string
+      slash_query_checkpoint:
+        type: string
+      shares_to_tokens_rate:
+        type: string
+      delegation_changes_in_progress:
+        type: string
+        format: int64
+      slash_query_in_progress:
+        type: boolean
+  symphony.stakeibc.AuthzPermissionChange:
+    type: string
+    enum:
+      - GRANT
+      - REVOKE
+    default: GRANT
+    title: |-
+      - GRANT: Grant the address trade permissions
+       - REVOKE: Revoke trade permissions from the address
+  symphony.stakeibc.MsgAddValidatorsResponse:
+    type: object
+  symphony.stakeibc.MsgCalibrateDelegationResponse:
+    type: object
+  symphony.stakeibc.MsgChangeValidatorWeightsResponse:
+    type: object
+  symphony.stakeibc.MsgClaimUndelegatedTokens:
+    type: object
+    properties:
+      creator:
+        type: string
+      host_zone_id:
+        type: string
+        title: UserUnbondingRecords are keyed on {chain_id}.{epoch}.{receiver}
+      epoch:
+        type: string
+        format: uint64
+      receiver:
+        type: string
+  symphony.stakeibc.MsgClaimUndelegatedTokensResponse:
+    type: object
+  symphony.stakeibc.MsgClearBalanceResponse:
+    type: object
+  symphony.stakeibc.MsgCloseDelegationChannelResponse:
+    type: object
+  symphony.stakeibc.MsgCreateTradeRouteResponse:
+    type: object
+  symphony.stakeibc.MsgDeleteTradeRouteResponse:
+    type: object
+  symphony.stakeibc.MsgDeleteValidatorResponse:
+    type: object
+  symphony.stakeibc.MsgLSMLiquidStake:
+    type: object
+    properties:
+      creator:
+        type: string
+      amount:
+        type: string
+      lsm_token_ibc_denom:
+        type: string
+  symphony.stakeibc.MsgLSMLiquidStakeResponse:
+    type: object
+    properties:
+      transaction_complete:
+        type: boolean
+  symphony.stakeibc.MsgLiquidStake:
+    type: object
+    properties:
+      creator:
+        type: string
+      amount:
+        type: string
+      host_denom:
+        type: string
+  symphony.stakeibc.MsgLiquidStakeResponse:
+    type: object
+    properties:
+      st_token:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+  symphony.stakeibc.MsgRebalanceValidatorsResponse:
+    type: object
+  symphony.stakeibc.MsgRedeemStake:
+    type: object
+    properties:
+      creator:
+        type: string
+      amount:
+        type: string
+      host_zone:
+        type: string
+      receiver:
+        type: string
+  symphony.stakeibc.MsgRedeemStakeResponse:
+    type: object
+  symphony.stakeibc.MsgRegisterHostZone:
+    type: object
+    properties:
+      connection_id:
+        type: string
+      bech32prefix:
+        type: string
+      host_denom:
+        type: string
+      ibc_denom:
+        type: string
+      creator:
+        type: string
+      transfer_channel_id:
+        type: string
+      unbonding_period:
+        type: string
+        format: uint64
+      min_redemption_rate:
+        type: string
+      max_redemption_rate:
+        type: string
+      lsm_liquid_stake_enabled:
+        type: boolean
+      community_pool_treasury_address:
+        type: string
+      max_messages_per_ica_tx:
+        type: string
+        format: uint64
+    title: 'next: 15'
+  symphony.stakeibc.MsgRegisterHostZoneResponse:
+    type: object
+  symphony.stakeibc.MsgRestoreInterchainAccountResponse:
+    type: object
+  symphony.stakeibc.MsgResumeHostZoneResponse:
+    type: object
+  symphony.stakeibc.MsgSetCommunityPoolRebateResponse:
+    type: object
+  symphony.stakeibc.MsgToggleTradeControllerResponse:
+    type: object
+  symphony.stakeibc.MsgUpdateHostZoneParamsResponse:
+    type: object
+  symphony.stakeibc.MsgUpdateInnerRedemptionRateBoundsResponse:
+    type: object
+  symphony.stakeibc.MsgUpdateTradeRouteResponse:
+    type: object
+  symphony.stakeibc.MsgUpdateValidatorSharesExchRateResponse:
+    type: object
+  symphony.stakeibc.ValidatorWeight:
+    type: object
+    properties:
+      address:
+        type: string
+      weight:
+        type: string
+        format: uint64
   symphony.market.v1beta1.ExchangeRequirement:
     type: object
     properties:
