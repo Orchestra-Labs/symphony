@@ -97,6 +97,22 @@
       }
     },
     {
+      "url": "./tmp-swagger-gen/symphony/stakeibc/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "StakeCustomIbcParams"
+        }
+      }
+    },
+    {
+      "url": "./tmp-swagger-gen/symphony/stakeibc/tx.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "StakeCustomIbcTxParams"
+        }
+      }
+    },
+    {
       "url": "./tmp-swagger-gen/symphony/market/v1beta1/query.swagger.json",
       "operationIds": {
         "rename": {
