@@ -8,6 +8,9 @@ import (
 
 	protorevtypes "github.com/osmosis-labs/osmosis/v27/x/protorev/types"
 	twaptypes "github.com/osmosis-labs/osmosis/v27/x/twap/types"
+
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 )
 
 // GenerateKeys generates new keys (KV Store, Transient store, and memory store).
@@ -17,7 +20,13 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 	appKeepers.keys = storetypes.NewKVStoreKeys(KVStoreKeys()...)
 
 	// Define transient store keys
-	appKeepers.tkeys = storetypes.NewTransientStoreKeys(paramstypes.TStoreKey, twaptypes.TransientStoreKey, protorevtypes.TransientStoreKey)
+	appKeepers.tkeys = storetypes.NewTransientStoreKeys(
+		paramstypes.TStoreKey,
+		twaptypes.TransientStoreKey,
+		protorevtypes.TransientStoreKey,
+		evmtypes.TransientKey,
+		feemarkettypes.TransientKey,
+	)
 
 	// MemKeys are for information that is stored only in RAM.
 	appKeepers.memKeys = storetypes.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)

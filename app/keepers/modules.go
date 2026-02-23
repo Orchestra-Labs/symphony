@@ -29,8 +29,13 @@ import (
 	transfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
 	ibc "github.com/cosmos/ibc-go/v8/modules/core"
 	tendermint "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+
 	stablestakingincentives "github.com/osmosis-labs/osmosis/v27/x/stable-staking-incentives"
 	"github.com/osmosis-labs/osmosis/v27/x/stablestaking"
+
+	feemarket "github.com/cosmos/evm/x/feemarket"
+	precisebank "github.com/cosmos/evm/x/precisebank"
+	evm "github.com/cosmos/evm/x/vm"
 
 	"github.com/cosmos/cosmos-sdk/x/consensus"
 
@@ -140,4 +145,7 @@ var AppModuleBasics = module.NewBasicManager(
 	auction.AppModuleBasic{},
 	smartaccount.AppModuleBasic{},
 	stablestaking.AppModuleBasic{},
+	evm.AppModuleBasic{},
+	feemarket.AppModuleBasic{},
+	precisebank.AppModuleBasic{},
 )

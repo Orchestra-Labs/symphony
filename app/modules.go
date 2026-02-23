@@ -9,8 +9,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/consensus"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	feemarket "github.com/cosmos/evm/x/feemarket"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	precisebank "github.com/cosmos/evm/x/precisebank"
+	precisebanktypes "github.com/cosmos/evm/x/precisebank/types"
+	evm "github.com/cosmos/evm/x/vm"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
 	icq "github.com/cosmos/ibc-apps/modules/async-icq/v8"
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+
+	keepers "github.com/osmosis-labs/osmosis/v27/app/keepers"
+
 	"github.com/osmosis-labs/osmosis/v27/x/market"
 	markettypes "github.com/osmosis-labs/osmosis/v27/x/market/types"
 	"github.com/osmosis-labs/osmosis/v27/x/oracle"
@@ -156,6 +165,9 @@ var moduleAccountPermissions = map[string][]string{
 	cosmwasmpooltypes.ModuleName:                  nil,
 	auctiontypes.ModuleName:                       nil,
 	smartaccounttypes.ModuleName:                  nil,
+	evmtypes.ModuleName:                           {authtypes.Minter, authtypes.Burner},
+	feemarkettypes.ModuleName:                     nil,
+	precisebanktypes.ModuleName:                   {authtypes.Minter, authtypes.Burner},
 }
 
 // appModules return modules to initialize module manager.
@@ -228,6 +240,9 @@ func appModules(
 		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		auction.NewAppModule(appCodec, *app.AuctionKeeper),
 		smartaccount.NewAppModule(appCodec, *app.SmartAccountKeeper),
+		evm.NewAppModule(app.EvmKeeper, keepers.EVMAccountKeeper{AccountKeeper: app.AccountKeeper}, app.PreciseBankKeeper, app.AccountKeeper.AddressCodec()),
+		feemarket.NewAppModule(*app.FeeMarketKeeper),
+		precisebank.NewAppModule(*app.PreciseBankKeeper, app.BankKeeper, app.AccountKeeper),
 	}
 }
 
@@ -253,6 +268,8 @@ func orderBeginBlockers(allModuleNames []string) []string {
 	// TODO: Come back and delete this line after testing the base change.
 	ord.Sequence(stakingtypes.ModuleName, ibchost.ModuleName, superfluidtypes.ModuleName)
 	// We leave downtime-detector un-constrained.
+	// feemarket must run before evm
+	ord.Sequence(feemarkettypes.ModuleName, evmtypes.ModuleName)
 	// every remaining module's begin block is a no-op.
 	return ord.TotalOrdering()
 }
@@ -265,7 +282,7 @@ func OrderEndBlockers(allModuleNames []string) []string {
 	ord.FirstElements(govtypes.ModuleName)
 	ord.LastElements(stakingtypes.ModuleName)
 
-	// only Symphony modules with endblock code are: twap, crisis, govtypes, staking
+	// only Symphony modules with endblock code are: twap, crisis, govtypes, staking, evm, feemarket, precisebank
 	// we don't care about the relative ordering between them.
 	return ord.TotalOrdering()
 }
@@ -327,6 +344,9 @@ func OrderInitGenesis(allModuleNames []string) []string {
 		cosmwasmpooltypes.ModuleName,
 		auctiontypes.ModuleName,
 		stablestakingtypes.ModuleName,
+		precisebanktypes.ModuleName,
+		feemarkettypes.ModuleName,
+		evmtypes.ModuleName,
 	}
 }
 

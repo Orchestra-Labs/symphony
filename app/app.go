@@ -2,13 +2,24 @@ package app
 
 import (
 	"context"
-	storetypes "cosmossdk.io/store/types"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+	"reflect"
+	"time"
+
+	storetypes "cosmossdk.io/store/types"
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
+	precisebanktypes "github.com/cosmos/evm/x/precisebank/types"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
+
 	"github.com/osmosis-labs/osmosis/osmomath"
 	v108 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v108"
 	v109 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v109"
+
 	clclient "github.com/osmosis-labs/osmosis/v27/x/concentrated-liquidity/client"
 	cwpoolclient "github.com/osmosis-labs/osmosis/v27/x/cosmwasmpool/client"
 	gammclient "github.com/osmosis-labs/osmosis/v27/x/gamm/client"
@@ -16,12 +27,6 @@ import (
 	poolincentivesclient "github.com/osmosis-labs/osmosis/v27/x/pool-incentives/client"
 	poolmanagerclient "github.com/osmosis-labs/osmosis/v27/x/poolmanager/client"
 	superfluidclient "github.com/osmosis-labs/osmosis/v27/x/superfluid/client"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
-	"reflect"
-	"time"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -60,6 +65,7 @@ import (
 
 	markettypes "github.com/osmosis-labs/osmosis/v27/x/market/types"
 	treasurytypes "github.com/osmosis-labs/osmosis/v27/x/treasury/types"
+
 	//oracletypes "github.com/osmosis-labs/osmosis/v27/x/oracle/types"
 
 	"github.com/osmosis-labs/osmosis/osmoutils"
@@ -136,6 +142,8 @@ var (
 		markettypes.ModuleName:                true,
 		treasurytypes.ModuleName:              true,
 		treasurytypes.NativeBurnCollectorName: true,
+		evmtypes.ModuleName:                   true,
+		precisebanktypes.ModuleName:           true,
 	}
 
 	// TODO: Refactor wasm items into a wasm.go file

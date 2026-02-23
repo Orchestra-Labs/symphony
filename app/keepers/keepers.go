@@ -42,6 +42,7 @@ import (
 	icacontroller "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
+
 	custombankkeeper "github.com/osmosis-labs/osmosis/v27/custom/bank/keeper"
 
 	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
@@ -129,6 +130,13 @@ import (
 	auctionkeeper "github.com/skip-mev/block-sdk/v2/x/auction/keeper"
 	auctiontypes "github.com/skip-mev/block-sdk/v2/x/auction/types"
 
+	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
+	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
+	precisebankkeeper "github.com/cosmos/evm/x/precisebank/keeper"
+	precisebanktypes "github.com/cosmos/evm/x/precisebank/types"
+	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+	evmtypes "github.com/cosmos/evm/x/vm/types"
+
 	storetypes "cosmossdk.io/store/types"
 )
 
@@ -194,6 +202,11 @@ type AppKeepers struct {
 	CosmwasmPoolKeeper            *cosmwasmpool.Keeper
 	SmartAccountKeeper            *smartaccountkeeper.Keeper
 	AuthenticatorManager          *authenticator.AuthenticatorManager
+
+	// EVM keepers
+	EvmKeeper       *evmkeeper.Keeper
+	FeeMarketKeeper *feemarketkeeper.Keeper
+	PreciseBankKeeper *precisebankkeeper.Keeper
 
 	// IBC modules
 	// transfer module
@@ -844,6 +857,43 @@ func (appKeepers *AppKeepers) InitSpecialKeepers(
 	appKeepers.ConsensusParamsKeeper = &consensusParamsKeeper
 	bApp.SetParamStore(appKeepers.ConsensusParamsKeeper.ParamsStore)
 
+	// PreciseBank
+	preciseBankKeeper := precisebankkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[precisebanktypes.StoreKey],
+		appKeepers.BankKeeper,
+		appKeepers.AccountKeeper,
+	)
+	appKeepers.PreciseBankKeeper = &preciseBankKeeper
+
+	// FeeMarket
+	feeMarketKeeper := feemarketkeeper.NewKeeper(
+		appCodec,
+		authtypes.NewModuleAddress(govtypes.ModuleName),
+		appKeepers.keys[feemarkettypes.StoreKey],
+		appKeepers.tkeys[feemarkettypes.TransientKey],
+	)
+	appKeepers.FeeMarketKeeper = &feeMarketKeeper
+
+	// EVM
+	evmAccountKeeper := EVMAccountKeeper{AccountKeeper: appKeepers.AccountKeeper}
+	evmKeeper := evmkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[evmtypes.StoreKey],
+		appKeepers.tkeys[evmtypes.TransientKey],
+		appKeepers.keys,
+		authtypes.NewModuleAddress(govtypes.ModuleName),
+		evmAccountKeeper,
+		appKeepers.PreciseBankKeeper,
+		appKeepers.StakingKeeper,
+		appKeepers.FeeMarketKeeper,
+		appKeepers.ConsensusParamsKeeper,
+		nil, // ERC20 keeper
+		0,   // evmChainID - will be updated in InitChain if needed, or set a default
+		"",  // tracer
+	)
+	appKeepers.EvmKeeper = evmKeeper
+
 	// add capability keeper and ScopeToModule for ibc module
 	appKeepers.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, appKeepers.keys[capabilitytypes.StoreKey], appKeepers.memKeys[capabilitytypes.MemStoreKey])
 	appKeepers.ScopedIBCKeeper = appKeepers.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
@@ -1047,5 +1097,8 @@ func KVStoreKeys() []string {
 		cosmwasmpooltypes.StoreKey,
 		auctiontypes.StoreKey,
 		smartaccounttypes.StoreKey,
+		evmtypes.StoreKey,
+		feemarkettypes.StoreKey,
+		precisebanktypes.StoreKey,
 	}
 }
