@@ -42,7 +42,6 @@ import (
 	icacontroller "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/controller/types"
-
 	custombankkeeper "github.com/osmosis-labs/osmosis/v27/custom/bank/keeper"
 
 	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
@@ -130,7 +129,7 @@ import (
 	auctionkeeper "github.com/skip-mev/block-sdk/v2/x/auction/keeper"
 	auctiontypes "github.com/skip-mev/block-sdk/v2/x/auction/types"
 
-	feemarketkeeper "github.com/cosmos/evm/x/feemarket/keeper"
+	feemarketkeeper "github.com/cosmos/evm/x/"
 	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
 	precisebankkeeper "github.com/cosmos/evm/x/precisebank/keeper"
 	precisebanktypes "github.com/cosmos/evm/x/precisebank/types"
@@ -204,8 +203,8 @@ type AppKeepers struct {
 	AuthenticatorManager          *authenticator.AuthenticatorManager
 
 	// EVM keepers
-	EvmKeeper       *evmkeeper.Keeper
-	FeeMarketKeeper *feemarketkeeper.Keeper
+	EvmKeeper         *evmkeeper.Keeper
+	FeeMarketKeeper   *feemarketkeeper.Keeper
 	PreciseBankKeeper *precisebankkeeper.Keeper
 
 	// IBC modules
@@ -1016,7 +1015,7 @@ func (appKeepers *AppKeepers) SetupHooks() {
 
 	appKeepers.IncentivesKeeper.SetHooks(
 		incentivestypes.NewMultiIncentiveHooks(
-		// insert incentive hooks receivers here
+			// insert incentive hooks receivers here
 		),
 	)
 
@@ -1045,7 +1044,7 @@ func (appKeepers *AppKeepers) SetupHooks() {
 
 	appKeepers.GovKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-		// insert governance hooks receivers here
+			// insert governance hooks receivers here
 		),
 	)
 }

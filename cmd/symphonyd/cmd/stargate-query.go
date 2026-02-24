@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"time"
 
-	//nolint:staticcheck
-	"github.com/golang/protobuf/proto"
 	markettypes "github.com/osmosis-labs/osmosis/v27/x/market/types"
 	"github.com/spf13/cobra"
+	//nolint:staticcheck
+	"google.golang.org/protobuf/proto"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
