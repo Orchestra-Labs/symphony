@@ -417,6 +417,8 @@ require (
 	golang.org/x/tools v0.35.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	nhooyr.io/websocket v1.8.10 // indirect
+	github.com/cosmos/evm v1.0.0-rc2.0.20250822211227-2d3df2ba510c
+	github.com/cosmos/evm v1.0.0-rc2.0.20250822211227-2d3df2ba510c
 )
 
 replace (
@@ -454,3 +456,5 @@ replace (
 exclude github.com/coinbase/rosetta-sdk-go v0.7.9
 
 exclude github.com/gogo/protobuf v1.3.3
+
+replace github.com/ethereum/go-ethereum => github.com/cosmos/go-ethereum v1.16.2-cosmos-1
