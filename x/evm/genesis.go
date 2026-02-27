@@ -2,7 +2,9 @@ package evm
 
 import (
 	"encoding/hex"
+	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/osmosis-labs/osmosis/v27/x/evm/keeper"
@@ -29,8 +31,11 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 		if account.Balance != "" {
 			// Balance is in wei (string format big.Int)
 			// SetBalance will convert wei to note
-			balance := sdk.NewIntFromString(account.Balance).BigInt()
-			if err := k.SetBalance(ctx, accAddr, balance); err != nil {
+			balanceInt, ok := math.NewIntFromString(account.Balance)
+			if !ok {
+				panic(fmt.Errorf("invalid balance for account %s: %s", account.Address, account.Balance))
+			}
+			if err := k.SetBalance(ctx, accAddr, balanceInt.BigInt()); err != nil {
 				panic(err)
 			}
 		}

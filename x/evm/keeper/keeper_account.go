@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -46,7 +47,7 @@ func (k Keeper) SetBalance(ctx sdk.Context, addr sdk.AccAddress, amount *big.Int
 	noteAmount := new(big.Int).Div(amount, WeiPerNote)
 
 	currentBalance := k.bankKeeper.GetBalance(ctx, addr, EVMDenom)
-	newBalance := sdk.NewCoin(EVMDenom, sdk.NewIntFromBigInt(noteAmount))
+	newBalance := sdk.NewCoin(EVMDenom, math.NewIntFromBigInt(noteAmount))
 
 	if newBalance.Amount.GT(currentBalance.Amount) {
 		// Need to mint the difference
@@ -172,7 +173,7 @@ func (k Keeper) TransferBalance(ctx sdk.Context, from, to sdk.AccAddress, amount
 
 	// Convert wei to note for the transfer
 	noteAmount := new(big.Int).Div(amount, WeiPerNote)
-	coins := sdk.NewCoins(sdk.NewCoin(EVMDenom, sdk.NewIntFromBigInt(noteAmount)))
+	coins := sdk.NewCoins(sdk.NewCoin(EVMDenom, math.NewIntFromBigInt(noteAmount)))
 
 	return k.bankKeeper.SendCoins(ctx, from, to, coins)
 }

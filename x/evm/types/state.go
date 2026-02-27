@@ -94,6 +94,19 @@ func (gs GenesisState) Validate() error {
 	return nil
 }
 
+// ProtoMessage implements proto.Message interface (simplified stub for non-protobuf implementation)
+func (gs *GenesisState) ProtoMessage() {}
+
+// Reset implements proto.Message interface (simplified stub for non-protobuf implementation)
+func (gs *GenesisState) Reset() {
+	*gs = GenesisState{}
+}
+
+// String implements fmt.Stringer
+func (gs GenesisState) String() string {
+	return fmt.Sprintf("GenesisState:\n  Params: %s\n  Accounts: %d", gs.Params.String(), len(gs.Accounts))
+}
+
 // StorageEntry represents a single storage entry for a contract.
 type StorageEntry struct {
 	// Key is the storage key (32 bytes, hex-encoded).

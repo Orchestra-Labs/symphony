@@ -5,7 +5,9 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"golang.org/x/crypto/sha3"
 
 	"github.com/osmosis-labs/osmosis/v27/x/evm/types"
 )
@@ -23,7 +25,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 var _ types.MsgServer = msgServer{}
 
 // EthereumTx processes an Ethereum transaction.
-func (m msgServer) EthereumTx(goCtx context.Context, msg *types.MsgEthereumTx) (*MsgEthereumTxResponse, error) {
+func (m msgServer) EthereumTx(goCtx context.Context, msg *types.MsgEthereumTx) (*types.MsgEthereumTxResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Validate the message
@@ -53,7 +55,7 @@ func (m msgServer) EthereumTx(goCtx context.Context, msg *types.MsgEthereumTx) (
 	totalCost := msg.GetValue()
 	// Add gas cost: gasLimit * gasPrice
 	gasCost := msg.GetGasPrice()
-	gasCost.Mul(gasCost, sdk.NewIntFromUint64(msg.Data.Gas).BigInt())
+	gasCost.Mul(gasCost, math.NewInt(int64(msg.Data.Gas)).BigInt())
 	totalCost.Add(totalCost, gasCost)
 
 	if balance.Cmp(totalCost) < 0 {
@@ -111,10 +113,10 @@ func (m msgServer) EthereumTx(goCtx context.Context, msg *types.MsgEthereumTx) (
 		),
 	)
 
-	return &MsgEthereumTxResponse{
+	return &types.MsgEthereumTxResponse{
 		Hash:            msg.ComputeHash(),
 		ContractAddress: contractAddress,
-		GasUsed:         gasUsed,
+		Logs:            []*types.Log{}, // Empty logs for simplified implementation
 	}, nil
 }
 
@@ -132,7 +134,9 @@ func (m msgServer) createContract(ctx sdk.Context, from sdk.AccAddress, msg *typ
 	// Store the contract code
 	// In reality, we would execute the init code and store the deployed code
 	code := msg.Data.Input
-	codeHash := sdk.Keccak256(code)
+	hash := sha3.NewLegacyKeccak256()
+	hash.Write(code)
+	codeHash := hash.Sum(nil)
 
 	m.SetCode(ctx, codeHash, code)
 	m.SetCodeHash(ctx, contractAddr, codeHash)
@@ -172,11 +176,4 @@ func (m msgServer) executeCall(ctx sdk.Context, from sdk.AccAddress, to []byte, 
 	}
 
 	return nil
-}
-
-// Placeholder response type (would be auto-generated from proto in production)
-type MsgEthereumTxResponse struct {
-	Hash            string
-	ContractAddress string
-	GasUsed         uint64
 }

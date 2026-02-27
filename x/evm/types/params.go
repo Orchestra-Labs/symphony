@@ -104,3 +104,11 @@ func (p Params) String() string {
   ChainID:      %s
 `, p.EnableCreate, p.EnableCall, p.ExtraEIPs, p.ChainID)
 }
+
+// ProtoMessage implements proto.Message interface (simplified stub for non-protobuf implementation)
+func (p *Params) ProtoMessage() {}
+
+// Reset implements proto.Message interface (simplified stub for non-protobuf implementation)
+func (p *Params) Reset() {
+	*p = Params{}
+}
