@@ -18,7 +18,8 @@ RUN apk add --no-cache \
     ca-certificates \
     build-base \
     linux-headers \
-    binutils-gold
+    binutils-gold \
+    git
 
 # Download go dependencies
 WORKDIR /symphony

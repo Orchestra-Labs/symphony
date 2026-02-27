@@ -129,6 +129,9 @@ import (
 	auctionkeeper "github.com/skip-mev/block-sdk/v2/x/auction/keeper"
 	auctiontypes "github.com/skip-mev/block-sdk/v2/x/auction/types"
 
+	feemarketkeeper "github.com/skip-mev/feemarket/x/feemarket/keeper"
+	feemarketypes "github.com/skip-mev/feemarket/x/feemarket/types"
+
 	storetypes "cosmossdk.io/store/types"
 )
 
@@ -205,7 +208,8 @@ type AppKeepers struct {
 	PacketForwardKeeper       *packetforwardkeeper.Keeper
 
 	// BlockSDK
-	AuctionKeeper *auctionkeeper.Keeper
+	AuctionKeeper   *auctionkeeper.Keeper
+	FeeMarketKeeper *feemarketkeeper.Keeper
 
 	// keys to access the substores
 	keys    map[string]*storetypes.KVStoreKey
@@ -1047,5 +1051,6 @@ func KVStoreKeys() []string {
 		cosmwasmpooltypes.StoreKey,
 		auctiontypes.StoreKey,
 		smartaccounttypes.StoreKey,
+		feemarketypes.StoreKey,
 	}
 }

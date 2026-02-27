@@ -9,6 +9,10 @@ use (
 	./x/ibc-hooks
 )
 
+// Local development: use SDK fork directly from filesystem.
+// When releasing: push tag v0.50.6-v26-osmo-2-symphony-4 to GitHub and remove this.
+replace github.com/cosmos/cosmos-sdk => ../symphony-cosmos-sdk
+
 replace github.com/onsi/ginkgo => github.com/onsi/ginkgo v1.16.5
 
 replace cosmossdk.io/store => github.com/osmosis-labs/cosmos-sdk/store v1.1.1-v0.50.11-v28-osmo-2
