@@ -132,6 +132,9 @@ import (
 	feemarketkeeper "github.com/skip-mev/feemarket/x/feemarket/keeper"
 	feemarketypes "github.com/skip-mev/feemarket/x/feemarket/types"
 
+	evmkeeper "github.com/osmosis-labs/osmosis/v27/x/evm/keeper"
+	evmtypes "github.com/osmosis-labs/osmosis/v27/x/evm/types"
+
 	storetypes "cosmossdk.io/store/types"
 )
 
@@ -210,6 +213,9 @@ type AppKeepers struct {
 	// BlockSDK
 	AuctionKeeper   *auctionkeeper.Keeper
 	FeeMarketKeeper *feemarketkeeper.Keeper
+
+	// EVM
+	EVMKeeper *evmkeeper.Keeper
 
 	// keys to access the substores
 	keys    map[string]*storetypes.KVStoreKey
@@ -571,6 +577,17 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	)
 	appKeepers.AuctionKeeper = &auctionKeeper
 
+	// EVM Keeper
+	evmKeeper := evmkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[evmtypes.StoreKey],
+		appKeepers.GetSubspace(evmtypes.ModuleName),
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.StakingKeeper,
+	)
+	appKeepers.EVMKeeper = evmKeeper
+
 	appKeepers.ValidatorSetPreferenceKeeper = &validatorSetPreferenceKeeper
 
 	appKeepers.SuperfluidKeeper = superfluidkeeper.NewKeeper(
@@ -919,6 +936,7 @@ func (appKeepers *AppKeepers) initParamsKeeper(appCodec codec.BinaryCodec, legac
 	paramsKeeper.Subspace(txfeestypes.ModuleName)
 	paramsKeeper.Subspace(auctiontypes.ModuleName)
 	paramsKeeper.Subspace(stablestakingtypes.ModuleName)
+	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable())
 
 	return paramsKeeper
 }
@@ -1052,5 +1070,6 @@ func KVStoreKeys() []string {
 		auctiontypes.StoreKey,
 		smartaccounttypes.StoreKey,
 		feemarketypes.StoreKey,
+		evmtypes.StoreKey,
 	}
 }

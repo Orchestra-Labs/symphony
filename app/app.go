@@ -9,6 +9,7 @@ import (
 	"github.com/osmosis-labs/osmosis/osmomath"
 	v108 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v108"
 	v109 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v109"
+	v110 "github.com/osmosis-labs/osmosis/v27/app/upgrades/v110"
 	clclient "github.com/osmosis-labs/osmosis/v27/x/concentrated-liquidity/client"
 	cwpoolclient "github.com/osmosis-labs/osmosis/v27/x/cosmwasmpool/client"
 	gammclient "github.com/osmosis-labs/osmosis/v27/x/gamm/client"
@@ -156,7 +157,7 @@ var (
 
 	_ runtime.AppI = (*SymphonyApp)(nil)
 
-	Upgrades = []upgrades.Upgrade{v27.Upgrade, v28.Upgrade, v29.Upgrade, v107.Upgrade, v108.Upgrade, v109.Upgrade}
+	Upgrades = []upgrades.Upgrade{v27.Upgrade, v28.Upgrade, v29.Upgrade, v107.Upgrade, v108.Upgrade, v109.Upgrade, v110.Upgrade}
 	Forks    = []upgrades.Fork{}
 
 	// rpcAddressConfigName is the name of the config key that holds the RPC address.
@@ -427,6 +428,7 @@ func NewSymphonyApp(
 			auctionKeeper: *app.AppKeepers.AuctionKeeper,
 			txConfig:      txConfig,
 		},
+		app.EVMKeeper,
 		appCodec,
 	)
 
