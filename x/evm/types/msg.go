@@ -238,3 +238,19 @@ func (msg MsgEthereumTx) String() string {
   Nonce: %d
 }`, msg.Hash, msg.From, msg.Data.To, msg.Data.Value, msg.Data.Gas, msg.Data.GasPrice, msg.Data.Nonce)
 }
+
+// ProtoMessage implements proto.Message interface (simplified stub for non-protobuf implementation)
+func (msg *MsgEthereumTx) ProtoMessage() {}
+
+// Reset implements proto.Message interface (simplified stub for non-protobuf implementation)
+func (msg *MsgEthereumTx) Reset() {
+	*msg = MsgEthereumTx{}
+}
+
+// ProtoMessage implements proto.Message interface (simplified stub for non-protobuf implementation)
+func (data *EthereumTxData) ProtoMessage() {}
+
+// Reset implements proto.Message interface (simplified stub for non-protobuf implementation)
+func (data *EthereumTxData) Reset() {
+	*data = EthereumTxData{}
+}

@@ -78,6 +78,9 @@ import (
 	"github.com/osmosis-labs/osmosis/v27/x/evm"
 	evmtypes "github.com/osmosis-labs/osmosis/v27/x/evm/types"
 
+	"github.com/osmosis-labs/osmosis/v27/x/bridge"
+	bridgetypes "github.com/osmosis-labs/osmosis/v27/x/bridge/types"
+
 	"github.com/osmosis-labs/osmosis/osmoutils/partialord"
 	smartaccount "github.com/osmosis-labs/osmosis/v27/x/smart-account"
 	smartaccounttypes "github.com/osmosis-labs/osmosis/v27/x/smart-account/types"
@@ -160,6 +163,7 @@ var moduleAccountPermissions = map[string][]string{
 	auctiontypes.ModuleName:                       nil,
 	smartaccounttypes.ModuleName:                  nil,
 	evmtypes.ModuleName:                           {authtypes.Minter, authtypes.Burner},
+	bridgetypes.ModuleName:                        {authtypes.Minter, authtypes.Burner},
 }
 
 // appModules return modules to initialize module manager.
@@ -233,6 +237,7 @@ func appModules(
 		auction.NewAppModule(appCodec, *app.AuctionKeeper),
 		smartaccount.NewAppModule(appCodec, *app.SmartAccountKeeper),
 		evm.NewAppModule(appCodec, *app.EVMKeeper),
+		bridge.NewAppModule(appCodec, *app.BridgeKeeper),
 	}
 }
 

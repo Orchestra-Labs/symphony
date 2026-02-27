@@ -135,6 +135,9 @@ import (
 	evmkeeper "github.com/osmosis-labs/osmosis/v27/x/evm/keeper"
 	evmtypes "github.com/osmosis-labs/osmosis/v27/x/evm/types"
 
+	bridgekeeper "github.com/osmosis-labs/osmosis/v27/x/bridge/keeper"
+	bridgetypes "github.com/osmosis-labs/osmosis/v27/x/bridge/types"
+
 	storetypes "cosmossdk.io/store/types"
 )
 
@@ -215,7 +218,8 @@ type AppKeepers struct {
 	FeeMarketKeeper *feemarketkeeper.Keeper
 
 	// EVM
-	EVMKeeper *evmkeeper.Keeper
+	EVMKeeper    *evmkeeper.Keeper
+	BridgeKeeper *bridgekeeper.Keeper
 
 	// keys to access the substores
 	keys    map[string]*storetypes.KVStoreKey
@@ -588,6 +592,17 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 	)
 	appKeepers.EVMKeeper = evmKeeper
 
+	// Bridge Keeper
+	bridgeKeeper := bridgekeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[bridgetypes.StoreKey],
+		appKeepers.EVMKeeper,
+	)
+	appKeepers.BridgeKeeper = bridgeKeeper
+
+	// Initialize EVM precompiles (note: OracleKeeper not available yet at this point)
+	// Will be initialized after all keepers are set up
+
 	appKeepers.ValidatorSetPreferenceKeeper = &validatorSetPreferenceKeeper
 
 	appKeepers.SuperfluidKeeper = superfluidkeeper.NewKeeper(
@@ -759,6 +774,9 @@ func (appKeepers *AppKeepers) InitNormalKeepers(
 		govConfig, authtypes.NewModuleAddress(govtypes.ModuleName).String())
 	appKeepers.GovKeeper = govKeeper
 	appKeepers.GovKeeper.SetLegacyRouter(govRouter)
+
+	// Initialize EVM precompiles after all keepers are set up
+	appKeepers.EVMKeeper.InitializePrecompiles(appKeepers.OracleKeeper)
 }
 
 // WireICS20PreWasmKeeper Create the IBC Transfer Stack from bottom to top:
@@ -1071,5 +1089,6 @@ func KVStoreKeys() []string {
 		smartaccounttypes.StoreKey,
 		feemarketypes.StoreKey,
 		evmtypes.StoreKey,
+		bridgetypes.StoreKey,
 	}
 }

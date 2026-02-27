@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/osmosis-labs/osmosis/v27/x/evm/types"
 )
@@ -24,6 +25,9 @@ type Keeper struct {
 
 	// hooks for other modules to listen to EVM events
 	hooks types.EvmHooks
+
+	// precompiles registry
+	precompiles map[common.Address]types.StatefulPrecompiledContract
 }
 
 // NewKeeper creates a new EVM Keeper instance.
@@ -40,14 +44,17 @@ func NewKeeper(
 		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
 	}
 
-	return &Keeper{
+	k := &Keeper{
 		cdc:           cdc,
 		storeKey:      storeKey,
 		paramSpace:    paramSpace,
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
 		stakingKeeper: stakingKeeper,
+		precompiles:   make(map[common.Address]types.StatefulPrecompiledContract),
 	}
+
+	return k
 }
 
 // Logger returns a module-specific logger.
@@ -120,4 +127,29 @@ func (k Keeper) IterateStorage(ctx sdk.Context, address sdk.AccAddress, cb func(
 			break
 		}
 	}
+}
+
+// RegisterPrecompile registers a precompiled contract at a specific address.
+func (k *Keeper) RegisterPrecompile(address common.Address, precompile types.StatefulPrecompiledContract) {
+	if k.precompiles == nil {
+		k.precompiles = make(map[common.Address]types.StatefulPrecompiledContract)
+	}
+	k.precompiles[address] = precompile
+}
+
+// GetPrecompile returns the precompiled contract at the given address, if it exists.
+func (k Keeper) GetPrecompile(address common.Address) (types.StatefulPrecompiledContract, bool) {
+	precompile, found := k.precompiles[address]
+	return precompile, found
+}
+
+// IsPrecompile returns true if the given address is a registered precompile.
+func (k Keeper) IsPrecompile(address common.Address) bool {
+	_, found := k.precompiles[address]
+	return found
+}
+
+// GetPrecompiles returns all registered precompiles.
+func (k Keeper) GetPrecompiles() map[common.Address]types.StatefulPrecompiledContract {
+	return k.precompiles
 }

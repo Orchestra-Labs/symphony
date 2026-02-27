@@ -5,7 +5,6 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -43,17 +42,6 @@ type EvmHooks interface {
 	// PostTxProcessing is called after an EVM transaction is successfully processed.
 	// It receives the transaction sender, recipient, and whether the transaction succeeded.
 	PostTxProcessing(ctx sdk.Context, msg *MsgEthereumTx, receipt *TxReceipt) error
-}
-
-// MsgEthereumTx is defined here as a placeholder for the interfaces file.
-// The actual implementation will be in msg.go.
-type MsgEthereumTx struct {
-	// Data is the Ethereum transaction payload (RLP-encoded).
-	Data []byte
-	// Hash is the Ethereum transaction hash (keccak256).
-	Hash string
-	// From is the Ethereum address of the sender (hex string without 0x).
-	From string
 }
 
 // TxReceipt represents an Ethereum transaction receipt.

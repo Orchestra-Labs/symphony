@@ -4,7 +4,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/evm interfaces and concrete types
@@ -20,7 +19,9 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgEthereumTx{},
 	)
 
-	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
+	// Note: msgservice registration commented out for simplified implementation
+	// Full implementation requires protobuf codegen
+	// msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
 var (
