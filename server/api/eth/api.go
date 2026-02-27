@@ -6,8 +6,8 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"golang.org/x/crypto/sha3"
 
 	"github.com/osmosis-labs/osmosis/v27/x/evm/keeper"
 	"github.com/osmosis-labs/osmosis/v27/x/evm/types"
@@ -15,22 +15,19 @@ import (
 
 // API provides Ethereum-compatible JSON-RPC methods.
 type API struct {
-	clientCtx client.Context
 	evmKeeper *keeper.Keeper
 }
 
 // NewAPI creates a new Ethereum API instance.
-func NewAPI(clientCtx client.Context, evmKeeper *keeper.Keeper) *API {
+func NewAPI(evmKeeper *keeper.Keeper) *API {
 	return &API{
-		clientCtx: clientCtx,
 		evmKeeper: evmKeeper,
 	}
 }
 
 // ChainId returns the EVM chain ID.
-func (api *API) ChainId() (string, error) {
+func (api *API) ChainId(ctx sdk.Context) (string, error) {
 	// Get the chain ID from the keeper
-	ctx := sdk.UnwrapSDKContext(api.clientCtx.Context())
 	chainID := api.evmKeeper.GetChainID(ctx)
 
 	// Convert to hex with 0x prefix
@@ -40,16 +37,13 @@ func (api *API) ChainId() (string, error) {
 }
 
 // BlockNumber returns the current block number.
-func (api *API) BlockNumber() (string, error) {
-	ctx := sdk.UnwrapSDKContext(api.clientCtx.Context())
+func (api *API) BlockNumber(ctx sdk.Context) (string, error) {
 	height := ctx.BlockHeight()
 	return fmt.Sprintf("0x%x", height), nil
 }
 
 // GetBalance returns the balance of an account at a given block.
-func (api *API) GetBalance(address string, blockNum string) (string, error) {
-	ctx := sdk.UnwrapSDKContext(api.clientCtx.Context())
-
+func (api *API) GetBalance(ctx sdk.Context, address string, blockNum string) (string, error) {
 	// Remove 0x prefix if present
 	address = strings.TrimPrefix(address, "0x")
 
@@ -67,9 +61,7 @@ func (api *API) GetBalance(address string, blockNum string) (string, error) {
 }
 
 // GetTransactionCount returns the nonce of an account.
-func (api *API) GetTransactionCount(address string, blockNum string) (string, error) {
-	ctx := sdk.UnwrapSDKContext(api.clientCtx.Context())
-
+func (api *API) GetTransactionCount(ctx sdk.Context, address string, blockNum string) (string, error) {
 	// Remove 0x prefix if present
 	address = strings.TrimPrefix(address, "0x")
 
@@ -87,9 +79,7 @@ func (api *API) GetTransactionCount(address string, blockNum string) (string, er
 }
 
 // GetCode returns the code at a given address.
-func (api *API) GetCode(address string, blockNum string) (string, error) {
-	ctx := sdk.UnwrapSDKContext(api.clientCtx.Context())
-
+func (api *API) GetCode(ctx sdk.Context, address string, blockNum string) (string, error) {
 	// Remove 0x prefix if present
 	address = strings.TrimPrefix(address, "0x")
 
@@ -132,7 +122,9 @@ func (api *API) SendRawTransaction(data string) (string, error) {
 	// 3. Broadcast it via the Cosmos SDK client
 
 	// For now, return a placeholder transaction hash
-	txHash := sdk.Keccak256(txBytes)
+	hash := sha3.NewLegacyKeccak256()
+	hash.Write(txBytes)
+	txHash := hash.Sum(nil)
 	return "0x" + hex.EncodeToString(txHash), nil
 }
 
@@ -176,9 +168,7 @@ func (api *API) GetTransactionReceipt(hash string) (*types.TxReceipt, error) {
 }
 
 // GetBlockByNumber returns a block by number.
-func (api *API) GetBlockByNumber(blockNum string, fullTx bool) (map[string]interface{}, error) {
-	ctx := sdk.UnwrapSDKContext(api.clientCtx.Context())
-
+func (api *API) GetBlockByNumber(ctx sdk.Context, blockNum string, fullTx bool) (map[string]interface{}, error) {
 	// Parse block number
 	var height int64
 	if blockNum == "latest" {

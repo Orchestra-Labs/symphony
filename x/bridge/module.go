@@ -47,12 +47,14 @@ func (b AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) 
 
 // DefaultGenesis returns default genesis state as raw bytes for the bridge module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(&GenesisState{})
+	return cdc.MustMarshalJSON(&types.GenesisState{
+		Params: types.Params{},
+	})
 }
 
 // ValidateGenesis performs genesis state validation for the bridge module.
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
-	var genState GenesisState
+	var genState types.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &genState); err != nil {
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
 	}
@@ -113,14 +115,16 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 // InitGenesis performs genesis initialization for the bridge module.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) {
-	var genesisState GenesisState
+	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 	// Initialize genesis state when needed
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the bridge module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	gs := &GenesisState{}
+	gs := &types.GenesisState{
+		Params: types.Params{},
+	}
 	return cdc.MustMarshalJSON(gs)
 }
 
@@ -131,6 +135,3 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 func (am AppModule) BeginBlock(ctx context.Context) error {
 	return nil
 }
-
-// GenesisState defines the bridge module's genesis state.
-type GenesisState struct{}

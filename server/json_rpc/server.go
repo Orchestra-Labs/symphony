@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cosmos/cosmos-sdk/client"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 
@@ -14,12 +14,16 @@ import (
 	"github.com/osmosis-labs/osmosis/v27/x/evm/keeper"
 )
 
+// ContextProvider is a function that returns the current SDK context.
+type ContextProvider func() sdk.Context
+
 // Server is the JSON-RPC server for EVM compatibility.
 type Server struct {
 	config     Config
 	router     *mux.Router
 	ethAPI     *eth.API
 	httpServer *http.Server
+	getContext ContextProvider
 }
 
 // Config holds the JSON-RPC server configuration.
@@ -45,18 +49,20 @@ func DefaultConfig() Config {
 }
 
 // NewServer creates a new JSON-RPC server.
-func NewServer(cfg Config, clientCtx client.Context, evmKeeper *keeper.Keeper) (*Server, error) {
+// The contextProvider function should return the current SDK context for processing requests.
+func NewServer(cfg Config, evmKeeper *keeper.Keeper, contextProvider ContextProvider) (*Server, error) {
 	if !cfg.Enable {
 		return nil, nil
 	}
 
 	router := mux.NewRouter()
-	ethAPI := eth.NewAPI(clientCtx, evmKeeper)
+	ethAPI := eth.NewAPI(evmKeeper)
 
 	srv := &Server{
-		config: cfg,
-		router: router,
-		ethAPI: ethAPI,
+		config:     cfg,
+		router:     router,
+		ethAPI:     ethAPI,
+		getContext: contextProvider,
 	}
 
 	// Register JSON-RPC handler
@@ -111,15 +117,18 @@ func (s *Server) handleJSONRPC(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get the current SDK context for processing the request
+	ctx := s.getContext()
+
 	// Route to appropriate handler based on method
 	var result interface{}
 	var err error
 
 	switch req.Method {
 	case "eth_chainId":
-		result, err = s.ethAPI.ChainId()
+		result, err = s.ethAPI.ChainId(ctx)
 	case "eth_blockNumber":
-		result, err = s.ethAPI.BlockNumber()
+		result, err = s.ethAPI.BlockNumber(ctx)
 	case "eth_getBalance":
 		if len(req.Params) < 2 {
 			writeError(w, req.ID, -32602, "Invalid params", nil)
@@ -127,7 +136,7 @@ func (s *Server) handleJSONRPC(w http.ResponseWriter, r *http.Request) {
 		}
 		address, _ := req.Params[0].(string)
 		blockNum, _ := req.Params[1].(string)
-		result, err = s.ethAPI.GetBalance(address, blockNum)
+		result, err = s.ethAPI.GetBalance(ctx, address, blockNum)
 	case "eth_getTransactionCount":
 		if len(req.Params) < 2 {
 			writeError(w, req.ID, -32602, "Invalid params", nil)
@@ -135,7 +144,7 @@ func (s *Server) handleJSONRPC(w http.ResponseWriter, r *http.Request) {
 		}
 		address, _ := req.Params[0].(string)
 		blockNum, _ := req.Params[1].(string)
-		result, err = s.ethAPI.GetTransactionCount(address, blockNum)
+		result, err = s.ethAPI.GetTransactionCount(ctx, address, blockNum)
 	case "eth_getCode":
 		if len(req.Params) < 2 {
 			writeError(w, req.ID, -32602, "Invalid params", nil)
@@ -143,7 +152,7 @@ func (s *Server) handleJSONRPC(w http.ResponseWriter, r *http.Request) {
 		}
 		address, _ := req.Params[0].(string)
 		blockNum, _ := req.Params[1].(string)
-		result, err = s.ethAPI.GetCode(address, blockNum)
+		result, err = s.ethAPI.GetCode(ctx, address, blockNum)
 	case "eth_call":
 		if len(req.Params) < 2 {
 			writeError(w, req.ID, -32602, "Invalid params", nil)
@@ -164,7 +173,7 @@ func (s *Server) handleJSONRPC(w http.ResponseWriter, r *http.Request) {
 	case "eth_estimateGas":
 		result = "0x5208" // 21000 gas (placeholder)
 	case "net_version":
-		result, err = s.ethAPI.ChainId()
+		result, err = s.ethAPI.ChainId(ctx)
 	case "web3_clientVersion":
 		result = "Symphony/v1.0.0"
 	default:

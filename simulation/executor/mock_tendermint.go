@@ -173,22 +173,26 @@ func RandomRequestBeginBlock(r *rand.Rand, params Params,
 	validators mockValidators, pastTimes []time.Time,
 	pastVoteInfos [][]abci.VoteInfo,
 	event func(route, op, evResult string), header tmproto.Header,
-) abci.RequestBeginBlock {
+) RequestBeginBlock {
 	if len(validators) == 0 {
-		return abci.RequestBeginBlock{
-			Header: header,
+		return RequestBeginBlock{
+			Hash:   header.AppHash,
+			Height: header.Height,
+			Time:   header.Time,
 		}
 	}
 
 	voteInfos := randomVoteInfos(r, params, validators)
 	evidence := randomDoubleSignEvidence(r, params, pastTimes, pastVoteInfos, event, header, voteInfos)
 
-	return abci.RequestBeginBlock{
-		Header: header,
-		LastCommitInfo: abci.CommitInfo{
+	return RequestBeginBlock{
+		Hash:   header.AppHash,
+		Height: header.Height,
+		Time:   header.Time,
+		DecidedLastCommit: abci.CommitInfo{
 			Votes: voteInfos,
 		},
-		ByzantineValidators: evidence,
+		Misbehavior: evidence,
 	}
 }
 
@@ -218,12 +222,18 @@ func randomVoteInfos(r *rand.Rand, simParams Params, validators mockValidators,
 			panic(err)
 		}
 
+		// Convert signed bool to BlockIDFlag
+		blockIDFlag := tmproto.BlockIDFlagCommit
+		if !signed {
+			blockIDFlag = tmproto.BlockIDFlagAbsent
+		}
+
 		voteInfos[i] = abci.VoteInfo{
 			Validator: abci.Validator{
 				Address: pubkey.Address(),
 				Power:   mVal.val.Power,
 			},
-			SignedLastBlock: signed,
+			BlockIdFlag: blockIDFlag,
 		}
 	}
 
