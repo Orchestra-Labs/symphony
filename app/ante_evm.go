@@ -1,6 +1,8 @@
 package app
 
 import (
+	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -170,7 +172,7 @@ func (gcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 	for _, msg := range tx.GetMsgs() {
 		if ethMsg, ok := msg.(*evmtypes.MsgEthereumTx); ok {
 			// Set the gas limit from the Ethereum transaction
-			ctx = ctx.WithGasMeter(sdk.NewGasMeter(ethMsg.Data.Gas))
+			ctx = ctx.WithGasMeter(storetypes.NewGasMeter(ethMsg.Data.Gas))
 		}
 	}
 	return next(ctx, tx, simulate)
@@ -194,7 +196,7 @@ func (ctd CanTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 			// Calculate total cost: value + (gas * gasPrice)
 			totalCost := ethMsg.GetValue()
 			gasCost := ethMsg.GetGasPrice()
-			gasCost.Mul(gasCost, sdk.NewIntFromUint64(ethMsg.Data.Gas).BigInt())
+			gasCost.Mul(gasCost, math.NewInt(int64(ethMsg.Data.Gas)).BigInt())
 			totalCost.Add(totalCost, gasCost)
 
 			if balance.Cmp(totalCost) < 0 {
