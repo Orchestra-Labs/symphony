@@ -7,7 +7,7 @@ type ImageConfig struct {
 	InitTag        string
 
 	SymphonyRepository string
-	SymphonygTag       string
+	SymphonyTag        string
 
 	RelayerRepository string
 	RelayerTag        string

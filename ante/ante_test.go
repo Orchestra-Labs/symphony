@@ -1,7 +1,6 @@
 package ante_test
 
 import (
-	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -22,7 +21,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
+	"github.com/osmosis-labs/osmosis/osmomath"
 	"github.com/osmosis-labs/osmosis/v27/app"
+	appparams "github.com/osmosis-labs/osmosis/v27/app/params"
 	treasurytypes "github.com/osmosis-labs/osmosis/v27/x/treasury/types"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
