@@ -1,0 +1,55 @@
+package keeper
+
+import (
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+
+	evmtrace "github.com/osmosis-labs/osmosis/v27/trace"
+	evmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// BeginBlock emits a base fee event which will be adjusted to the evm decimals
+func (k *Keeper) BeginBlock(ctx sdk.Context) (err error) {
+	ctx, span := ctx.StartSpan(tracer, "BeginBlock", trace.WithAttributes(attribute.Int64("block_num", ctx.BlockHeight())))
+	defer func() { evmtrace.EndSpanErr(span, err) }()
+	logger := ctx.Logger().With("begin_block", "evm")
+
+	// Base fee is already set on FeeMarket BeginBlock
+	// that runs before this one
+	// We emit this event on the EVM and FeeMarket modules
+	// because they can be different if the evm denom has 6 decimals
+	res, err := k.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	if err != nil {
+		logger.Error("error when getting base fee", "error", err.Error())
+	}
+	if res != nil && res.BaseFee != nil && !res.BaseFee.IsNil() {
+		// Store current base fee in event
+		ctx.EventManager().EmitEvents(sdk.Events{
+			sdk.NewEvent(
+				evmtypes.EventTypeFeeMarket,
+				sdk.NewAttribute(evmtypes.AttributeKeyBaseFee, res.BaseFee.String()),
+			),
+		})
+	}
+
+	k.SetHeaderHash(ctx)
+	return nil
+}
+
+// EndBlock also retrieves the bloom filter value from the transient store and commits it to the
+// KVStore. The EVM end block logic doesn't update the validator set, thus it returns
+// an empty slice.
+func (k *Keeper) EndBlock(ctx sdk.Context) (err error) {
+	ctx, span := ctx.StartSpan(tracer, "EndBlock", trace.WithAttributes(attribute.Int64("block_num", ctx.BlockHeight())))
+	defer func() { evmtrace.EndSpanErr(span, err) }()
+	if k.evmMempool != nil && !k.evmMempool.HasEventBus() {
+		k.evmMempool.GetBlockchain().NotifyNewBlock()
+	}
+
+	k.CollectTxBloom(ctx)
+	k.ResetTransientGasUsed(ctx)
+
+	return nil
+}
