@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/cosmos/evm/utils"
+	"github.com/osmosis-labs/osmosis/v27/evm/utils"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	"cosmossdk.io/core/address"

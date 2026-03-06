@@ -13,9 +13,9 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/cosmos/evm/encoding"
-	testconstants "github.com/cosmos/evm/testutil/constants"
-	utiltx "github.com/cosmos/evm/testutil/tx"
+	"github.com/osmosis-labs/osmosis/v27/evm/encoding"
+	testconstants "github.com/osmosis-labs/osmosis/v27/evm/testutil/constants"
+	utiltx "github.com/osmosis-labs/osmosis/v27/evm/testutil/tx"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	sdkmath "cosmossdk.io/math"

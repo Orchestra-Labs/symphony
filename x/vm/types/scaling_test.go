@@ -8,7 +8,7 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/stretchr/testify/require"
 
-	testconstants "github.com/cosmos/evm/testutil/constants"
+	testconstants "github.com/osmosis-labs/osmosis/v27/evm/testutil/constants"
 	evmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	"cosmossdk.io/math"

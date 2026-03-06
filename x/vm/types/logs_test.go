@@ -6,7 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 
-	utiltx "github.com/cosmos/evm/testutil/tx"
+	utiltx "github.com/osmosis-labs/osmosis/v27/evm/testutil/tx"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types"
 )
 

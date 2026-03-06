@@ -9,7 +9,7 @@ import (
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttime "github.com/cometbft/cometbft/types/time"
 
-	"github.com/cosmos/evm/testutil/constants"
+	"github.com/osmosis-labs/osmosis/v27/evm/testutil/constants"
 	vmkeeper "github.com/osmosis-labs/osmosis/v27/x/vm/keeper"
 	vmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types/mocks"

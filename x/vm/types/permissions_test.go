@@ -6,7 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
-	testkeyring "github.com/cosmos/evm/testutil/keyring"
+	testkeyring "github.com/osmosis-labs/osmosis/v27/evm/testutil/keyring"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types"
 )
 

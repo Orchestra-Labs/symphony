@@ -16,10 +16,10 @@ import (
 
 	cmttypes "github.com/cometbft/cometbft/types"
 
-	antetypes "github.com/cosmos/evm/ante/types"
-	rpctypes "github.com/cosmos/evm/rpc/types"
-	evmtrace "github.com/cosmos/evm/trace"
-	"github.com/cosmos/evm/utils"
+	antetypes "github.com/osmosis-labs/osmosis/v27/evm/ante/types"
+	rpctypes "github.com/osmosis-labs/osmosis/v27/evm/rpc/types"
+	evmtrace "github.com/osmosis-labs/osmosis/v27/evm/trace"
+	"github.com/osmosis-labs/osmosis/v27/evm/utils"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/statedb"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
@@ -158,7 +158,7 @@ func (k Keeper) GetHashFn(ctx sdk.Context) vm.GetHashFunc {
 
 		case ctx.BlockHeight() > h:
 			// Case 2: The requested height is historical, query EIP-2935 contract storage for that
-			// see: https://github.com/cosmos/evm/issues/406
+			// see: https://github.com/osmosis-labs/osmosis/v27/evm/issues/406
 			return k.GetHeaderHash(ctx, height)
 		default:
 			// Case 3: The requested height is greater than the latest one, return empty hash

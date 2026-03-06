@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	testconstants "github.com/cosmos/evm/testutil/constants"
+	testconstants "github.com/osmosis-labs/osmosis/v27/evm/testutil/constants"
 	feemarkettypes "github.com/osmosis-labs/osmosis/v27/x/feemarket/types"
 	evmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/wrappers"

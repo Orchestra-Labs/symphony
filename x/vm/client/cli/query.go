@@ -9,9 +9,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/spf13/cobra"
 
-	"github.com/cosmos/evm/contracts"
-	rpctypes "github.com/cosmos/evm/rpc/types"
-	"github.com/cosmos/evm/utils"
+	"github.com/osmosis-labs/osmosis/v27/evm/contracts"
+	rpctypes "github.com/osmosis-labs/osmosis/v27/evm/rpc/types"
+	"github.com/osmosis-labs/osmosis/v27/evm/utils"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	"github.com/cosmos/cosmos-sdk/client"

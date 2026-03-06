@@ -12,7 +12,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	protov2 "google.golang.org/protobuf/proto"
 
-	evmapi "github.com/cosmos/evm/api/cosmos/evm/vm/v1"
+	evmapi "github.com/osmosis-labs/osmosis/v27/evm/api/cosmos/evm/vm/v1"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"

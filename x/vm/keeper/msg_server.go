@@ -12,7 +12,7 @@ import (
 
 	cmttypes "github.com/cometbft/cometbft/types"
 
-	evmtrace "github.com/cosmos/evm/trace"
+	evmtrace "github.com/osmosis-labs/osmosis/v27/evm/trace"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	errorsmod "cosmossdk.io/errors"

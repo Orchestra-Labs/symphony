@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/cosmos/evm/utils"
+	"github.com/osmosis-labs/osmosis/v27/evm/utils"
 )
 
 // NewTransactionLogs creates a new NewTransactionLogs instance.

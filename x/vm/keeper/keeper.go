@@ -15,9 +15,9 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 
-	evmmempool "github.com/osmosis-labs/osmosis/v27/mempool"
-	evmtrace "github.com/osmosis-labs/osmosis/v27/trace"
-	"github.com/osmosis-labs/osmosis/v27/utils"
+	evmmempool "github.com/osmosis-labs/osmosis/v27/evm/mempool"
+	evmtrace "github.com/osmosis-labs/osmosis/v27/evm/trace"
+	"github.com/osmosis-labs/osmosis/v27/evm/utils"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/statedb"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/wrappers"

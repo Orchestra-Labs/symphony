@@ -9,8 +9,8 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 
-	evmtrace "github.com/cosmos/evm/trace"
-	"github.com/cosmos/evm/utils"
+	evmtrace "github.com/osmosis-labs/osmosis/v27/evm/trace"
+	"github.com/osmosis-labs/osmosis/v27/evm/utils"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

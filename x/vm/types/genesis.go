@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	"github.com/cosmos/evm/utils"
+	"github.com/osmosis-labs/osmosis/v27/evm/utils"
 )
 
 // Validate performs a basic validation of a GenesisAccount fields.

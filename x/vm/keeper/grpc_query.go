@@ -23,9 +23,9 @@ import (
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
-	rpctypes "github.com/cosmos/evm/rpc/types"
-	evmtrace "github.com/cosmos/evm/trace"
-	"github.com/cosmos/evm/utils"
+	rpctypes "github.com/osmosis-labs/osmosis/v27/evm/rpc/types"
+	evmtrace "github.com/osmosis-labs/osmosis/v27/evm/trace"
+	"github.com/osmosis-labs/osmosis/v27/evm/utils"
 	evmante "github.com/osmosis-labs/osmosis/v27/x/vm/ante"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/statedb"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types"

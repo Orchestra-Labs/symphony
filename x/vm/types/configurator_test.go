@@ -6,7 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/stretchr/testify/require"
 
-	testconstants "github.com/cosmos/evm/testutil/constants"
+	testconstants "github.com/osmosis-labs/osmosis/v27/evm/testutil/constants"
 	"github.com/osmosis-labs/osmosis/v27/x/vm/types"
 )
 
