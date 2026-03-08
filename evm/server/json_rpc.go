@@ -15,12 +15,13 @@ import (
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 
-	evmmempool "github.com/cosmos/evm/mempool"
-	"github.com/cosmos/evm/rpc"
-	"github.com/cosmos/evm/rpc/stream"
-	serverconfig "github.com/cosmos/evm/server/config"
-	"github.com/cosmos/evm/server/types"
+	evmmempool "github.com/osmosis-labs/osmosis/v27/evm/mempool"
+	"github.com/osmosis-labs/osmosis/v27/evm/rpc"
+	"github.com/osmosis-labs/osmosis/v27/evm/rpc/stream"
+	serverconfig "github.com/osmosis-labs/osmosis/v27/evm/server/config"
+	"github.com/osmosis-labs/osmosis/v27/evm/server/types"
 
+	loggerv2 "cosmossdk.io/log/v2"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 )
@@ -42,17 +43,17 @@ func StartJSONRPC(
 	app AppWithPendingTxStream,
 	mempool *evmmempool.ExperimentalEVMMempool,
 ) (*http.Server, error) {
-	logger := srvCtx.Logger.With("module", "geth")
+	logger := loggerv2.Logger.With(loggerv2.NewNopLogger(), "module", "geth")
 
 	evtClient, ok := clientCtx.Client.(rpcclient.EventsClient)
 	if !ok {
 		return nil, fmt.Errorf("client %T does not implement EventsClient", clientCtx.Client)
 	}
 
-	stream := stream.NewRPCStreams(evtClient, logger, clientCtx.TxConfig.TxDecoder())
-	app.RegisterPendingTxListener(stream.ListenPendingTx)
+	rpcStreams := stream.NewRPCStreams(evtClient, logger, clientCtx.TxConfig.TxDecoder())
+	app.RegisterPendingTxListener(rpcStreams.ListenPendingTx)
 
-	// Set Geth's global logger to use this handler
+	// Set Goth's global logger to use this handler
 	handler := &CustomSlogHandler{logger: logger}
 	slog.SetDefault(slog.New(handler))
 
@@ -62,7 +63,7 @@ func StartJSONRPC(
 	allowUnprotectedTxs := config.JSONRPC.AllowUnprotectedTxs
 	rpcAPIArr := config.JSONRPC.API
 
-	apis := rpc.GetRPCAPIs(srvCtx, clientCtx, stream, allowUnprotectedTxs, indexer, rpcAPIArr, mempool)
+	apis := rpc.GetRPCAPIs(srvCtx, clientCtx, rpcStreams, allowUnprotectedTxs, indexer, rpcAPIArr, mempool)
 
 	for _, api := range apis {
 		if err := rpcServer.RegisterName(api.Namespace, api.Service); err != nil {
@@ -131,7 +132,7 @@ func StartJSONRPC(
 
 	srvCtx.Logger.Info("Starting JSON WebSocket server", "address", config.JSONRPC.WsAddress)
 
-	wsSrv := rpc.NewWebsocketsServer(clientCtx, logger, stream, config)
+	wsSrv := rpc.NewWebsocketsServer(clientCtx, logger, rpcStreams, config)
 	wsSrv.Start()
 	return httpSrv, nil
 }

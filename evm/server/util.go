@@ -11,7 +11,7 @@ import (
 
 	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
 
-	"github.com/cosmos/evm/server/config"
+	"github.com/osmosis-labs/osmosis/v27/evm/server/config"
 
 	"cosmossdk.io/log/v2"
 

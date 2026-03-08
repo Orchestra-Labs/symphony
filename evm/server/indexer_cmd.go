@@ -9,8 +9,9 @@ import (
 	sm "github.com/cometbft/cometbft/state"
 	cmtstore "github.com/cometbft/cometbft/store"
 
-	"github.com/cosmos/evm/indexer"
+	"github.com/osmosis-labs/osmosis/v27/evm/indexer"
 
+	loggerv2 "cosmossdk.io/log/v2"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 )
@@ -42,7 +43,7 @@ func NewIndexTxCmd() *cobra.Command {
 
 			cfg := serverCtx.Config
 			home := cfg.RootDir
-			logger := serverCtx.Logger
+			logger := loggerv2.Logger.With(loggerv2.NewNopLogger(), "module", "geth")
 			idxDB, err := OpenIndexerDB(home, server.GetAppDBBackend(serverCtx.Viper))
 			if err != nil {
 				logger.Error("failed to open evm indexer DB", "error", err.Error())

@@ -2,7 +2,6 @@ go 1.25.7
 
 use (
 	.
-	./evm
 	./osmomath
 	./osmoutils
 	./x/ibc-hooks

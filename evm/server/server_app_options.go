@@ -7,8 +7,8 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/spf13/cast"
 
-	"github.com/cosmos/evm/mempool/txpool/legacypool"
-	srvflags "github.com/cosmos/evm/server/flags"
+	"github.com/osmosis-labs/osmosis/v27/evm/mempool/txpool/legacypool"
+	srvflags "github.com/osmosis-labs/osmosis/v27/evm/server/flags"
 
 	"cosmossdk.io/log/v2"
 

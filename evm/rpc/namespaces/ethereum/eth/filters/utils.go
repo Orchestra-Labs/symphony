@@ -27,7 +27,7 @@ Logs:
 		if len(addresses) > 0 && !slices.Contains(addresses, log.Address) {
 			continue
 		}
-		// If the to filtered topics is greater than the amount of topics in logs, skip.
+		// If the two filtered topics is greater than the amount of topics in logs, skip.
 		if len(topics) > len(log.Topics) {
 			continue
 		}

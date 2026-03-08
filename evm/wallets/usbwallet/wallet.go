@@ -15,7 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	usb "github.com/zondax/hid"
 
-	"github.com/cosmos/evm/wallets/accounts"
+	"github.com/osmosis-labs/osmosis/v27/evm/wallets/accounts"
 )
 
 // Maximum time between wallet health checks to detect USB unplugs.

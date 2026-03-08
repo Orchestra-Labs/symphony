@@ -9,9 +9,9 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 
-	"github.com/cosmos/evm/ethereum/eip712"
-	"github.com/cosmos/evm/wallets/accounts"
-	"github.com/cosmos/evm/wallets/usbwallet"
+	"github.com/osmosis-labs/osmosis/v27/evm/ethereum/eip712"
+	"github.com/osmosis-labs/osmosis/v27/evm/wallets/accounts"
+	"github.com/osmosis-labs/osmosis/v27/evm/wallets/usbwallet"
 
 	sdkledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	sdk "github.com/cosmos/cosmos-sdk/types"

@@ -1,7 +1,6 @@
 package encoding
 
 import (
-	"cosmossdk.io/x/tx/signing"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"github.com/cosmos/gogoproto/proto"
@@ -11,13 +10,14 @@ import (
 	erc20types "github.com/osmosis-labs/osmosis/v27/x/erc20/types"
 	evmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
+	"cosmossdk.io/x/tx/signing"
 	"github.com/cosmos/cosmos-sdk/client"
 	amino "github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/cosmos/cosmos-sdk/x/tx/signing"
+	//"github.com/cosmos/cosmos-sdk/x/tx/signing"
 )
 
 // Config specifies the concrete encoding types to use for a given app.

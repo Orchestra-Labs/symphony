@@ -9,6 +9,7 @@ import (
 
 	"cosmossdk.io/math"
 
+	sdk2 "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

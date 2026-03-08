@@ -7,7 +7,7 @@ import (
 	transferkeeper "github.com/osmosis-labs/osmosis/v27/x/ibc/transfer/keeper"
 
 	"cosmossdk.io/core/address"
-	"cosmossdk.io/log/v2"
+	loggerv2 "cosmossdk.io/log/v2"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -59,6 +59,7 @@ func NewKeeper(
 }
 
 // Logger returns a module-specific logger.
-func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+func (k Keeper) Logger(ctx sdk.Context) loggerv2.Logger {
+	return loggerv2.NewNopLogger().With(fmt.Sprintf("x/%s", types.ModuleName))
+
 }

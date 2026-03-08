@@ -9,7 +9,7 @@ import (
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cometbft/cometbft/types"
 
-	servertypes "github.com/cosmos/evm/server/types"
+	servertypes "github.com/osmosis-labs/osmosis/v27/evm/server/types"
 )
 
 const (

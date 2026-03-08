@@ -21,8 +21,8 @@ import (
 
 	rpctypes "github.com/osmosis-labs/osmosis/v27/evm/rpc/types"
 	evmtrace "github.com/osmosis-labs/osmosis/v27/evm/trace"
-	feemarkettypes "github.com/osmosis-labs/osmosis/v27/evm/x/feemarket/types"
-	evmtypes "github.com/osmosis-labs/osmosis/v27/evm/x/vm/types"
+	feemarkettypes "github.com/osmosis-labs/osmosis/v27/x/feemarket/types"
+	evmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"

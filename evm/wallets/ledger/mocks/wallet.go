@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	accounts "github.com/cosmos/evm/wallets/accounts"
+	accounts "github.com/osmosis-labs/osmosis/v27/evm/wallets/accounts"
 	apitypes "github.com/ethereum/go-ethereum/signer/core/apitypes"
 
 	big "math/big"

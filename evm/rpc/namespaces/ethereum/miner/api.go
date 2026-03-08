@@ -2,6 +2,7 @@ package miner
 
 import (
 	"context"
+	"github.com/cosmos/cosmos-sdk/server"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -10,8 +11,7 @@ import (
 	"github.com/osmosis-labs/osmosis/v27/evm/rpc/backend"
 
 	"cosmossdk.io/log/v2"
-
-	"github.com/cosmos/cosmos-sdk/server"
+	//"github.com/cosmos/cosmos-sdk/server"
 )
 
 var tracer = otel.Tracer("evm/rpc/namespaces/ethereum/miner")
