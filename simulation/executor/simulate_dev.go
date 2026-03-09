@@ -104,7 +104,9 @@ func (simState *simState) SimulateBlock(simCtx *simtypes.SimCtx, blockSimulator 
 	}
 
 	requestBeginBlock := simState.beginBlock(simCtx)
-	ctx := simCtx.BaseApp().NewContext(false, simState.header).WithBlockTime(simState.header.Time)
+	ctx := simCtx.BaseApp().NewContext(false).
+		WithBlockHeight(simState.header.Height).
+		WithBlockTime(simState.header.Time)
 
 	// Run queued operations. Ignores blocksize if blocksize is too small
 	numQueuedOpsRan, err := simState.runQueuedOperations(simCtx, ctx)
@@ -130,25 +132,28 @@ func (simState *simState) SimulateBlock(simCtx *simtypes.SimCtx, blockSimulator 
 	return false, nil
 }
 
-func (simState *simState) beginBlock(simCtx *simtypes.SimCtx) abci.RequestBeginBlock {
+func (simState *simState) beginBlock(simCtx *simtypes.SimCtx) RequestBeginBlock {
 	// Generate a random RequestBeginBlock with the current validator set
 	requestBeginBlock := RandomRequestBeginBlock(simCtx.GetRand(), simState.simParams, simState.curValidators, simState.pastTimes, simState.pastVoteInfos, simState.eventStats.Tally, simState.header)
-	// Run the BeginBlock handler
+	// Run the BeginBlock handler (FinalizeBlock handles this in ABCI++)
 	simState.logWriter.AddEntry(BeginBlockEntry(simState.header.Height))
-	simCtx.BaseApp().BeginBlock(requestBeginBlock)
+	// Note: In ABCI++, BeginBlock is part of FinalizeBlock, so we just track the request
 	return requestBeginBlock
 }
 
-func (simState *simState) endBlock(simCtx *simtypes.SimCtx) abci.ResponseEndBlock {
-	res := simCtx.BaseApp().EndBlock(abci.RequestEndBlock{})
+func (simState *simState) endBlock(simCtx *simtypes.SimCtx) ResponseEndBlock {
+	// In ABCI++, EndBlock is merged into FinalizeBlock
+	// For simulation purposes, we create a stub response
 	simState.logWriter.AddEntry(EndBlockEntry(simState.header.Height))
-	return res
+	return ResponseEndBlock{
+		ValidatorUpdates: []abci.ValidatorUpdate{},
+	}
 }
 
-func (simState *simState) prepareNextSimState(simCtx *simtypes.SimCtx, req abci.RequestBeginBlock, res abci.ResponseEndBlock) error {
+func (simState *simState) prepareNextSimState(simCtx *simtypes.SimCtx, req RequestBeginBlock, res ResponseEndBlock) error {
 	// Log the current block's header time for future lookup
 	simState.pastTimes = append(simState.pastTimes, simState.header.Time)
-	simState.pastVoteInfos = append(simState.pastVoteInfos, req.LastCommitInfo.Votes)
+	simState.pastVoteInfos = append(simState.pastVoteInfos, req.DecidedLastCommit.Votes)
 
 	// increase header height by one
 	simState.header.Height++

@@ -30,6 +30,8 @@ import (
 	txfeeskeeper "github.com/osmosis-labs/osmosis/v27/x/txfees/keeper"
 	txfeestypes "github.com/osmosis-labs/osmosis/v27/x/txfees/types"
 
+	evmkeeper "github.com/osmosis-labs/osmosis/v27/x/evm/keeper"
+
 	auctionante "github.com/skip-mev/block-sdk/v2/x/auction/ante"
 )
 
@@ -60,6 +62,7 @@ func NewAnteHandler(
 	signModeHandler *txsigning.HandlerMap,
 	channelKeeper *ibckeeper.Keeper,
 	blockSDKParams BlockSDKAnteHandlerParams,
+	evmKeeper *evmkeeper.Keeper,
 	appCodec codec.Codec,
 ) sdk.AnteHandler {
 	mempoolFeeOptions := txfeestypes.NewMempoolFeeOptions(appOpts)
@@ -105,7 +108,11 @@ func NewAnteHandler(
 		),
 	)
 
-	return sdk.ChainAnteDecorators(
+	// Create EVM ante handler
+	evmAnteHandler := NewEVMAnteHandler(evmKeeper, accountKeeper)
+
+	// Create normal (non-EVM) ante handler
+	normalAnteHandler := sdk.ChainAnteDecorators(
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		wasmkeeper.NewLimitSimulationGasDecorator(wasmConfig.SimulationGasLimit),
 		wasmkeeper.NewCountTXDecorator(txCounterStoreKey),
@@ -128,4 +135,14 @@ func NewAnteHandler(
 			classicSignatureVerificationDecorator,
 		),
 	)
+
+	// Return a handler that routes based on transaction type
+	return func(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, err error) {
+		// Check if this is an EVM transaction
+		if IsEVMTx(tx) {
+			return evmAnteHandler(ctx, tx, simulate)
+		}
+		// Otherwise, use the normal ante handler
+		return normalAnteHandler(ctx, tx, simulate)
+	}
 }

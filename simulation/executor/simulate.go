@@ -179,7 +179,10 @@ func initChain(
 	accounts, req := initChainFn(simManager, r, accounts, config.InitializationConfig)
 	// Valid app version can only be zero on app initialization.
 	req.ConsensusParams.Version.App = 0
-	res := app.GetBaseApp().InitChain(req)
+	res, err := app.GetBaseApp().InitChain(&req)
+	if err != nil {
+		panic(err)
+	}
 	validators := newMockValidators(r, res.Validators, params)
 
 	// update config
@@ -188,7 +191,7 @@ func initChain(
 		config.InitializationConfig.InitialBlockHeight = 1
 	}
 
-	return validators, req.Time, accounts, res
+	return validators, req.Time, accounts, *res
 }
 
 //nolint:deadcode,unused

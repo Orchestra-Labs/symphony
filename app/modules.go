@@ -75,6 +75,12 @@ import (
 	"github.com/skip-mev/block-sdk/v2/x/auction"
 	auctiontypes "github.com/skip-mev/block-sdk/v2/x/auction/types"
 
+	"github.com/osmosis-labs/osmosis/v27/x/evm"
+	evmtypes "github.com/osmosis-labs/osmosis/v27/x/evm/types"
+
+	"github.com/osmosis-labs/osmosis/v27/x/bridge"
+	bridgetypes "github.com/osmosis-labs/osmosis/v27/x/bridge/types"
+
 	"github.com/osmosis-labs/osmosis/osmoutils/partialord"
 	smartaccount "github.com/osmosis-labs/osmosis/v27/x/smart-account"
 	smartaccounttypes "github.com/osmosis-labs/osmosis/v27/x/smart-account/types"
@@ -156,6 +162,8 @@ var moduleAccountPermissions = map[string][]string{
 	cosmwasmpooltypes.ModuleName:                  nil,
 	auctiontypes.ModuleName:                       nil,
 	smartaccounttypes.ModuleName:                  nil,
+	evmtypes.ModuleName:                           {authtypes.Minter, authtypes.Burner},
+	bridgetypes.ModuleName:                        {authtypes.Minter, authtypes.Burner},
 }
 
 // appModules return modules to initialize module manager.
@@ -228,6 +236,8 @@ func appModules(
 		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		auction.NewAppModule(appCodec, *app.AuctionKeeper),
 		smartaccount.NewAppModule(appCodec, *app.SmartAccountKeeper),
+		evm.NewAppModule(appCodec, *app.EVMKeeper),
+		bridge.NewAppModule(appCodec, *app.BridgeKeeper),
 	}
 }
 
