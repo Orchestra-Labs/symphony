@@ -15,7 +15,7 @@ import (
 	"github.com/osmosis-labs/osmosis/v27/evm/crypto/hd"
 	"github.com/osmosis-labs/osmosis/v27/evm/rpc/backend"
 	evmtrace "github.com/osmosis-labs/osmosis/v27/evm/trace"
-	evmtypes "github.com/osmosis-labs/osmosis/v27/evm/x/vm/types"
+	evmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	"cosmossdk.io/log/v2"
 

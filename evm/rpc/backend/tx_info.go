@@ -26,7 +26,7 @@ import (
 	servertypes "github.com/osmosis-labs/osmosis/v27/evm/server/types"
 	evmtrace "github.com/osmosis-labs/osmosis/v27/evm/trace"
 	"github.com/osmosis-labs/osmosis/v27/evm/utils"
-	evmtypes "github.com/osmosis-labs/osmosis/v27/evm/x/vm/types"
+	evmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	errorsmod "cosmossdk.io/errors"
 

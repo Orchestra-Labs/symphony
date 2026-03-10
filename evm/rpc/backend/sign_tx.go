@@ -18,7 +18,7 @@ import (
 
 	"github.com/osmosis-labs/osmosis/v27/evm/mempool"
 	evmtrace "github.com/osmosis-labs/osmosis/v27/evm/trace"
-	evmtypes "github.com/osmosis-labs/osmosis/v27/evm/x/vm/types"
+	evmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	errorsmod "cosmossdk.io/errors"
 

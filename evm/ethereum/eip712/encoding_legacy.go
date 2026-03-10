@@ -6,17 +6,18 @@ import (
 	"errors"
 	"fmt"
 
-	apitypes "github.com/ethereum/go-ethereum/signer/core/apitypes"
+	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 
 	txv1beta1 "cosmossdk.io/api/cosmos/tx/v1beta1"
 	errorsmod "cosmossdk.io/errors"
 
+	txsigning "cosmossdk.io/x/tx/signing"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	txTypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
-	txsigning "github.com/cosmos/cosmos-sdk/x/tx/signing"
-	"github.com/cosmos/cosmos-sdk/x/tx/signing/aminojson"
+
+	"cosmossdk.io/x/tx/signing/aminojson"
 )
 
 type aminoMessage struct {

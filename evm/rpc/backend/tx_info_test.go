@@ -26,7 +26,7 @@ import (
 	servertypes "github.com/osmosis-labs/osmosis/v27/evm/server/types"
 	"github.com/osmosis-labs/osmosis/v27/evm/testutil/constants"
 	utiltx "github.com/osmosis-labs/osmosis/v27/evm/testutil/tx"
-	evmtypes "github.com/osmosis-labs/osmosis/v27/evm/x/vm/types"
+	evmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"

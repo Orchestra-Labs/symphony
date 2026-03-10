@@ -7,7 +7,6 @@ import (
 
 	evmmempool "github.com/osmosis-labs/osmosis/v27/evm/mempool"
 	"github.com/osmosis-labs/osmosis/v27/evm/rpc/backend"
-	"github.com/osmosis-labs/osmosis/v27/evm/rpc/namespaces/ethereum/debug"
 	"github.com/osmosis-labs/osmosis/v27/evm/rpc/namespaces/ethereum/eth"
 	"github.com/osmosis-labs/osmosis/v27/evm/rpc/namespaces/ethereum/eth/filters"
 	"github.com/osmosis-labs/osmosis/v27/evm/rpc/namespaces/ethereum/miner"
@@ -63,18 +62,18 @@ func init() {
 			indexer servertypes.EVMTxIndexer,
 			mempool *evmmempool.ExperimentalEVMMempool,
 		) []rpc.API {
-			evmBackend := backend.NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, indexer, mempool)
+			evmBackend := backend.NewBackend(ctx, nil, clientCtx, allowUnprotectedTxs, indexer, mempool)
 			return []rpc.API{
 				{
 					Namespace: EthNamespace,
 					Version:   apiVersion,
-					Service:   eth.NewPublicAPI(ctx.Logger, evmBackend),
+					Service:   eth.NewPublicAPI(nil, evmBackend),
 					Public:    true,
 				},
 				{
 					Namespace: EthNamespace,
 					Version:   apiVersion,
-					Service:   filters.NewPublicAPI(ctx.Logger, clientCtx, stream, evmBackend),
+					Service:   filters.NewPublicAPI(nil, clientCtx, stream, evmBackend),
 					Public:    true,
 				},
 			}
@@ -106,12 +105,12 @@ func init() {
 			indexer servertypes.EVMTxIndexer,
 			mempool *evmmempool.ExperimentalEVMMempool,
 		) []rpc.API {
-			evmBackend := backend.NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, indexer, mempool)
+			evmBackend := backend.NewBackend(ctx, nil, clientCtx, allowUnprotectedTxs, indexer, mempool)
 			return []rpc.API{
 				{
 					Namespace: PersonalNamespace,
 					Version:   apiVersion,
-					Service:   personal.NewAPI(ctx.Logger, evmBackend),
+					Service:   personal.NewAPI(nil, evmBackend),
 					Public:    false,
 				},
 			}
@@ -123,12 +122,12 @@ func init() {
 			indexer servertypes.EVMTxIndexer,
 			mempool *evmmempool.ExperimentalEVMMempool,
 		) []rpc.API {
-			evmBackend := backend.NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, indexer, mempool)
+			evmBackend := backend.NewBackend(ctx, nil, clientCtx, allowUnprotectedTxs, indexer, mempool)
 			return []rpc.API{
 				{
 					Namespace: TxPoolNamespace,
 					Version:   apiVersion,
-					Service:   txpool.NewPublicAPI(ctx.Logger, evmBackend),
+					Service:   txpool.NewPublicAPI(nil, evmBackend),
 					Public:    true,
 				},
 			}
@@ -140,12 +139,11 @@ func init() {
 			indexer servertypes.EVMTxIndexer,
 			mempool *evmmempool.ExperimentalEVMMempool,
 		) []rpc.API {
-			evmBackend := backend.NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, indexer, mempool)
 			return []rpc.API{
 				{
 					Namespace: DebugNamespace,
 					Version:   apiVersion,
-					Service:   debug.NewAPI(ctx, evmBackend, evmBackend.GetConfig().JSONRPC.EnableProfiling),
+					Service:   nil,
 					Public:    true,
 				},
 			}
@@ -157,7 +155,7 @@ func init() {
 			indexer servertypes.EVMTxIndexer,
 			mempool *evmmempool.ExperimentalEVMMempool,
 		) []rpc.API {
-			evmBackend := backend.NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, indexer, mempool)
+			evmBackend := backend.NewBackend(ctx, nil, clientCtx, allowUnprotectedTxs, indexer, mempool)
 			return []rpc.API{
 				{
 					Namespace: MinerNamespace,

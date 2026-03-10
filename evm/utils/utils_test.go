@@ -17,8 +17,8 @@ import (
 	"github.com/osmosis-labs/osmosis/v27/evm/rpc/types"
 	"github.com/osmosis-labs/osmosis/v27/evm/testutil/constants"
 	"github.com/osmosis-labs/osmosis/v27/evm/utils"
-	feemarkettypes "github.com/osmosis-labs/osmosis/v27/evm/x/feemarket/types"
-	evmtypes "github.com/osmosis-labs/osmosis/v27/evm/x/vm/types"
+	feemarkettypes "github.com/osmosis-labs/osmosis/v27/x/feemarket/types"
+	evmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	sdkmath "cosmossdk.io/math"
 

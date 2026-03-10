@@ -15,7 +15,7 @@ import (
 
 	"github.com/osmosis-labs/osmosis/v27/evm/rpc/types"
 	"github.com/osmosis-labs/osmosis/v27/evm/utils"
-	evmtypes "github.com/osmosis-labs/osmosis/v27/evm/x/vm/types"
+	evmtypes "github.com/osmosis-labs/osmosis/v27/x/vm/types"
 
 	"cosmossdk.io/log/v2"
 
