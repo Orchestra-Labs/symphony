@@ -1,0 +1,168 @@
+package filters
+
+import (
+	"context"
+	"errors"
+	"math/big"
+	"testing"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/eth/filters"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+
+	cmtrpctypes "github.com/cometbft/cometbft/rpc/core/types"
+	comettypes "github.com/cometbft/cometbft/types"
+
+	filtermocks "github.com/osmosis-labs/osmosis/v27/evm/rpc/namespaces/ethereum/eth/filters/mocks"
+	rpctypes "github.com/osmosis-labs/osmosis/v27/evm/rpc/types"
+
+	"cosmossdk.io/log/v2"
+)
+
+func TestLogs(t *testing.T) {
+	blockHeight := int64(100)
+	fakeHeader := &ethtypes.Header{Number: big.NewInt(blockHeight)}
+	fakeBlockRes := &cmtrpctypes.ResultBlockResults{Height: blockHeight}
+	fakeBloom := ethtypes.Bloom{}
+	blockHash := common.HexToHash("0xabc")
+	fakeBlock := &cmtrpctypes.ResultBlock{Block: &comettypes.Block{Header: comettypes.Header{Height: blockHeight}}}
+
+	tests := []struct {
+		name      string
+		errorStep string
+		prepare   func() *filtermocks.Backend
+		criteria  filters.FilterCriteria
+		expectErr bool
+		expectMsg string
+	}{
+		{
+			name:      "HeaderByNumber returns error",
+			errorStep: "HeaderByNumber",
+			prepare: func() *filtermocks.Backend {
+				backend := &filtermocks.Backend{}
+				backend.EXPECT().HeaderByNumber(mock.Anything, mock.Anything).Return((*ethtypes.Header)(nil), errors.New("header error"))
+				return backend
+			},
+			criteria: filters.FilterCriteria{
+				FromBlock: big.NewInt(blockHeight),
+				ToBlock:   big.NewInt(blockHeight),
+			},
+			expectErr: true,
+			expectMsg: "header error",
+		},
+		{
+			name:      "CometBlockResultByNumber returns error",
+			errorStep: "CometBlockResultByNumber",
+			prepare: func() *filtermocks.Backend {
+				backend := &filtermocks.Backend{}
+				backend.EXPECT().HeaderByNumber(mock.Anything, mock.Anything).Return(fakeHeader, nil)
+				backend.EXPECT().CometBlockResultByNumber(mock.Anything, &blockHeight).Return((*cmtrpctypes.ResultBlockResults)(nil), errors.New("block result error"))
+				return backend
+			},
+			criteria: filters.FilterCriteria{
+				FromBlock: big.NewInt(blockHeight),
+				ToBlock:   big.NewInt(blockHeight),
+			},
+			expectErr: true,
+			expectMsg: "block result error",
+		},
+		{
+			name:      "BlockBloom returns error",
+			errorStep: "BlockBloom",
+			prepare: func() *filtermocks.Backend {
+				backend := &filtermocks.Backend{}
+				backend.EXPECT().HeaderByNumber(mock.Anything, mock.Anything).Return(fakeHeader, nil)
+				backend.EXPECT().CometBlockResultByNumber(mock.Anything, &blockHeight).Return(fakeBlockRes, nil)
+				backend.EXPECT().BlockBloomFromCometBlock(mock.Anything, fakeBlockRes).Return(ethtypes.Bloom{}, errors.New("bloom error"))
+				return backend
+			},
+			criteria: filters.FilterCriteria{
+				FromBlock: big.NewInt(blockHeight),
+				ToBlock:   big.NewInt(blockHeight),
+			},
+			expectErr: true,
+			expectMsg: "bloom error",
+		},
+		{
+			name:      "Single block by BlockHash",
+			errorStep: "none",
+			prepare: func() *filtermocks.Backend {
+				backend := &filtermocks.Backend{}
+				backend.EXPECT().CometBlockByHash(mock.Anything, blockHash).Return(fakeBlock, nil)
+				backend.EXPECT().CometBlockResultByNumber(mock.Anything, &blockHeight).Return(fakeBlockRes, nil)
+				backend.EXPECT().BlockBloomFromCometBlock(mock.Anything, fakeBlockRes).Return(fakeBloom, nil)
+				return backend
+			},
+			criteria: filters.FilterCriteria{
+				BlockHash: &blockHash,
+			},
+			expectErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			logger := log.NewNopLogger()
+			backend := tt.prepare()
+
+			var filter *Filter
+			if tt.criteria.BlockHash != nil && *tt.criteria.BlockHash != (common.Hash{}) {
+				filter = NewBlockFilter(logger, backend, tt.criteria)
+			} else {
+				filter = NewRangeFilter(logger, backend, blockHeight, blockHeight, nil, nil)
+			}
+
+			logs, err := filter.Logs(context.Background(), 1000, 100)
+			if tt.expectErr {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tt.expectMsg)
+				require.Nil(t, logs)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, logs)
+			}
+
+			backend.AssertExpectations(t)
+		})
+	}
+}
+
+func TestFilter(t *testing.T) {
+	logger := log.NewNopLogger()
+	testCases := []struct {
+		name         string
+		filter       filters.FilterCriteria
+		expectations func(b *filtermocks.Backend)
+		expLogs      []*ethtypes.Log
+		expErr       string
+	}{
+		{
+			name:   "invalid block range returns error",
+			filter: filters.FilterCriteria{FromBlock: big.NewInt(100), ToBlock: big.NewInt(110)},
+			expectations: func(b *filtermocks.Backend) {
+				b.EXPECT().HeaderByNumber(mock.Anything, rpctypes.EthLatestBlockNumber).Return(&ethtypes.Header{Number: big.NewInt(5)}, nil)
+			},
+			expErr: "invalid block range params",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			backend := filtermocks.NewBackend(t)
+			f := newFilter(logger, backend, tc.filter, nil)
+			tc.expectations(backend)
+			logs, err := f.Logs(context.Background(), 15, 50)
+			if tc.expErr != "" {
+				require.ErrorContains(t, err, tc.expErr)
+			} else {
+				require.NoError(t, err)
+			}
+
+			if tc.expLogs != nil {
+				require.Equal(t, tc.expLogs, logs)
+			}
+		})
+	}
+}

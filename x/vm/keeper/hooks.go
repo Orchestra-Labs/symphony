@@ -1,0 +1,45 @@
+package keeper
+
+import (
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+
+	evmtrace "github.com/osmosis-labs/osmosis/v27/evm/trace"
+	"github.com/osmosis-labs/osmosis/v27/x/vm/types"
+
+	errorsmod "cosmossdk.io/errors"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// Event Hooks
+// These can be utilized to customize evm transaction processing.
+
+var _ types.EvmHooks = MultiEvmHooks{}
+
+// MultiEvmHooks combine multiple evm hooks, all hook functions are run in array sequence
+type MultiEvmHooks []types.EvmHooks
+
+// NewMultiEvmHooks combine multiple evm hooks
+func NewMultiEvmHooks(hooks ...types.EvmHooks) MultiEvmHooks {
+	return hooks
+}
+
+// PostTxProcessing delegate the call to underlying hooks
+func (mh MultiEvmHooks) PostTxProcessing(ctx sdk.Context, sender common.Address, msg core.Message, receipt *ethtypes.Receipt) (err error) {
+	ctx, span := ctx.StartSpan(tracer, "MultiEVMHooks.PostTxProcessing", trace.WithAttributes(
+		attribute.String("sender", sender.Hex()),
+		attribute.String("tx_hash", receipt.TxHash.Hex()),
+		attribute.Int("hooks_count", len(mh)),
+	))
+	defer func() { evmtrace.EndSpanErr(span, err) }()
+	for i := range mh {
+		if err := mh[i].PostTxProcessing(ctx, sender, msg, receipt); err != nil {
+			return errorsmod.Wrapf(err, "EVM hook %T failed", mh[i])
+		}
+	}
+	return nil
+}

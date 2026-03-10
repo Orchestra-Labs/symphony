@@ -1,6 +1,4 @@
-go 1.23.0
-
-toolchain go1.24.1
+go 1.25.7
 
 use (
 	.
@@ -14,3 +12,5 @@ replace github.com/onsi/ginkgo => github.com/onsi/ginkgo v1.16.5
 replace cosmossdk.io/store => github.com/osmosis-labs/cosmos-sdk/store v1.1.1-v0.50.11-v28-osmo-2
 
 replace github.com/cometbft/cometbft => github.com/osmosis-labs/cometbft v0.38.17-v28-osmo-1
+
+replace github.com/cosmos/cosmos-sdk => github.com/Orchestra-Labs/symphony-cosmos-sdk v0.50.6-v26-osmo-2-symphony-3
