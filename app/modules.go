@@ -140,7 +140,6 @@ var moduleAccountPermissions = map[string][]string{
 	lockuptypes.ModuleName:                        {authtypes.Minter, authtypes.Burner},
 	poolincentivestypes.ModuleName:                nil,
 	stablestakingincentivestypes.ModuleName:       nil,
-	superfluidtypes.ModuleName:                    {authtypes.Minter, authtypes.Burner},
 	txfeestypes.ModuleName:                        nil,
 	txfeestypes.NonNativeTxFeeCollectorName:       nil,
 	wasmtypes.ModuleName:                          {authtypes.Burner},
@@ -208,16 +207,6 @@ func appModules(
 		stablestakingincentives.NewAppModule(*app.StableStakingIncentivesKeeper),
 		stablestaking.NewAppModule(*app.StableStakingKeeper, app.AccountKeeper, app.BankKeeper, app.OracleKeeper),
 		epochs.NewAppModule(*app.EpochsKeeper),
-		superfluid.NewAppModule(
-			*app.SuperfluidKeeper,
-			app.AccountKeeper,
-			app.BankKeeper,
-			app.StakingKeeper,
-			app.LockupKeeper,
-			app.GAMMKeeper,
-			app.EpochsKeeper,
-			app.ConcentratedLiquidityKeeper,
-		),
 		tokenfactory.NewAppModule(*app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
 		valsetprefmodule.NewAppModule(appCodec, *app.ValidatorSetPreferenceKeeper),
 		ibcratelimitmodule.NewAppModule(*app.RateLimitingICS4Wrapper),
@@ -246,12 +235,10 @@ func orderBeginBlockers(allModuleNames []string) []string {
 	// TODO: Perhaps this can be relaxed, left to future work to analyze.
 	ord.Sequence(distrtypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName, stakingtypes.ModuleName)
 	// superfluid must come after distribution & epochs.
-	// TODO: we actually set it to come after staking, since that's what happened before, and want to minimize chance of break.
-	ord.After(superfluidtypes.ModuleName, stakingtypes.ModuleName)
 	// TODO: This can almost certainly be un-constrained, but we keep the constraint to match prior functionality.
 	// IBChost came after staking, before superfluid.
 	// TODO: Come back and delete this line after testing the base change.
-	ord.Sequence(stakingtypes.ModuleName, ibchost.ModuleName, superfluidtypes.ModuleName)
+	ord.Sequence(stakingtypes.ModuleName, ibchost.ModuleName)
 	// We leave downtime-detector un-constrained.
 	// every remaining module's begin block is a no-op.
 	return ord.TotalOrdering()
@@ -308,7 +295,6 @@ func OrderInitGenesis(allModuleNames []string) []string {
 		consensusparamtypes.ModuleName,
 		poolincentivestypes.ModuleName,
 		stablestakingincentivestypes.ModuleName,
-		superfluidtypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		valsetpreftypes.ModuleName,
 		incentivestypes.ModuleName,

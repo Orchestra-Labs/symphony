@@ -95,6 +95,8 @@ import (
 	smartaccountkeeper "github.com/osmosis-labs/osmosis/v27/x/smart-account/keeper"
 	smartaccounttypes "github.com/osmosis-labs/osmosis/v27/x/smart-account/types"
 
+	evmkeeper "github.com/cosmos/evm/x/vm/keeper"
+	_ "github.com/cosmos/evm/x/vm/types"
 	_ "github.com/osmosis-labs/osmosis/v27/client/docs/statik"
 	owasm "github.com/osmosis-labs/osmosis/v27/wasmbinding"
 	concentratedliquidity "github.com/osmosis-labs/osmosis/v27/x/concentrated-liquidity"
@@ -125,7 +127,6 @@ import (
 	txfeestypes "github.com/osmosis-labs/osmosis/v27/x/txfees/types"
 	valsetpref "github.com/osmosis-labs/osmosis/v27/x/valset-pref"
 	valsetpreftypes "github.com/osmosis-labs/osmosis/v27/x/valset-pref/types"
-
 	auctionkeeper "github.com/skip-mev/block-sdk/v2/x/auction/keeper"
 	auctiontypes "github.com/skip-mev/block-sdk/v2/x/auction/types"
 
@@ -211,6 +212,9 @@ type AppKeepers struct {
 	keys    map[string]*storetypes.KVStoreKey
 	tkeys   map[string]*storetypes.TransientStoreKey
 	memKeys map[string]*storetypes.MemoryStoreKey
+
+	// emv
+	EVMKeeper *evmkeeper.Keeper
 }
 
 // InitNormalKeepers initializes all 'normal' keepers (account, app, bank, auth, staking, distribution, slashing, transfer, gamm, IBC router, pool incentives, governance, mint, txfees keepers).
@@ -869,6 +873,41 @@ func (appKeepers *AppKeepers) InitSpecialKeepers(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	appKeepers.UpgradeKeeper = upgradeKeeper
+
+	// Set up EVM keeper
+	//tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
+
+	// NOTE: it's required to set up the EVM keeper before the ERC-20 keeper, because it is used in its instantiation.
+	appKeepers.EVMKeeper = evmkeeper.NewKeeper(
+		// TODO: check why this is not adjusted to use the runtime module methods like SDK native keepers
+		appCodec, appKeepers.keys[evmtypes.StoreKey], oKeys[evmtypes.o], nonTransientKeys,
+		authtypes.NewModuleAddress(govtypes.ModuleName),
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.StakingKeeper,
+		appKeepers.FeeMarketKeeper,
+		&appKeepers.ConsensusParamsKeeper,
+		&appKeepers.Erc20Keeper,
+		evmChainID,
+		tracer,
+	)
+	).WithStaticPrecompiles(
+		precompiletypes.DefaultStaticPrecompiles(
+			*app.StakingKeeper,
+			app.DistrKeeper,
+			app.BankKeeper,
+			&app.Erc20Keeper,
+			app.TransferKeeper,
+			app.IBCKeeper.ChannelKeeper,
+			app.IBCKeeper.ClientKeeper,
+			app.GovKeeper,
+			app.SlashingKeeper,
+			appCodec,
+		),
+	)
+
+	// enable virtual fee collection
+	// appKeepers.EVMKeeper.EnableVirtualFeeCollection()
 }
 
 // initParamsKeeper init params keeper and its subspaces.

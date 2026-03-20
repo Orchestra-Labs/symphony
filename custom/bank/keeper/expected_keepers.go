@@ -9,4 +9,5 @@ import (
 // creating a x/bank keeper.
 type AccountKeeper interface {
 	GetModuleAccount(ctx context.Context, moduleName string) sdk.ModuleAccountI
+	GetModuleAddress(moduleName string) sdk.AccAddress
 }
